@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "edmc-rscan"
-version = "1.2.0"
+version = "1.0.0"
 description = "edmc plugin for finding systems registered in edsm that require updating"
 authors = ["Jacek Kotlarski <szumak@virthost.pl>"]
 license = "MIT"
