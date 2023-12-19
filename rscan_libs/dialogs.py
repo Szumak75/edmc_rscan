@@ -55,14 +55,12 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
 
         # witgets declaration
         self._data[DialogKeys.WIDGETS] = {}
-        self._data[DialogKeys.WIDGETS][DialogKeys.STATUS]: Optional[tk.StringVar] = None
-        self._data[DialogKeys.WIDGETS][DialogKeys.FDATA]: Optional[tk.LabelFrame] = None
-        self._data[DialogKeys.WIDGETS][DialogKeys.SYSTEM]: Optional[tk.Entry] = None
-        self._data[DialogKeys.WIDGETS][DialogKeys.RADIUS]: Optional[tk.Entry] = None
-        self._data[DialogKeys.WIDGETS][DialogKeys.SBUTTON]: Optional[tk.Button] = None
-        self._data[DialogKeys.WIDGETS][DialogKeys.SPANEL]: Optional[
-            VerticalScrolledFrame
-        ] = None
+        self._data[DialogKeys.WIDGETS][DialogKeys.STATUS] = None
+        self._data[DialogKeys.WIDGETS][DialogKeys.FDATA] = None
+        self._data[DialogKeys.WIDGETS][DialogKeys.SYSTEM] = None
+        self._data[DialogKeys.WIDGETS][DialogKeys.RADIUS] = None
+        self._data[DialogKeys.WIDGETS][DialogKeys.SBUTTON] = None
+        self._data[DialogKeys.WIDGETS][DialogKeys.SPANEL] = None
 
         # init log subsystem
         if isinstance(log_queue, Queue):
@@ -411,6 +409,8 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
     @property
     def status(self) -> Optional[tk.StringVar]:
         """Return status object."""
+        if self._data[DialogKeys.WIDGETS][DialogKeys.STATUS] is None:
+            return tk.StringVar()
         return self._data[DialogKeys.WIDGETS][DialogKeys.STATUS]
 
     @status.setter
