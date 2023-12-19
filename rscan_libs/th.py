@@ -31,6 +31,7 @@ class ThSystemSearch(Thread, ThBaseObject, BLogClient):
     __start_system = None
     __radius = None
     __found = None
+    __parent = None
 
     def __init__(
         self,
