@@ -22,6 +22,7 @@ class _Keys(object, metaclass=ReadOnlyClass):
     POS_X = "__x__"
     POS_Y = "__y__"
     POS_Z = "__z__"
+    DATA = "__data_container__"
 
 
 class StarsSystem(BData):
@@ -59,13 +60,13 @@ class StarsSystem(BData):
             self.pos_y = data["coords"].get("y", self.pos_y)
             self.pos_z = data["coords"].get("z", self.pos_z)
         if "bodyCount" in data:
-            self._data["bodycount"] = data["bodyCount"]
+            self.data["bodycount"] = data["bodyCount"]
         if "coordsLocked" in data:
-            self._data["coordslocked"] = data["coordsLocked"]
+            self.data["coordslocked"] = data["coordsLocked"]
         if "requirePermit" in data:
-            self._data["requirepermit"] = data["requirePermit"]
+            self.data["requirepermit"] = data["requirePermit"]
         if "distance" in data:
-            self._data["distance"] = data["distance"]
+            self.data["distance"] = data["distance"]
 
     @property
     def address(self) -> Optional[int]:
@@ -195,14 +196,37 @@ class StarsSystem(BData):
     @property
     def star_class(self) -> str:
         """Give me star class string."""
-        if "StarClass" in self._data:
-            return self._data["StarClass"]
+        if "StarClass" in self.data:
+            return self.data["StarClass"]
         return ""
 
     @star_class.setter
     def star_class(self, value: str) -> None:
         """Set StarClass string."""
-        self._data["StarClass"] = value
+        self.data["StarClass"] = value
+
+    @property
+    def data(self) -> Dict:
+        """Return data container.
+
+        This is dictionary object for storing various elements.
+        """
+        if _Keys.DATA not in self._data:
+            self._data[_Keys.DATA] = {}
+        return self._data[_Keys.DATA]
+
+    @data.setter
+    def data(self, value: Optional[Dict]):
+        if value is None:
+            self._data[_Keys.DATA] = {}
+        if not isinstance(value, Dict):
+            raise Raise.error(
+                f"Type of data containet is dict, '{type(value)}' received, cannot proceed.",
+                ValueError,
+                self._c_name,
+                currentframe(),
+            )
+        self._data[_Keys.DATA] = value
 
 
 # #[EOF]#######################################################################
