@@ -255,7 +255,7 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
         )
         obj.radius = radius
         # initializing start system for search engine
-        if self._data[DialogKeys.START] is None:
+        if DialogKeys.START not in self._data or self._data[DialogKeys.START] is None:
             self._data[DialogKeys.START] = StarsSystem(name=system)
         if self._data[DialogKeys.START].name != system:
             self._data[DialogKeys.START].name = None
