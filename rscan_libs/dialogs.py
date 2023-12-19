@@ -407,7 +407,7 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
         return self._data[DialogKeys.CLOSED]
 
     @property
-    def status(self) -> Optional[tk.StringVar]:
+    def status(self) -> tk.StringVar:
         """Return status object."""
         if self._data[DialogKeys.WIDGETS][DialogKeys.STATUS] is None:
             return tk.StringVar()
