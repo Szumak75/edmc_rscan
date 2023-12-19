@@ -101,7 +101,7 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
         self._data[DialogKeys.STARS] = []
 
         if self._data[DialogKeys.RDATA].starsystem.name is not None:
-            self.__start = self._data[DialogKeys.RDATA].starsystem
+            self._data[DialogKeys.START] = self._data[DialogKeys.RDATA].starsystem
 
         # starting worker th
         self._data[DialogKeys.QTH] = Queue()
@@ -255,12 +255,12 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
         )
         obj.radius = radius
         # initializing start system for search engine
-        if self.__start is None:
-            self.__start = StarsSystem(name=system)
-        if self.__start.name != system:
-            self.__start.name = None
-            self.__start.name = system
-        obj.start_system = self.__start
+        if self._data[DialogKeys.START] is None:
+            self._data[DialogKeys.START] = StarsSystem(name=system)
+        if self._data[DialogKeys.START].name != system:
+            self._data[DialogKeys.START].name = None
+            self._data[DialogKeys.START].name = system
+        obj.start_system = self._data[DialogKeys.START]
 
         # put it into queue
         self._data[DialogKeys.QTH].put(obj)
