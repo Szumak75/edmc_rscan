@@ -26,15 +26,11 @@ from rscan_libs.tools import AlgGeneticGPT, AlgTsp, Url
 class ThSystemSearch(Thread, ThBaseObject, BLogClient):
     """Thread system search engine."""
 
-    __slots__ = [
-        "__parent",
-        "__data",
-        "__math",
-        "__stop_event",
-        "__start_system",
-        "__radius",
-        "__found",
-    ]
+    __data = None
+    __math = None
+    __start_system = None
+    __radius = None
+    __found = None
 
     def __init__(
         self,
@@ -45,7 +41,7 @@ class ThSystemSearch(Thread, ThBaseObject, BLogClient):
     ) -> None:
         """Create object instance of class."""
         Thread.__init__(self, name=self._c_name)
-        self.__stop_event = Event()
+        self._stop_event = Event()
         # init log subsystem
         if isinstance(log_queue, Queue):
             self.logger = LogClient(log_queue)
