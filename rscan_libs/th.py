@@ -128,7 +128,6 @@ class ThSystemSearch(Thread, ThBaseObject, BLogClient):
         if message != "":
             message = f": {message}"
         self.logger.debug = f"{pname}->{cname}.{mname}{message}"
-        currentframe()
 
     def status(self, message: Any) -> None:
         """Write message to status bar."""
@@ -137,13 +136,13 @@ class ThSystemSearch(Thread, ThBaseObject, BLogClient):
     @property
     def stopped(self) -> bool:
         """Get stop event flag."""
-        return self.__stop_event.isSet()
+        return self._stop_event.isSet()
 
     def stop(self) -> None:
         """Set stop event."""
         if not self.stopped:
             self.debug(currentframe(), "Stopping event is set now.")
-            self.__stop_event.set()
+            self._stop_event.set()
 
     @property
     def get_result(self) -> List:
@@ -222,7 +221,7 @@ class ThSystemSearch(Thread, ThBaseObject, BLogClient):
     def __buils_radius_systems_list(self, systems: list) -> Optional[List]:
         """Build filtered systems list from EDSM API output."""
         out = []
-        out_body = []
+        # out_body = []
         systems_count = len(systems)
         cur_count = 0
         count = 0
