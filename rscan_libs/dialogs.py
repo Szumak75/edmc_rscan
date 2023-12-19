@@ -32,6 +32,13 @@ from rscan_libs.dialogs_helper import DialogKeys
 class EdrsScanDialog(tk.Toplevel, BLogClient):
     """Create new  window."""
 
+    _w = None
+    widgetName = None
+    master = None
+    tk = None
+    _name = None
+    children = None
+
     def __init__(
         self,
         log_queue: Queue,
