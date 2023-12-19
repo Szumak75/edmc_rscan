@@ -13,6 +13,7 @@ from typing import Any, Dict, List, Optional, Union
 from types import FrameType
 
 from jsktoolbox.raisetool import Raise
+from jsktoolbox.libs.base_th import ThBaseObject
 
 from rscan_libs.cartesianmath import Euclid
 from rscan_libs.data import RscanData
@@ -22,7 +23,7 @@ from rscan_libs.system import LogClient
 from rscan_libs.tools import AlgGeneticGPT, AlgTsp, Url
 
 
-class ThSystemSearch(Thread, BLogClient):
+class ThSystemSearch(Thread, ThBaseObject, BLogClient):
     """Thread system search engine."""
 
     __slots__ = [
