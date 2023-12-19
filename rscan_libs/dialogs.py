@@ -197,6 +197,9 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
         status.pack(side=tk.LEFT)
         self._data[DialogKeys.WIDGETS][DialogKeys.STATUS] = status_string
 
+        # init flags
+        self._data[DialogKeys.CLOSED] = False
+
         # closing event
         self.protocol("WM_DELETE_WINDOW", self.__on_closing)
 
