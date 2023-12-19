@@ -467,16 +467,16 @@ class EdrsDialog(BLogClient):
 
     def button(self):
         """Give me the button for main application frame."""
-        if self.__button is None:
-            self.__button = ttk.Button(
+        if DialogKeys.BUTTON not in self._data or self._data[DialogKeys.BUTTON] is None:
+            self._data[DialogKeys.BUTTON] = ttk.Button(
                 self._data[DialogKeys.PARENT],
                 text="Scanner",
                 command=self.__bt_callback,
                 default=tk.ACTIVE,
                 # state=tk.DISABLED
             )
-            self.__button.grid(sticky=tk.NSEW)
-        return self.__button
+            self._data[DialogKeys.BUTTON].grid(sticky=tk.NSEW)
+        return self._data[DialogKeys.BUTTON]
 
     def dialog_update(self) -> None:
         """Do update for windows."""
