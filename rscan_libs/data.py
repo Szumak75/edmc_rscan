@@ -20,14 +20,14 @@ from rscan_libs.stars import StarsSystem
 class _Keys(object, metaclass=ReadOnlyClass):
     """Keys container class."""
 
-    RDATA = "__rdata__"
     CMDR = "_cmdr_"
-    PLUGINNAME = "_pluginname_"
-    VERSION = "_version_"
     JUMPRANGE = "_jumprange_"
-    STARSYSTEM = "_starsystem_"
     JUMPSYSTEM = "_jumpsystem_"
+    PLUGINNAME = "_pluginname_"
+    RDATA = "__rdata__"
     SHUTDOWN = "_shutdown_"
+    STARSYSTEM = "_starsystem_"
+    VERSION = "_version_"
 
 
 class RscanData(BData):

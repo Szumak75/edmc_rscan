@@ -38,8 +38,8 @@ class Url(BData):
     """
 
     __options = None
-    __systems_url = None
     __system_url = None
+    __systems_url = None
 
     def __init__(self) -> None:
         """Create Url helper object."""
@@ -200,12 +200,12 @@ class Numbers(BClasses):
 class AlgTsp(IAlg, BLogClient):
     """Travelling salesman problem."""
 
-    __pluginname = None
-    __math = None
     __data = None
-    __tmp = None
-    __jumprange = None
     __final = None
+    __jumprange = None
+    __math = None
+    __pluginname = None
+    __tmp = None
 
     def __init__(
         self,
@@ -370,13 +370,13 @@ class AlgTsp(IAlg, BLogClient):
 class AlgGenetic(IAlg, BLogClient):
     """Genetic algorithm solving the problem of finding the best path."""
 
-    __pluginname = None
-    __math = None
-    __data = None
-    __tmp = None
-    __jumprange = None
-    __final = None
     __count = None
+    __data = None
+    __final = None
+    __jumprange = None
+    __math = None
+    __pluginname = None
+    __tmp = None
 
     def __init__(
         self,
@@ -603,17 +603,16 @@ class AlgGenetic(IAlg, BLogClient):
 class AlgGeneticGPT(IAlg, BLogClient):
     """Genetic algorithm solving the problem of finding the best path."""
 
-    __pluginname = None
-    __math = None
-    __final = None
-
-    __points = None
-    __start_point = None
-    __max_distance = None
-    __population_size = None
-    __generations = None
-    __mutation_rate = None
     __crossover_rate = None
+    __final = None
+    __generations = None
+    __math = None
+    __max_distance = None
+    __mutation_rate = None
+    __pluginname = None
+    __points = None
+    __population_size = None
+    __start_point = None
 
     def __init__(
         self,

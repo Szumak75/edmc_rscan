@@ -27,11 +27,11 @@ class ThSystemSearch(Thread, ThBaseObject, BLogClient):
     """Thread system search engine."""
 
     __data = None
-    __math = None
-    __start_system = None
-    __radius = None
     __found = None
+    __math = None
     __parent = None
+    __radius = None
+    __start_system = None
 
     def __init__(
         self,

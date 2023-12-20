@@ -28,28 +28,24 @@ from jsktoolbox.attribtool import ReadOnlyClass
 class _Keys(object, metaclass=ReadOnlyClass):
     """Keys container class."""
 
-    COPY = "_copy_"
-    PASTE = "_paste_"
-
-    WINDOWS = "Windows"
-    DARWIN = "Darwin"
-    LINUX = "Linux"
-    NT = "nt"
-    MAC = "mac"
-    POSIX = "posix"
     BIT32 = "32-bit"
     BIT64 = "64-bit"
-    X86_64 = "x86_64"
-
+    COPY = "_copy_"
+    DARWIN = "Darwin"
     DIR = "__dir__"
-
-    HOME = "__home__"
-    TMP = "__tmp__"
-
-    NAME = "__name__"
     ENGINE = "__engine__"
+    HOME = "__home__"
+    LINUX = "Linux"
     LOGLVL = "__lvl__"
+    MAC = "mac"
+    NAME = "__name__"
+    NT = "nt"
+    PASTE = "_paste_"
+    POSIX = "posix"
     QUEUE = "__quq__"
+    TMP = "__tmp__"
+    WINDOWS = "Windows"
+    X86_64 = "x86_64"
 
 
 class Clip(BData):
