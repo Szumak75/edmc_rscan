@@ -6,32 +6,27 @@
   Purpose: tools classes.
 """
 
-
 import copy
+import inspect
 import json
 import random
-import requests
-
-from inspect import currentframe
 from itertools import permutations
 from operator import itemgetter
-from queue import Queue
+from queue import Queue, SimpleQueue
 from sys import maxsize
-from typing import Dict, Optional, List, Tuple
-from types import FrameType
+from typing import Dict, Optional, List, Tuple, Union
+from attribtool.ndattrib import NoDynamicAttributes
+from raisetool.formatter import Raise
 
-from jsktoolbox.raisetool import Raise
-from jsktoolbox.libs.base_data import BData, BClasses
-
-
+import requests
 from rscan_libs.cartesianmath import Euclid
-from rscan_libs.interfaces import IAlg
-from rscan_libs.base_logs import BLogClient
+from rscan_libs.interfaces import Ialg
+from rscan_libs.mlog import MLogClient
 from rscan_libs.stars import StarsSystem
 from rscan_libs.system import LogClient
 
 
-class Url(BData):
+class Url(NoDynamicAttributes):
     """Url.
 
     Class for serving HTTP/HTTPS requests.
@@ -41,7 +36,7 @@ class Url(BData):
     __systems_url = None
     __system_url = None
 
-    def __init__(self) -> None:
+    def __init__(self):
         """Create Url helper object."""
         self.__options = {
             "showId": 1,
@@ -65,11 +60,10 @@ class Url(BData):
     def bodies_url(self, ssystem: StarsSystem) -> str:
         """Return proper API url for getting bodies information data."""
         if not isinstance(ssystem, StarsSystem):
-            raise Raise.error(
+            raise Raise.type_error(
+                self.__class__.__name__,
+                inspect.currentframe(),
                 f"StarsSystem type expected, '{type(ssystem)}' received",
-                TypeError,
-                self._c_name,
-                currentframe(),
             )
 
         if ssystem.address:
@@ -85,11 +79,10 @@ class Url(BData):
     def system_url(self, ssystem: StarsSystem) -> str:
         """Return proper API url for getting system data."""
         if not isinstance(ssystem, StarsSystem):
-            raise Raise.error(
+            raise Raise.type_error(
+                self.__class__.__name__,
+                inspect.currentframe(),
                 f"StarsSystem type expected, '{type(ssystem)}' received",
-                TypeError,
-                self._c_name,
-                currentframe(),
             )
 
         if ssystem.name:
@@ -101,11 +94,10 @@ class Url(BData):
     def radius_url(self, ssystem: StarsSystem, radius: int) -> str:
         """Return proper API url for getting systems data in radius."""
         if not isinstance(ssystem, StarsSystem):
-            raise Raise.error(
+            raise Raise.type_error(
+                self.__class__.__name__,
+                inspect.currentframe(),
                 f"StarsSystem type expected, '{type(ssystem)}' received",
-                TypeError,
-                self._c_name,
-                currentframe(),
             )
         if not isinstance(radius, int):
             radius = 50
@@ -124,11 +116,10 @@ class Url(BData):
     def cube_url(self, ssystem: StarsSystem, size: int) -> str:
         """Return proper API url for getting systems data in radius."""
         if not isinstance(ssystem, StarsSystem):
-            raise Raise.error(
+            raise Raise.type_error(
+                self.__class__.__name__,
+                inspect.currentframe(),
                 f"StarsSystem type expected, '{type(ssystem)}' received",
-                TypeError,
-                self._c_name,
-                currentframe(),
             )
         if not isinstance(size, int):
             size = 100
@@ -147,11 +138,10 @@ class Url(BData):
     def system_query(self, ssystem: StarsSystem) -> Optional[Dict]:
         """Return result of query for system data."""
         if not isinstance(ssystem, StarsSystem):
-            raise Raise.error(
+            raise Raise.type_error(
+                self.__class__.__name__,
+                inspect.currentframe(),
                 f"StarsSystem type expected, '{type(ssystem)}' received",
-                TypeError,
-                self._c_name,
-                currentframe(),
             )
         url = self.system_url(ssystem)
         if not url:
@@ -183,7 +173,7 @@ class Url(BData):
         return None
 
 
-class Numbers(BClasses):
+class Numbers(NoDynamicAttributes):
     """Numbers tool."""
 
     def is_float(self, element: any) -> bool:
@@ -197,7 +187,7 @@ class Numbers(BClasses):
             return False
 
 
-class AlgTsp(IAlg, BLogClient):
+class AlgTsp(Ialg, MLogClient, NoDynamicAttributes):
     """Travelling salesman problem."""
 
     __pluginname = None
@@ -212,10 +202,10 @@ class AlgTsp(IAlg, BLogClient):
         start: StarsSystem,
         systems: List[StarsSystem],
         jumprange: int,
-        log_queue: Queue,
+        log_queue: Union[Queue, SimpleQueue],
         euclid_alg: Euclid,
         plugin_name: str,
-    ) -> None:
+    ):
         """Construct instance object.
 
         params:
@@ -228,49 +218,44 @@ class AlgTsp(IAlg, BLogClient):
         """
         self.__pluginname = plugin_name
         # init log subsystem
-        if isinstance(log_queue, Queue):
+        if isinstance(log_queue, (Queue, SimpleQueue)):
             self.logger = LogClient(log_queue)
         else:
-            raise Raise.error(
-                f"Queue type expected, '{type(log_queue)}' received.",
-                TypeError,
-                self._c_name,
-                currentframe(),
+            raise Raise.type_error(
+                self.__class__.__name__,
+                inspect.currentframe(),
+                f"Queue or SimpleQueue type expected, '{type(log_queue)}' received.",
             )
         # Euclid's algorithm for calculating the length of vectors
         if isinstance(euclid_alg, Euclid):
             self.__math = euclid_alg
         else:
-            raise Raise.error(
+            raise Raise.type_error(
+                self.__class__.__name__,
+                inspect.currentframe(),
                 f"Euclid type expected, '{type(euclid_alg)}' received",
-                TypeError,
-                self._c_name,
-                currentframe(),
             )
         if isinstance(jumprange, int):
             self.__jumprange = jumprange
         else:
-            raise Raise.error(
+            raise Raise.type_error(
+                self.__class__.__name__,
+                inspect.currentframe(),
                 f"Int type expected, '{type(jumprange)}' received",
-                TypeError,
-                self._c_name,
-                currentframe(),
             )
         if not isinstance(start, StarsSystem):
-            raise Raise.error(
+            raise Raise.type_error(
+                self.__class__.__name__,
+                inspect.currentframe(),
                 f"StarsSystem type expected, '{type(start)}' received.",
-                TypeError,
-                self._c_name,
-                currentframe(),
             )
         if not isinstance(systems, list):
-            raise Raise.error(
+            raise Raise.type_error(
+                self.__class__.__name__,
+                inspect.currentframe(),
                 f"list type expected, '{type(systems)}' received.",
-                TypeError,
-                self._c_name,
-                currentframe(),
             )
-        self.debug(currentframe(), "Initialize dataset")
+        self.debug(inspect.currentframe(), "Initialize dataset")
 
         self.__data = []
         self.__tmp = []
@@ -279,7 +264,7 @@ class AlgTsp(IAlg, BLogClient):
         for item in systems:
             self.__data.append(item)
 
-    def run(self) -> None:
+    def run(self):
         """Run algorithm."""
         # stage 1: generate a cost table
         self.__stage_1_costs()
@@ -288,7 +273,7 @@ class AlgTsp(IAlg, BLogClient):
         # finalize
         self.__final_update()
 
-    def __stage_1_costs(self) -> None:
+    def __stage_1_costs(self):
         """Stage 1: generate a cost table."""
         count = len(self.__data)
         for idx in range(count):
@@ -299,9 +284,9 @@ class AlgTsp(IAlg, BLogClient):
                         self.__data[idx].star_pos, self.__data[idx2].star_pos
                     )
                 )
-        self.debug(currentframe(), f"{self.__tmp}")
+        self.debug(inspect.currentframe(), f"{self.__tmp}")
 
-    def __stage_2_solution(self) -> None:
+    def __stage_2_solution(self):
         """Stage 2: search the solution."""
         out = []
         vertex = []
@@ -317,6 +302,12 @@ class AlgTsp(IAlg, BLogClient):
             # store current Path weight
             current_pathweight = 0
 
+            # self.debug(
+            #     inspect.currentframe(),
+            #     f"NEXT: {i}"
+            # )
+            #
+            # compute current path weight
             k = start
             for j in i:
                 current_pathweight += self.__tmp[k][j]
@@ -336,7 +327,7 @@ class AlgTsp(IAlg, BLogClient):
         # and merge with output
         self.__tmp.extend(list(out[1]))
 
-    def __final_update(self) -> None:
+    def __final_update(self):
         """Build final dataset."""
         self.__final = []
         dsum = 0
@@ -352,10 +343,10 @@ class AlgTsp(IAlg, BLogClient):
         self.logger.debug = f"INPUT: {self.__data}"
         self.logger.debug = f"OUTPUT: {self.__final}"
 
-    def debug(self, currentframe: FrameType, message: str = "") -> None:
+    def debug(self, currentframe, message=""):
         """Build debug message."""
         pname = f"{self.__pluginname}"
-        cname = f"{self._c_name}"
+        cname = f"{self.__class__.__name__}"
         mname = f"{currentframe.f_code.co_name}"
         if message != "":
             message = f": {message}"
@@ -367,7 +358,7 @@ class AlgTsp(IAlg, BLogClient):
         return self.__final
 
 
-class AlgGenetic(IAlg, BLogClient):
+class AlgGenetic(Ialg, MLogClient, NoDynamicAttributes):
     """Genetic algorithm solving the problem of finding the best path."""
 
     __pluginname = None
@@ -383,10 +374,10 @@ class AlgGenetic(IAlg, BLogClient):
         start: StarsSystem,
         systems: List[StarsSystem],
         jumprange: int,
-        log_queue: Queue,
+        log_queue: Union[Queue, SimpleQueue],
         euclid_alg: Euclid,
         plugin_name: str,
-    ) -> None:
+    ):
         """Construct instance object.
 
         params:
@@ -400,49 +391,44 @@ class AlgGenetic(IAlg, BLogClient):
         self.__count: int = 100
         self.__pluginname = plugin_name
         # init log subsystem
-        if isinstance(log_queue, Queue):
+        if isinstance(log_queue, (Queue, SimpleQueue)):
             self.logger = LogClient(log_queue)
         else:
-            raise Raise.error(
-                f"Queue type expected, '{type(log_queue)}' received.",
-                TypeError,
-                self._c_name,
-                currentframe(),
+            raise Raise.type_error(
+                self.__class__.__name__,
+                inspect.currentframe(),
+                f"Queue or SimpleQueue type expected, '{type(log_queue)}' received.",
             )
         # Euclid's algorithm for calculating the length of vectors
         if isinstance(euclid_alg, Euclid):
             self.__math = euclid_alg
         else:
-            raise Raise.error(
+            raise Raise.type_error(
+                self.__class__.__name__,
+                inspect.currentframe(),
                 f"Euclid type expected, '{type(euclid_alg)}' received",
-                TypeError,
-                self._c_name,
-                currentframe(),
             )
         if isinstance(jumprange, int):
             self.__jumprange = jumprange
         else:
-            raise Raise.error(
+            raise Raise.type_error(
+                self.__class__.__name__,
+                inspect.currentframe(),
                 f"Int type expected, '{type(jumprange)}' received",
-                TypeError,
-                self._c_name,
-                currentframe(),
             )
         if not isinstance(start, StarsSystem):
-            raise Raise.error(
+            raise Raise.type_error(
+                self.__class__.__name__,
+                inspect.currentframe(),
                 f"StarsSystem type expected, '{type(start)}' received.",
-                TypeError,
-                self._c_name,
-                currentframe(),
             )
         if not isinstance(systems, list):
-            raise Raise.error(
+            raise Raise.type_error(
+                self.__class__.__name__,
+                inspect.currentframe(),
                 f"list type expected, '{type(systems)}' received.",
-                TypeError,
-                self._c_name,
-                currentframe(),
             )
-        self.debug(currentframe(), "Initialize dataset")
+        self.debug(inspect.currentframe(), "Initialize dataset")
 
         self.__data = []
         self.__tmp = []
@@ -451,10 +437,21 @@ class AlgGenetic(IAlg, BLogClient):
         for item in systems:
             self.__data.append(item)
 
-    def run(self) -> None:
+    def run(self):
         """Run algorithm."""
         # stage 1: generate a starting population
         self.__stage_1_generator()
+        # show debug
+        # self.debug(
+        #     inspect.currentframe(),
+        #     "Stage 1 list is:"
+        # )
+        # for item in self.__tmp:
+        #     self.logger.debug = f"{item}"
+        # self.debug(
+        #     inspect.currentframe(),
+        #     "Stage 1 list end."
+        # )
         count = 0
         while count < self.__count:
             count += 1
@@ -475,7 +472,7 @@ class AlgGenetic(IAlg, BLogClient):
             self.__stage_5_remove_bad()
         self.__final_update()
 
-    def __stage_1_generator(self) -> None:
+    def __stage_1_generator(self):
         """Generate a starting population."""
         count = len(self.__data)
         items = int(count * self.__count)
@@ -499,7 +496,7 @@ class AlgGenetic(IAlg, BLogClient):
             # add to population list
             self.__tmp.append(tmp)
 
-    def __stage_2_crossing(self, start: int, end: int) -> None:
+    def __stage_2_crossing(self, start: int, end: int):
         """Stage 2: crossing."""
         # self.logger.debug = f"Start[{start}]: {self.__tmp[start]}"
         # self.logger.debug = f"End[{end}]: {self.__tmp[end]}"
@@ -522,7 +519,7 @@ class AlgGenetic(IAlg, BLogClient):
         tmp = self.__compute_path_length(tmp)
         self.__tmp.append(tmp)
 
-    def __stage_3_mutating(self, start: int) -> None:
+    def __stage_3_mutating(self, start: int):
         """Stage 3: mutating."""
         first = random.randrange(2, len(self.__tmp[start]))
         second = random.randrange(2, len(self.__tmp[start]))
@@ -539,7 +536,7 @@ class AlgGenetic(IAlg, BLogClient):
 
         self.__tmp.append(tmp)
 
-    def __stage_5_remove_bad(self) -> None:
+    def __stage_5_remove_bad(self):
         """Stage 5: remove the worst results."""
         count = len(self.__data)
         items = int(count * 2)
@@ -567,7 +564,7 @@ class AlgGenetic(IAlg, BLogClient):
         # self.logger.debug = f"arg: {arg}"
         return arg
 
-    def __final_update(self) -> None:
+    def __final_update(self):
         """Build final dataset."""
         self.__final = []
         dsum = 0
@@ -585,10 +582,10 @@ class AlgGenetic(IAlg, BLogClient):
         self.logger.debug = f"INPUT: {self.__data}"
         self.logger.debug = f"OUTPUT: {self.__final}"
 
-    def debug(self, currentframe: FrameType, message: str = "") -> None:
+    def debug(self, currentframe, message=""):
         """Build debug message."""
         pname = f"{self.__pluginname}"
-        cname = f"{self._c_name}"
+        cname = f"{self.__class__.__name__}"
         mname = f"{currentframe.f_code.co_name}"
         if message != "":
             message = f": {message}"
@@ -600,7 +597,7 @@ class AlgGenetic(IAlg, BLogClient):
         return self.__final
 
 
-class AlgGeneticGPT(IAlg, BLogClient):
+class AlgGeneticGPT(Ialg, MLogClient, NoDynamicAttributes):
     """Genetic algorithm solving the problem of finding the best path."""
 
     __pluginname = None
@@ -620,10 +617,10 @@ class AlgGeneticGPT(IAlg, BLogClient):
         start: StarsSystem,
         systems: List[StarsSystem],
         jumprange: int,
-        log_queue: Queue,
+        log_queue: Union[Queue, SimpleQueue],
         euclid_alg: Euclid,
         plugin_name: str,
-    ) -> None:
+    ):
         """Construct instance object.
 
         params:
@@ -637,49 +634,44 @@ class AlgGeneticGPT(IAlg, BLogClient):
 
         self.__pluginname = plugin_name
         # init log subsystem
-        if isinstance(log_queue, Queue):
+        if isinstance(log_queue, (Queue, SimpleQueue)):
             self.logger = LogClient(log_queue)
         else:
-            raise Raise.error(
-                f"Queue type expected, '{type(log_queue)}' received.",
-                TypeError,
-                self._c_name,
-                currentframe(),
+            raise Raise.type_error(
+                self.__class__.__name__,
+                inspect.currentframe(),
+                f"Queue or SimpleQueue type expected, '{type(log_queue)}' received.",
             )
         # Euclid's algorithm for calculating the length of vectors
         if isinstance(euclid_alg, Euclid):
             self.__math = euclid_alg
         else:
-            raise Raise.error(
+            raise Raise.type_error(
+                self.__class__.__name__,
+                inspect.currentframe(),
                 f"Euclid type expected, '{type(euclid_alg)}' received",
-                TypeError,
-                self._c_name,
-                currentframe(),
             )
         if isinstance(jumprange, int):
             self.__max_distance = jumprange
         else:
-            raise Raise.error(
+            raise Raise.type_error(
+                self.__class__.__name__,
+                inspect.currentframe(),
                 f"Int type expected, '{type(jumprange)}' received",
-                TypeError,
-                self._c_name,
-                currentframe(),
             )
         if not isinstance(start, StarsSystem):
-            raise Raise.error(
+            raise Raise.type_error(
+                self.__class__.__name__,
+                inspect.currentframe(),
                 f"StarsSystem type expected, '{type(start)}' received.",
-                TypeError,
-                self._c_name,
-                currentframe(),
             )
         if not isinstance(systems, list):
-            raise Raise.error(
+            raise Raise.type_error(
+                self.__class__.__name__,
+                inspect.currentframe(),
                 f"list type expected, '{type(systems)}' received.",
-                TypeError,
-                self._c_name,
-                currentframe(),
             )
-        self.debug(currentframe(), "Initialize dataset")
+        self.debug(inspect.currentframe(), "Initialize dataset")
 
         self.__points = systems
         self.__start_point = start
@@ -771,7 +763,7 @@ class AlgGeneticGPT(IAlg, BLogClient):
             population = new_population
         return best_individual
 
-    def run(self) -> None:
+    def run(self):
         """Run algorithm."""
         self.__final = self.__evolve()
         self.__final.remove(self.__start_point)
@@ -780,15 +772,15 @@ class AlgGeneticGPT(IAlg, BLogClient):
         start = self.__start_point
         for item in self.__final:
             end: StarsSystem = item
-            end._data["distance"] = self.__math.distance(start.star_pos, end.star_pos)
-            dsum += end._data["distance"]
+            end.data["distance"] = self.__math.distance(start.star_pos, end.star_pos)
+            dsum += end.data["distance"]
             start = end
         self.logger.debug = f"FINAL Distance: {dsum:.2f} ly"
 
-    def debug(self, currentframe: FrameType, message: str = "") -> None:
+    def debug(self, currentframe, message=""):
         """Build debug message."""
         pname = f"{self.__pluginname}"
-        cname = f"{self._c_name}"
+        cname = f"{self.__class__.__name__}"
         mname = f"{currentframe.f_code.co_name}"
         if message != "":
             message = f": {message}"

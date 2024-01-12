@@ -6,23 +6,23 @@
   Purpose: system search class.
 """
 
-from inspect import currentframe
-from queue import Queue
+import inspect
+import json
+from queue import Queue, SimpleQueue
 from threading import Event, Thread
 from typing import Any, Dict, List, Optional, Union
 from types import FrameType
 
-from jsktoolbox.raisetool import Raise
-
 from rscan_libs.cartesianmath import Euclid
 from rscan_libs.data import RscanData
-from rscan_libs.base_logs import BLogClient
+from rscan_libs.mlog import MLogClient
+from raisetool.formatter import Raise
 from rscan_libs.stars import StarsSystem
 from rscan_libs.system import LogClient
-from rscan_libs.tools import AlgGeneticGPT, AlgTsp, Url
+from rscan_libs.tools import AlgGenetic, AlgGeneticGPT, AlgTsp, Numbers, Url
 
 
-class ThSystemSearch(Thread, BLogClient):
+class ThSystemSearch(Thread, MLogClient):
     """Thread system search engine."""
 
     __slots__ = [
@@ -38,44 +38,41 @@ class ThSystemSearch(Thread, BLogClient):
     def __init__(
         self,
         parent,
-        log_queue: Queue,
+        log_queue: Union[Queue, SimpleQueue],
         data: RscanData,
         euclid_alg: Euclid,
-    ) -> None:
+    ):
         """Create object instance of class."""
-        Thread.__init__(self, name=self._c_name)
+        Thread.__init__(self, name=self.__class__.__name__)
         self.__stop_event = Event()
         # init log subsystem
-        if isinstance(log_queue, Queue):
+        if isinstance(log_queue, (Queue, SimpleQueue)):
             self.logger = LogClient(log_queue)
         else:
-            raise Raise.error(
-                f"Queue type expected, '{type(log_queue)}' received.",
-                TypeError,
-                self._c_name,
-                currentframe(),
+            raise Raise.type_error(
+                self.__class__.__name__,
+                inspect.currentframe(),
+                f"Queue or SimpleQueue type expected, '{type(log_queue)}' received.",
             )
 
         if isinstance(data, RscanData):
             self.__data = data
-            self.debug(currentframe(), f"{self.__data}")
+            self.debug(inspect.currentframe(), f"{self.__data}")
         else:
-            raise Raise.error(
+            raise Raise.type_error(
+                self.__class__.__name__,
+                inspect.currentframe(),
                 f"RscanData type expected, '{type(data)}' received",
-                TypeError,
-                self._c_name,
-                currentframe(),
             )
 
         # Euclid's algorithm for calculating the length of vectors
         if isinstance(euclid_alg, Euclid):
             self.__math = euclid_alg
         else:
-            raise Raise.error(
+            raise Raise.type_error(
+                self.__class__.__name__,
+                inspect.currentframe(),
                 f"Euclid type expected, '{type(euclid_alg)}' received",
-                TypeError,
-                self._c_name,
-                currentframe(),
             )
 
         # initialize private variables
@@ -84,10 +81,10 @@ class ThSystemSearch(Thread, BLogClient):
         self.__radius = None
         self.__found = []
 
-    def run(self) -> None:
+    def run(self):
         """Run the work."""
         pname = self.__data.pluginname
-        cname = self._c_name
+        cname = self.__class__.__name__
         self.logger.info = f"{pname}->{cname}: Starting new work..."
         # build radius query
         qurl = self.__build_radius_query()
@@ -111,7 +108,7 @@ class ThSystemSearch(Thread, BLogClient):
             f"{len(systems)} systems found, flight route calculations in progress..."
         )
         systems_out = self.__flightroute_systems(systems)
-        self.debug(currentframe(), f"Search result: {systems_out}")
+        self.debug(inspect.currentframe(), f"Search result: {systems_out}")
         # put it into result list
         dsum: float = 0.0
         for item in systems_out:
@@ -123,17 +120,17 @@ class ThSystemSearch(Thread, BLogClient):
         )
         self.logger.info = f"{pname}->{cname}: Done."
 
-    def debug(self, currentframe: FrameType, message: str = "") -> None:
+    def debug(self, currentframe: FrameType, message: str = ""):
         """Build debug message."""
         pname = f"{self.__data.pluginname}"
-        cname = f"{self._c_name}"
+        cname = f"{self.__class__.__name__}"
         mname = f"{currentframe.f_code.co_name}"
         if message != "":
             message = f": {message}"
         self.logger.debug = f"{pname}->{cname}.{mname}{message}"
-        currentframe()
+        inspect.currentframe()
 
-    def status(self, message: Any) -> None:
+    def status(self, message: Any):
         """Write message to status bar."""
         self.__parent.status = f"{message}"
 
@@ -142,10 +139,10 @@ class ThSystemSearch(Thread, BLogClient):
         """Get stop event flag."""
         return self.__stop_event.isSet()
 
-    def stop(self) -> None:
+    def stop(self):
         """Set stop event."""
         if not self.stopped:
-            self.debug(currentframe(), "Stopping event is set now.")
+            self.debug(inspect.currentframe(), "Stopping event is set now.")
             self.__stop_event.set()
 
     @property
@@ -159,13 +156,12 @@ class ThSystemSearch(Thread, BLogClient):
         return self.__start_system
 
     @start_system.setter
-    def start_system(self, value: StarsSystem) -> None:
+    def start_system(self, value: StarsSystem):
         if not isinstance(value, StarsSystem):
-            raise Raise.error(
+            raise Raise.type_error(
+                self.__class__.__name__,
+                inspect.currentframe(),
                 f"StarsSystem type expected, '{type(value)}' received.",
-                TypeError,
-                self._c_name,
-                currentframe(),
             )
         self.__start_system = value
 
@@ -175,11 +171,11 @@ class ThSystemSearch(Thread, BLogClient):
         return self.__radius
 
     @radius.setter
-    def radius(self, value: Union[int, float]) -> None:
+    def radius(self, value: Union[int, float]):
         try:
             self.__radius = int(value)
         except Exception as ex:
-            self.debug(currentframe(), f"Unexpected exception: {ex}")
+            self.debug(inspect.currentframe(), f"Unexpected exception: {ex}")
         if self.radius is None:
             self.logger.warning = "Invalid radius value, set default: 50 ly."
             self.__radius = 50
@@ -192,7 +188,7 @@ class ThSystemSearch(Thread, BLogClient):
         else:
             self.logger.info = f"Radius is set to: {self.radius} ly."
 
-    def __progress(self, cur: int, systems_count: int) -> None:
+    def __progress(self, cur: int, systems_count: int):
         """Set progress status in parent."""
         if systems_count == 0:
             self.status("Found 0 systems")
@@ -207,17 +203,16 @@ class ThSystemSearch(Thread, BLogClient):
 
         # checking needed variables
         if self.start_system is None or self.radius is None:
-            raise Raise.error(
+            raise Raise.value_error(
+                self.__class__.__name__,
+                inspect.currentframe(),
                 "Needed variables not initialized properly.",
-                TypeError,
-                self._c_name,
-                currentframe(),
             )
 
         # updating data for start system, if needed
         if self.start_system.pos_x is None:
             out = url.system_query(self.start_system)
-            self.debug(currentframe(), f"Start System data: {out}")
+            self.debug(inspect.currentframe(), f"Start System data: {out}")
             self.start_system.update_from_edsm(out)
 
         return url.radius_url(self.start_system, self.radius)
@@ -236,12 +231,27 @@ class ThSystemSearch(Thread, BLogClient):
                 count += 1
                 system = StarsSystem()
                 system.update_from_edsm(item)
-                system._data["bodies"] = None
+                system.data["bodies"] = None
+                # self.debug(
+                #     inspect.currentframe(),
+                #     f"{item}"
+                # )
                 self.debug(
-                    currentframe(),
+                    inspect.currentframe(),
                     f"EDSM system nr:{count} {system}",
                 )
                 out.append(system)
+            # else:
+            #     self.logger.debug = f"OTHER: {item}"
+            #     # system = StarsSystem()
+            #     # system.update_from_edsm(item)
+            #     # # out_body.append(item)
+            #     # bodies = self.__get_bodies_information(system)
+            #     # if bodies and 'bodies' in bodies:
+            #     #     system.data['bodies'] = len(bodies['bodies'])
+            #     #     if system.data['bodycount'] != system.data['bodies']:
+            #     #         count += 1
+            #     #         out.append(system)
 
         self.logger.info = f"Found {count} systems"
         return out
@@ -249,11 +259,10 @@ class ThSystemSearch(Thread, BLogClient):
     def __get_bodies_information(self, system: StarsSystem) -> Optional[Dict]:
         """Try to get information about system bodies."""
         if not isinstance(system, StarsSystem):
-            raise Raise.error(
+            raise Raise.type_error(
+                self.__class__.__name__,
+                inspect.currentframe(),
                 f"StarsSystem type expected, '{type(system)}' received",
-                TypeError,
-                self._c_name,
-                currentframe(),
             )
         url = Url()
         out_url = url.bodies_url(system)

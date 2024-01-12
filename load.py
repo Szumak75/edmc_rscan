@@ -7,13 +7,91 @@
 """
 
 
+import inspect
 import tkinter as tk
+from queue import SimpleQueue
+from threading import Thread
 from typing import Any, Dict, Optional, Tuple
+from attribtool.ndattrib import NoDynamicAttributes
+from raisetool.formatter import Raise
 
 from config import config
+from rscan_libs.data import RscanData
 from rscan_libs.dialogs import EdrsDialog
-from rscan_libs.system import LogLevels
-from rscan_libs.edrs import EDRS
+from rscan_libs.mlog import MLogClient, MLogProcessor
+from rscan_libs.system import LogClient, LogLevels, LogProcessor
+
+
+class EDRS(MLogProcessor, MLogClient, NoDynamicAttributes):
+    """edrs_object main class."""
+
+    __data = None
+    __dialog = None
+
+    def __init__(self):
+        """Initialize main class."""
+        # data
+        self.data = RscanData()
+
+        self.data.pluginname = "EDRS"
+        self.data.version = "0.1.2"
+
+        # logging subsystem
+        self.qlog = SimpleQueue()
+        self.log_processor = LogProcessor(self.data.pluginname)
+        self.logger = LogClient(self.qlog)
+
+        # logging thread
+        self.thlog = Thread(
+            target=self.th_logger, name=f"{self.data.pluginname} log worker"
+        )
+        self.thlog.daemon = True
+        self.thlog.start()
+
+        self.logger.debug = f"{self.data.pluginname} object creation complete."
+
+    @property
+    def dialog(self):
+        """Give me data access."""
+        return self.__dialog
+
+    @dialog.setter
+    def dialog(self, value):
+        if isinstance(value, EdrsDialog):
+            self.__dialog = value
+        else:
+            raise Raise.type_error(
+                self.__class__.__name__,
+                inspect.currentframe(),
+                f"EdrsDialog type expected, '{type(value)} received.'",
+            )
+
+    @property
+    def data(self):
+        """Give me data access."""
+        return self.__data
+
+    @data.setter
+    def data(self, value):
+        if isinstance(value, RscanData):
+            self.__data = value
+        else:
+            raise Raise.type_error(
+                self.__class__.__name__,
+                inspect.currentframe(),
+                f"RscanData type expected, '{type(value)} received.'",
+            )
+
+    def th_logger(self) -> None:
+        """Def th_logger - thread logs processor."""
+        self.logger.info = "Starting logger worker"
+        while not self.data.shutting_down:
+            while True:
+                log = self.qlog.get(True)
+                if log is None:
+                    break
+                self.log_processor.send(log)
+
 
 edrs_object = EDRS()
 

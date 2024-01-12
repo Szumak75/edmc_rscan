@@ -7,136 +7,121 @@
 """
 
 
-from inspect import currentframe
+import inspect
 from typing import Union
-
-from jsktoolbox.attribtool import ReadOnlyClass
-from jsktoolbox.raisetool import Raise
-from jsktoolbox.libs.base_data import BData
-
+from attribtool.ndattrib import NoDynamicAttributes
+from raisetool.formatter import Raise
 from rscan_libs.stars import StarsSystem
 
 
-class _Keys(object, metaclass=ReadOnlyClass):
-    """Keys container class."""
-
-    RDATA = "__rdata__"
-    CMDR = "_cmdr_"
-    PLUGINNAME = "_pluginname_"
-    VERSION = "_version_"
-    JUMPRANGE = "_jumprange_"
-    STARSYSTEM = "_starsystem_"
-    JUMPSYSTEM = "_jumpsystem_"
-    SHUTDOWN = "_shutdown_"
-
-
-class RscanData(BData):
+class RscanData(NoDynamicAttributes):
     """Data container for username and current system."""
 
-    def __init__(self) -> None:
+    __data = None
+
+    def __init__(self):
         """Initialize dataset."""
-        self._data[_Keys.RDATA] = {
-            _Keys.CMDR: None,
-            _Keys.PLUGINNAME: None,
-            _Keys.VERSION: None,
-            _Keys.JUMPRANGE: None,
-            _Keys.STARSYSTEM: StarsSystem(),
-            _Keys.JUMPSYSTEM: StarsSystem(),
-            _Keys.SHUTDOWN: False,
+        self.__data = {
+            "cmdr": None,
+            "pluginname": None,
+            "version": None,
+            "jumprange": None,
+            "starsystem": StarsSystem(),
+            "jumpsystem": StarsSystem(),
+            "shutdown": False,
         }
 
-    def __repr__(self) -> str:
+    def __repr__(self):
         """Give me class dump."""
         return (
-            f"{self._c_name}(cmdr='{self._data[_Keys.RDATA][_Keys.CMDR]}', "
-            f"pluginname='{self._data[_Keys.RDATA][_Keys.PLUGINNAME]}', "
-            f"version='{self._data[_Keys.RDATA][_Keys.VERSION]}', "
-            f"jumprange={self._data[_Keys.RDATA][_Keys.JUMPRANGE]}, "
-            f"{self._data[_Keys.RDATA][_Keys.STARSYSTEM]})"
+            f"{self.__class__.__name__}(cmdr='{self.__data['cmdr']}', "
+            f"pluginname='{self.__data['pluginname']}', "
+            f"version='{self.__data['version']}', "
+            f"jumprange={self.__data['jumprange']}, "
+            f"{self.__data['starsystem']})"
         )
 
     @property
     def jumpsystem(self) -> StarsSystem:
         """Give me StarsSystem object."""
-        return self._data[_Keys.RDATA][_Keys.JUMPSYSTEM]
+        return self.__data["jumpsystem"]
 
     @jumpsystem.setter
-    def jumpsystem(self, value: StarsSystem) -> None:
+    def jumpsystem(self, value: StarsSystem):
         if value is None:
-            self._data[_Keys.RDATA][_Keys.JUMPSYSTEM] = StarsSystem()
+            self.__data["jumpsystem"] = StarsSystem()
         elif isinstance(value, StarsSystem):
-            self._data[_Keys.RDATA][_Keys.JUMPSYSTEM] = value
+            self.__data["jumpsystem"] = value
 
     @property
     def starsystem(self) -> StarsSystem:
         """Give me StarsSystem object."""
-        return self._data[_Keys.RDATA][_Keys.STARSYSTEM]
+        return self.__data["starsystem"]
 
     @starsystem.setter
-    def starsystem(self, value: StarsSystem) -> None:
+    def starsystem(self, value: StarsSystem):
         if value is None:
-            self._data[_Keys.RDATA][_Keys.STARSYSTEM] = StarsSystem()
+            self.__data["starsystem"] = StarsSystem()
         elif isinstance(value, StarsSystem):
-            self._data[_Keys.RDATA][_Keys.STARSYSTEM] = value
+            self.__data["starsystem"] = value
 
     @property
     def jumprange(self) -> float:
         """Give me jumprange."""
-        return self._data[_Keys.RDATA][_Keys.JUMPRANGE]
+        return self.__data["jumprange"]
 
     @jumprange.setter
-    def jumprange(self, value: Union[str, int, float]) -> None:
+    def jumprange(self, value: Union[str, int, float]):
         if value is not None and isinstance(value, (str, int, float)):
             try:
-                self._data[_Keys.RDATA][_Keys.JUMPRANGE] = float(value)
+                self.__data["jumprange"] = float(value)
             except Exception:
                 pass
 
     @property
     def pluginname(self) -> str:
         """Give me pluginname."""
-        return self._data[_Keys.RDATA][_Keys.PLUGINNAME]
+        return self.__data["pluginname"]
 
     @pluginname.setter
-    def pluginname(self, value: str) -> None:
+    def pluginname(self, value: str):
         if value is not None and isinstance(value, str):
-            self._data[_Keys.RDATA][_Keys.PLUGINNAME] = value
+            self.__data["pluginname"] = value
 
     @property
     def version(self) -> str:
         """Give me version."""
-        return self._data[_Keys.RDATA][_Keys.VERSION]
+        return self.__data["version"]
 
     @version.setter
-    def version(self, value: str) -> None:
+    def version(self, value: str):
         if value is not None and isinstance(value, str):
-            self._data[_Keys.RDATA][_Keys.VERSION] = value
+            self.__data["version"] = value
 
     @property
     def cmdr(self) -> str:
         """Give me commander name."""
-        return self._data[_Keys.RDATA][_Keys.CMDR]
+        return self.__data["cmdr"]
 
     @cmdr.setter
-    def cmdr(self, value) -> None:
+    def cmdr(self, value):
         if value is not None and value != self.cmdr:
-            self._data[_Keys.RDATA][_Keys.CMDR] = value
+            self.__data["cmdr"] = value
 
     @property
     def shutting_down(self) -> bool:
         """Give me access to shutting_down flag."""
-        return self._data[_Keys.RDATA][_Keys.SHUTDOWN]
+        return self.__data["shutdown"]
 
     @shutting_down.setter
-    def shutting_down(self, value: bool) -> None:
+    def shutting_down(self, value: bool):
         if isinstance(value, bool):
-            self._data[_Keys.RDATA][_Keys.SHUTDOWN] = value
+            self.__data["shutdown"] = value
         else:
-            raise Raise.error(
+            raise Raise.type_error(
+                self.__class__.__name__,
+                inspect.currentframe(),
                 f"Boolean type expected, '{type(value)}' received.",
-                TypeError,
-                self._c_name,
-                currentframe(),
             )
 
 
