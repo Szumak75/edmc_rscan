@@ -67,7 +67,7 @@ class ThSystemSearch(Thread, ThBaseObject, BLogClient):
 
         # Euclid's algorithm for calculating the length of vectors
         if isinstance(euclid_alg, Euclid):
-            self.__math = euclid_alg
+            self.__math: Euclid = euclid_alg
         else:
             raise Raise.error(
                 f"Euclid type expected, '{type(euclid_alg)}' received",
@@ -85,7 +85,7 @@ class ThSystemSearch(Thread, ThBaseObject, BLogClient):
     def run(self) -> None:
         """Run the work."""
         pname = self.__data.pluginname
-        cname = self._c_name
+        cname: str = self._c_name
         self.logger.info = f"{pname}->{cname}: Starting new work..."
         # build radius query
         qurl = self.__build_radius_query()
@@ -123,9 +123,9 @@ class ThSystemSearch(Thread, ThBaseObject, BLogClient):
 
     def debug(self, currentframe: FrameType, message: str = "") -> None:
         """Build debug message."""
-        pname = f"{self.__data.pluginname}"
-        cname = f"{self._c_name}"
-        mname = f"{currentframe.f_code.co_name}"
+        pname: str = f"{self.__data.pluginname}"
+        cname: str = f"{self._c_name}"
+        mname: str = f"{currentframe.f_code.co_name}"
         if message != "":
             message = f": {message}"
         self.logger.debug = f"{pname}->{cname}.{mname}{message}"
@@ -164,7 +164,7 @@ class ThSystemSearch(Thread, ThBaseObject, BLogClient):
                 self._c_name,
                 currentframe(),
             )
-        self.__start_system = value
+        self.__start_system: StarsSystem = value
 
     @property
     def radius(self) -> Optional[int]:
@@ -219,11 +219,11 @@ class ThSystemSearch(Thread, ThBaseObject, BLogClient):
 
         return url.radius_url(self.start_system, self.radius)
 
-    def __buils_radius_systems_list(self, systems: list) -> Optional[List]:
+    def __buils_radius_systems_list(self, systems: list) -> List[StarsSystem]:
         """Build filtered systems list from EDSM API output."""
-        out = []
+        out:List[StarsSystem] = []
         # out_body = []
-        systems_count = len(systems)
+        systems_count: int = len(systems)
         cur_count = 0
         count = 0
         for item in systems:
@@ -243,7 +243,7 @@ class ThSystemSearch(Thread, ThBaseObject, BLogClient):
         self.logger.info = f"Found {count} systems"
         return out
 
-    def __get_bodies_information(self, system: StarsSystem) -> Optional[Dict]:
+    def __get_bodies_information(self, system: StarsSystem) -> Dict:
         """Try to get information about system bodies."""
         if not isinstance(system, StarsSystem):
             raise Raise.error(

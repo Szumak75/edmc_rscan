@@ -37,8 +37,8 @@ except ModuleNotFoundError:
 class _Keys(object, metaclass=ReadOnlyClass):
     """Keys container class."""
 
-    DATA = "__rsdata__"
-    TEST = "__test__"
+    DATA: str = "__rsdata__"
+    TEST: str = "__test__"
 
 
 class Euclid(BLogClient):
@@ -50,12 +50,12 @@ class Euclid(BLogClient):
     def __init__(self, queue: Queue, data: RscanData) -> None:
         """Create class object."""
         self._data[_Keys.TEST] = [
-            self.__numpy_l2,
-            self.__numpy,
-            self.__einsum,
-            self.__scipy,
-            self.__math,
             self.__core,
+            self.__einsum,
+            self.__math,
+            self.__numpy,
+            self.__numpy_l2,
+            self.__scipy,
         ]
 
         # init log subsystem
@@ -88,11 +88,11 @@ class Euclid(BLogClient):
         Compare the computational efficiency of functions for real data
         and choose the right priority of their use.
         """
-        pname = f"{self._data[_Keys.DATA].pluginname}"
-        cname = f"{self._c_name}"
+        pname: str = f"{self._data[_Keys.DATA].pluginname}"
+        cname: str = f"{self._c_name}"
 
         self.logger.info = f"{pname}->{cname}: Warming up math system..."
-        data1 = [
+        data1: list[list[float]] = [
             [641.71875, -536.06250, -6886.37500],
             [10.31250, -160.53125, 74.18750],
             [51.40625, -54.40625, -30.50000],
@@ -104,7 +104,7 @@ class Euclid(BLogClient):
             [5.62500, -36.65625, -33.87500],
             [-0.56250, -43.71875, -30.81250],
         ]
-        data2 = [
+        data2: list[list[float]] = [
             [67.50000, -74.90625, -93.68750],
             [134.12500, 15.09375, -63.87500],
             [124.50000, 4.31250, -49.12500],
@@ -127,10 +127,10 @@ class Euclid(BLogClient):
 
         # start test
         for item in test:
-            tstart = time.time()
+            tstart: float = time.time()
             for idx in range(0, len(data1)):
                 item(data1[idx], data2[idx])
-            tstop = time.time()
+            tstop: float = time.time()
             bench_out[tstop - tstart] = item
 
         # optimize list of the methods
@@ -141,11 +141,13 @@ class Euclid(BLogClient):
 
         self.logger.info = f"{pname}->{cname}: done."
 
-    def debug(self, currentframe: FrameType, message: str = "") -> None:
+    def debug(self, currentframe: Optional[FrameType], message: str = "") -> None:
         """Build debug message."""
-        pname = f"{self._data[_Keys.DATA].pluginname}"
-        cname = f"{self._c_name}"
-        mname = f"{currentframe.f_code.co_name}"
+        pname: str = f"{self._data[_Keys.DATA].pluginname}"
+        cname: str = f"{self._c_name}"
+        mname: str = (
+            f"{currentframe.f_code.co_name}" if currentframe is not None else ""
+        )
         if message != "":
             message = f": {message}"
         self.logger.debug = f"{pname}->{cname}.{mname}{message}"
@@ -216,7 +218,7 @@ class Euclid(BLogClient):
 
     def distance(self, point_1: List, point_2: List) -> Optional[float]:
         """Find the first working algorithm and do the calculations."""
-        out = None
+        out: Optional[float] = None
         i = 0
 
         while out is None:

@@ -22,7 +22,7 @@ from rscan_libs.dialogs import EdrsDialog
 class EDRS(BLogProcessor, BLogClient):
     """edrs_object main class."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize main class."""
         # data
         self.data = RscanData()
@@ -52,7 +52,7 @@ class EDRS(BLogProcessor, BLogClient):
         return self._data["dialog"]
 
     @dialog.setter
-    def dialog(self, value: EdrsDialog):
+    def dialog(self, value: EdrsDialog) -> None:
         if isinstance(value, EdrsDialog):
             self._data["dialog"] = value
         else:

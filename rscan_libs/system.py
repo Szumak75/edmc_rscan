@@ -570,7 +570,7 @@ class LogLevels(BData):
     def __init__(self) -> None:
         """Create Log instance."""
         # loglevel initialization database
-        self.__keys = {
+        self.__keys: dict[int, bool] = {
             self.info: True,
             self.debug: True,
             self.warning: True,
@@ -578,7 +578,7 @@ class LogLevels(BData):
             self.notset: True,
             self.critical: True,
         }
-        self.__txt = {
+        self.__txt: dict[str, int] = {
             "INFO": self.info,
             "DEBUG": self.debug,
             "WARNING": self.warning,

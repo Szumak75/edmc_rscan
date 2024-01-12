@@ -8,10 +8,12 @@
 
 import time
 import tkinter as tk
+from tkinter import font
 from inspect import currentframe
 from queue import Queue
 from threading import Thread
 from tkinter import ttk
+import tkinter
 from typing import List, Optional
 from types import FrameType
 
@@ -114,14 +116,14 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
 
         # fonts configure
         self._data[DialogKeys.FONTS] = {
-            "bold": tk.font.Font(
+            "bold": font.Font(
                 family="Helvetica",
                 size=10,
-                weight=tk.font.BOLD,
-                overstrike=0,
+                weight=font.BOLD,
+                overstrike=False,
             ),
-            "normal": tk.font.Font(family="Helvetica", size=10, overstrike=0),
-            "strike": tk.font.Font(family="Helvetica", size=10, overstrike=1),
+            "normal": font.Font(family="Helvetica", size=10, overstrike=False),
+            "strike": font.Font(family="Helvetica", size=10, overstrike=True),
         }
 
         # create window
@@ -164,7 +166,7 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
         command_frame.columnconfigure(4, weight=1)
         command_frame.rowconfigure(0, weight=1)
         tk.Label(command_frame, text="Start system:").grid(row=0, column=0, sticky=tk.E)
-        system_name = tk.Entry(command_frame, textvariable="")
+        system_name = tk.Entry(command_frame, textvariable=tk.StringVar(value=""))
         system_name.grid(row=0, column=1, sticky=tk.EW)
         if self._data[DialogKeys.RDATA].starsystem.name is not None:
             system_name.delete(0, tk.END)
@@ -233,7 +235,7 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
         self.debug(currentframe(), f"radius: {radius}, type:{type(radius)}")
 
         if not system or not radius:
-            msg = ""
+            msg: str = ""
             if not system:
                 msg = "System"
             if not radius and msg:

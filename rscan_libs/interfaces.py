@@ -13,11 +13,11 @@ class IAlg(ABC):
     """Interface for algorithm class ."""
 
     @abstractmethod
-    def run(self):
+    def run(self) -> None:
         """Run the work."""
 
     @abstractmethod
-    def debug(self, currentframe, message):
+    def debug(self, currentframe, message) -> None:
         """Debug formater for logger."""
 
     @property

@@ -216,7 +216,7 @@ class StarsSystem(BData):
         return self._data[_Keys.DATA]
 
     @data.setter
-    def data(self, value: Optional[Dict]):
+    def data(self, value: Optional[Dict]) -> None:
         if value is None:
             self._data[_Keys.DATA] = {}
         if not isinstance(value, Dict):

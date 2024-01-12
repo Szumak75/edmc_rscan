@@ -6,5 +6,6 @@
     ],
     "python.analysis.extraPaths": [
         "~/Projects/EDMarketConnector",
-    ]
+    ],
+    "python.analysis.typeCheckingMode": "basic"
 }

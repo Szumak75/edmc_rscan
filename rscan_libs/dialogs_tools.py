@@ -44,7 +44,7 @@ class CreateToolTip(BData):
         if DialogKeys.TT_TEXT not in self._data:
             self._data[DialogKeys.TT_TEXT] = ""
         if isinstance(self._data[DialogKeys.TT_TEXT], (List, Tuple)):
-            tmp = ""
+            tmp: str = ""
             for msg in self._data[DialogKeys.TT_TEXT]:
                 tmp += msg if not tmp else f"\n{msg}"
             return tmp
@@ -80,7 +80,8 @@ class CreateToolTip(BData):
 
     def showtip(self, event: Optional[tk.Event] = None) -> None:
         """Show tooltip."""
-        __x = __y = 0
+        __x = 0
+        __y = 0
         __x, __y, __cx, __cy = self._data[DialogKeys.WIDGET].bbox("insert")
         __x += self._data[DialogKeys.WIDGET].winfo_rootx() + 25
         __y += self._data[DialogKeys.WIDGET].winfo_rooty() + 20
