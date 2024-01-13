@@ -545,7 +545,7 @@ class LogLevels(NoDynamicAttributes):
     __keys: Dict[int, bool] = None  # type: ignore
     __txt: Dict[str, int] = None  # type: ignore
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Create Log instance."""
         # loglevel initialization database
         self.__keys = {

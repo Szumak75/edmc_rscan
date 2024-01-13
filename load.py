@@ -8,7 +8,9 @@
 
 
 import inspect
+import logging
 import tkinter as tk
+from tkinter import ttk
 from queue import SimpleQueue
 from threading import Thread
 from typing import Any, Dict, Optional, Tuple
@@ -25,16 +27,16 @@ from rscan_libs.system import LogClient, LogLevels, LogProcessor
 class EDRS(MLogProcessor, MLogClient, NoDynamicAttributes):
     """edrs_object main class."""
 
-    __data = None
-    __dialog = None
+    __data: RscanData = None  # type: ignore
+    __dialog: EdrsDialog = None  # type: ignore
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize main class."""
         # data
         self.data = RscanData()
 
         self.data.pluginname = "EDRS"
-        self.data.version = "0.1.2"
+        self.data.version = "0.2.12"
 
         # logging subsystem
         self.qlog = SimpleQueue()
@@ -51,12 +53,12 @@ class EDRS(MLogProcessor, MLogClient, NoDynamicAttributes):
         self.logger.debug = f"{self.data.pluginname} object creation complete."
 
     @property
-    def dialog(self):
+    def dialog(self) -> EdrsDialog:
         """Give me data access."""
         return self.__dialog
 
     @dialog.setter
-    def dialog(self, value):
+    def dialog(self, value) -> None:
         if isinstance(value, EdrsDialog):
             self.__dialog = value
         else:
@@ -68,12 +70,12 @@ class EDRS(MLogProcessor, MLogClient, NoDynamicAttributes):
             )
 
     @property
-    def data(self):
+    def data(self) -> RscanData:
         """Give me data access."""
         return self.__data
 
     @data.setter
-    def data(self, value):
+    def data(self, value) -> None:
         if isinstance(value, RscanData):
             self.__data = value
         else:
@@ -106,7 +108,10 @@ def plugin_start3(plugin_dir: str) -> str:
     """
     edrs_object.logger.debug = f"{edrs_object.data.pluginname}->plugin_start3 start..."
     # loglevel set from config
-    edrs_object.log_processor.loglevel = LogLevels().get(config.get_str("loglevel"))
+    loglevel: Optional[int] = LogLevels().get(config.get_str("loglevel"))
+    edrs_object.log_processor.loglevel = (
+        loglevel if loglevel is not None else logging.DEBUG
+    )
     edrs_object.logger.debug = f"{edrs_object.data.pluginname}->plugin_start3 done."
     return f"{edrs_object.data.pluginname}"
 
@@ -130,7 +135,7 @@ def plugin_stop() -> None:
     edrs_object.thlog = None
 
 
-def plugin_app(parent: tk.Frame) -> Tuple[tk.Label, tk.Label]:
+def plugin_app(parent: tk.Frame) -> Tuple[tk.Label, ttk.Button]:
     """Create a pair of TK widgets for the EDMarketConnector main window.
 
     parent:     The root EDMarketConnector window
@@ -143,7 +148,7 @@ def plugin_app(parent: tk.Frame) -> Tuple[tk.Label, tk.Label]:
     )
     if edrs_object.dialog is None:
         edrs_object.dialog = EdrsDialog(parent, edrs_object.qlog, edrs_object.data)
-    button = edrs_object.dialog.button()
+    button: ttk.Button = edrs_object.dialog.button()
     edrs_object.logger.debug = f"{edrs_object.data.pluginname}->plugin_app: done."
     return label, button
 
@@ -156,7 +161,10 @@ def prefs_changed(cmdr: str, is_beta: bool) -> None:
     """
     edrs_object.logger.debug = f"{edrs_object.data.pluginname}->prefs_changed: start..."
     # set loglevel after config update
-    edrs_object.log_processor.loglevel = LogLevels().get(config.get_str("loglevel"))
+    loglevel: Optional[int] = LogLevels().get(config.get_str("loglevel"))
+    edrs_object.log_processor.loglevel = (
+        loglevel if loglevel is not None else logging.DEBUG
+    )
     edrs_object.logger.debug = f"{edrs_object.data.pluginname}->prefs_changed: done."
 
 
