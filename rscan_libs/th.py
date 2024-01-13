@@ -88,10 +88,14 @@ class ThSystemSearch(Thread, MLogClient):
         self.logger.info = f"{pname}->{cname}: Starting new work..."
         # build radius query
         qurl = self.__build_radius_query()
+        if qurl is None:
+            return
         # create query object
         url = Url()
         # quering starts database
         systems = url.url_query(qurl)
+        if self.logger:
+            self.logger.debug = f"Systems from JSON: {systems}"
         if systems is None:
             return
         # filtering system

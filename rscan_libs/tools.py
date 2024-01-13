@@ -166,6 +166,7 @@ class Url(NoDynamicAttributes):
 
     def url_query(self, url: str) -> Optional[Dict]:
         """Return result of query for url."""
+        out = None
         if not url:
             return None
 
@@ -173,11 +174,11 @@ class Url(NoDynamicAttributes):
             response: requests.Response = requests.get(url, timeout=60)
             if response.status_code != 200:
                 print(f"Error calling API for EDSM data: {response.status_code}")
-                return None
-            return json.loads(response.text)
+            else:
+                out = json.loads(response.text)
         except Exception as ex:
             print(ex)
-        return None
+        return out
 
 
 class Numbers(NoDynamicAttributes):
@@ -200,7 +201,7 @@ class AlgTsp(Ialg, MLogClient, NoDynamicAttributes):
     __pluginname: str = None  # type: ignore
     __math: Euclid = None  # type: ignore
     __data: List[StarsSystem] = None  # type: ignore
-    __tmp: List[List[float]] = None  # type: ignore
+    __tmp: List[Any] = None  # type: ignore
     __jumprange: int = None  # type: ignore
     __final: List[StarsSystem] = None  # type: ignore
 
