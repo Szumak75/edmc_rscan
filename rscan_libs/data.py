@@ -9,8 +9,8 @@
 
 import inspect
 from typing import Union
-from attribtool.ndattrib import NoDynamicAttributes
-from raisetool.formatter import Raise
+from jsktoolbox.attribtool import NoDynamicAttributes
+from jsktoolbox.raisetool import Raise
 from rscan_libs.stars import StarsSystem
 
 
@@ -118,10 +118,11 @@ class RscanData(NoDynamicAttributes):
         if isinstance(value, bool):
             self.__data["shutdown"] = value
         else:
-            raise Raise.type_error(
+            raise Raise.error(
+                f"Boolean type expected, '{type(value)}' received.",
+                TypeError,
                 self.__class__.__name__,
                 inspect.currentframe(),
-                f"Boolean type expected, '{type(value)}' received.",
             )
 
 

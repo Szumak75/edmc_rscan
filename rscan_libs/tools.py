@@ -15,8 +15,8 @@ from operator import itemgetter
 from queue import Queue, SimpleQueue
 from sys import maxsize
 from typing import Dict, Optional, List, Tuple, Union
-from attribtool.ndattrib import NoDynamicAttributes
-from raisetool.formatter import Raise
+from jsktoolbox.attribtool import NoDynamicAttributes
+from jsktoolbox.raisetool import Raise
 
 import requests
 from rscan_libs.cartesianmath import Euclid
@@ -60,10 +60,11 @@ class Url(NoDynamicAttributes):
     def bodies_url(self, ssystem: StarsSystem) -> str:
         """Return proper API url for getting bodies information data."""
         if not isinstance(ssystem, StarsSystem):
-            raise Raise.type_error(
+            raise Raise.error(
+                f"StarsSystem type expected, '{type(ssystem)}' received",
+                TypeError,
                 self.__class__.__name__,
                 inspect.currentframe(),
-                f"StarsSystem type expected, '{type(ssystem)}' received",
             )
 
         if ssystem.address:
@@ -79,10 +80,11 @@ class Url(NoDynamicAttributes):
     def system_url(self, ssystem: StarsSystem) -> str:
         """Return proper API url for getting system data."""
         if not isinstance(ssystem, StarsSystem):
-            raise Raise.type_error(
+            raise Raise.error(
+                f"StarsSystem type expected, '{type(ssystem)}' received",
+                TypeError,
                 self.__class__.__name__,
                 inspect.currentframe(),
-                f"StarsSystem type expected, '{type(ssystem)}' received",
             )
 
         if ssystem.name:
@@ -94,10 +96,11 @@ class Url(NoDynamicAttributes):
     def radius_url(self, ssystem: StarsSystem, radius: int) -> str:
         """Return proper API url for getting systems data in radius."""
         if not isinstance(ssystem, StarsSystem):
-            raise Raise.type_error(
+            raise Raise.error(
+                f"StarsSystem type expected, '{type(ssystem)}' received",
+                TypeError,
                 self.__class__.__name__,
                 inspect.currentframe(),
-                f"StarsSystem type expected, '{type(ssystem)}' received",
             )
         if not isinstance(radius, int):
             radius = 50
@@ -116,10 +119,11 @@ class Url(NoDynamicAttributes):
     def cube_url(self, ssystem: StarsSystem, size: int) -> str:
         """Return proper API url for getting systems data in radius."""
         if not isinstance(ssystem, StarsSystem):
-            raise Raise.type_error(
+            raise Raise.error(
+                f"StarsSystem type expected, '{type(ssystem)}' received",
+                TypeError,
                 self.__class__.__name__,
                 inspect.currentframe(),
-                f"StarsSystem type expected, '{type(ssystem)}' received",
             )
         if not isinstance(size, int):
             size = 100
@@ -138,10 +142,11 @@ class Url(NoDynamicAttributes):
     def system_query(self, ssystem: StarsSystem) -> Optional[Dict]:
         """Return result of query for system data."""
         if not isinstance(ssystem, StarsSystem):
-            raise Raise.type_error(
+            raise Raise.error(
+                f"StarsSystem type expected, '{type(ssystem)}' received",
+                TypeError,
                 self.__class__.__name__,
                 inspect.currentframe(),
-                f"StarsSystem type expected, '{type(ssystem)}' received",
             )
         url = self.system_url(ssystem)
         if not url:
@@ -221,39 +226,44 @@ class AlgTsp(Ialg, MLogClient, NoDynamicAttributes):
         if isinstance(log_queue, (Queue, SimpleQueue)):
             self.logger = LogClient(log_queue)
         else:
-            raise Raise.type_error(
+            raise Raise.error(
+                f"Queue or SimpleQueue type expected, '{type(log_queue)}' received.",
+                TypeError,
                 self.__class__.__name__,
                 inspect.currentframe(),
-                f"Queue or SimpleQueue type expected, '{type(log_queue)}' received.",
             )
         # Euclid's algorithm for calculating the length of vectors
         if isinstance(euclid_alg, Euclid):
             self.__math = euclid_alg
         else:
-            raise Raise.type_error(
+            raise Raise.error(
+                f"Euclid type expected, '{type(euclid_alg)}' received",
+                TypeError,
                 self.__class__.__name__,
                 inspect.currentframe(),
-                f"Euclid type expected, '{type(euclid_alg)}' received",
             )
         if isinstance(jumprange, int):
             self.__jumprange = jumprange
         else:
-            raise Raise.type_error(
+            raise Raise.error(
+                f"Int type expected, '{type(jumprange)}' received",
+                TypeError,
                 self.__class__.__name__,
                 inspect.currentframe(),
-                f"Int type expected, '{type(jumprange)}' received",
             )
         if not isinstance(start, StarsSystem):
-            raise Raise.type_error(
+            raise Raise.error(
+                f"StarsSystem type expected, '{type(start)}' received.",
+                TypeError,
                 self.__class__.__name__,
                 inspect.currentframe(),
-                f"StarsSystem type expected, '{type(start)}' received.",
             )
         if not isinstance(systems, list):
-            raise Raise.type_error(
+            raise Raise.error(
+                f"list type expected, '{type(systems)}' received.",
+                TypeError,
                 self.__class__.__name__,
                 inspect.currentframe(),
-                f"list type expected, '{type(systems)}' received.",
             )
         self.debug(inspect.currentframe(), "Initialize dataset")
 
@@ -394,39 +404,44 @@ class AlgGenetic(Ialg, MLogClient, NoDynamicAttributes):
         if isinstance(log_queue, (Queue, SimpleQueue)):
             self.logger = LogClient(log_queue)
         else:
-            raise Raise.type_error(
+            raise Raise.error(
+                f"Queue or SimpleQueue type expected, '{type(log_queue)}' received.",
+                TypeError,
                 self.__class__.__name__,
                 inspect.currentframe(),
-                f"Queue or SimpleQueue type expected, '{type(log_queue)}' received.",
             )
         # Euclid's algorithm for calculating the length of vectors
         if isinstance(euclid_alg, Euclid):
             self.__math = euclid_alg
         else:
-            raise Raise.type_error(
+            raise Raise.error(
+                f"Euclid type expected, '{type(euclid_alg)}' received",
+                TypeError,
                 self.__class__.__name__,
                 inspect.currentframe(),
-                f"Euclid type expected, '{type(euclid_alg)}' received",
             )
         if isinstance(jumprange, int):
             self.__jumprange = jumprange
         else:
-            raise Raise.type_error(
+            raise Raise.error(
+                f"Int type expected, '{type(jumprange)}' received",
+                TypeError,
                 self.__class__.__name__,
                 inspect.currentframe(),
-                f"Int type expected, '{type(jumprange)}' received",
             )
         if not isinstance(start, StarsSystem):
-            raise Raise.type_error(
+            raise Raise.error(
+                f"StarsSystem type expected, '{type(start)}' received.",
+                TypeError,
                 self.__class__.__name__,
                 inspect.currentframe(),
-                f"StarsSystem type expected, '{type(start)}' received.",
             )
         if not isinstance(systems, list):
-            raise Raise.type_error(
+            raise Raise.error(
+                f"list type expected, '{type(systems)}' received.",
+                TypeError,
                 self.__class__.__name__,
                 inspect.currentframe(),
-                f"list type expected, '{type(systems)}' received.",
             )
         self.debug(inspect.currentframe(), "Initialize dataset")
 
@@ -637,39 +652,44 @@ class AlgGeneticGPT(Ialg, MLogClient, NoDynamicAttributes):
         if isinstance(log_queue, (Queue, SimpleQueue)):
             self.logger = LogClient(log_queue)
         else:
-            raise Raise.type_error(
+            raise Raise.error(
+                f"Queue or SimpleQueue type expected, '{type(log_queue)}' received.",
+                TypeError,
                 self.__class__.__name__,
                 inspect.currentframe(),
-                f"Queue or SimpleQueue type expected, '{type(log_queue)}' received.",
             )
         # Euclid's algorithm for calculating the length of vectors
         if isinstance(euclid_alg, Euclid):
             self.__math = euclid_alg
         else:
-            raise Raise.type_error(
+            raise Raise.error(
+                f"Euclid type expected, '{type(euclid_alg)}' received",
+                TypeError,
                 self.__class__.__name__,
                 inspect.currentframe(),
-                f"Euclid type expected, '{type(euclid_alg)}' received",
             )
         if isinstance(jumprange, int):
             self.__max_distance = jumprange
         else:
-            raise Raise.type_error(
+            raise Raise.error(
+                f"Int type expected, '{type(jumprange)}' received",
+                TypeError,
                 self.__class__.__name__,
                 inspect.currentframe(),
-                f"Int type expected, '{type(jumprange)}' received",
             )
         if not isinstance(start, StarsSystem):
-            raise Raise.type_error(
+            raise Raise.error(
+                f"StarsSystem type expected, '{type(start)}' received.",
+                TypeError,
                 self.__class__.__name__,
                 inspect.currentframe(),
-                f"StarsSystem type expected, '{type(start)}' received.",
             )
         if not isinstance(systems, list):
-            raise Raise.type_error(
+            raise Raise.error(
+                f"list type expected, '{type(systems)}' received.",
+                TypeError,
                 self.__class__.__name__,
                 inspect.currentframe(),
-                f"list type expected, '{type(systems)}' received.",
             )
         self.debug(inspect.currentframe(), "Initialize dataset")
 

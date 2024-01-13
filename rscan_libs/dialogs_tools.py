@@ -9,7 +9,7 @@
 import tkinter as tk
 from typing import List, Tuple, Union, Optional
 
-from attribtool.ndattrib import NoDynamicAttributes
+from jsktoolbox.attribtool import NoDynamicAttributes
 
 
 class CreateToolTip(NoDynamicAttributes):

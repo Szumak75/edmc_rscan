@@ -16,7 +16,7 @@ from types import FrameType
 from rscan_libs.cartesianmath import Euclid
 from rscan_libs.data import RscanData
 from rscan_libs.mlog import MLogClient
-from raisetool.formatter import Raise
+from jsktoolbox.raisetool import Raise
 from rscan_libs.stars import StarsSystem
 from rscan_libs.system import LogClient
 from rscan_libs.tools import AlgGenetic, AlgGeneticGPT, AlgTsp, Numbers, Url
@@ -49,30 +49,33 @@ class ThSystemSearch(Thread, MLogClient):
         if isinstance(log_queue, (Queue, SimpleQueue)):
             self.logger = LogClient(log_queue)
         else:
-            raise Raise.type_error(
+            raise Raise.error(
+                f"Queue or SimpleQueue type expected, '{type(log_queue)}' received.",
+                TypeError,
                 self.__class__.__name__,
                 inspect.currentframe(),
-                f"Queue or SimpleQueue type expected, '{type(log_queue)}' received.",
             )
 
         if isinstance(data, RscanData):
             self.__data = data
             self.debug(inspect.currentframe(), f"{self.__data}")
         else:
-            raise Raise.type_error(
+            raise Raise.error(
+                f"RscanData type expected, '{type(data)}' received",
+                TypeError,
                 self.__class__.__name__,
                 inspect.currentframe(),
-                f"RscanData type expected, '{type(data)}' received",
             )
 
         # Euclid's algorithm for calculating the length of vectors
         if isinstance(euclid_alg, Euclid):
             self.__math = euclid_alg
         else:
-            raise Raise.type_error(
+            raise Raise.error(
+                f"Euclid type expected, '{type(euclid_alg)}' received",
+                TypeError,
                 self.__class__.__name__,
                 inspect.currentframe(),
-                f"Euclid type expected, '{type(euclid_alg)}' received",
             )
 
         # initialize private variables
@@ -158,10 +161,11 @@ class ThSystemSearch(Thread, MLogClient):
     @start_system.setter
     def start_system(self, value: StarsSystem):
         if not isinstance(value, StarsSystem):
-            raise Raise.type_error(
+            raise Raise.error(
+                f"StarsSystem type expected, '{type(value)}' received.",
+                TypeError,
                 self.__class__.__name__,
                 inspect.currentframe(),
-                f"StarsSystem type expected, '{type(value)}' received.",
             )
         self.__start_system = value
 
@@ -203,10 +207,11 @@ class ThSystemSearch(Thread, MLogClient):
 
         # checking needed variables
         if self.start_system is None or self.radius is None:
-            raise Raise.value_error(
+            raise Raise.error(
+                "Needed variables not initialized properly.",
+                TypeError,
                 self.__class__.__name__,
                 inspect.currentframe(),
-                "Needed variables not initialized properly.",
             )
 
         # updating data for start system, if needed
@@ -259,10 +264,11 @@ class ThSystemSearch(Thread, MLogClient):
     def __get_bodies_information(self, system: StarsSystem) -> Optional[Dict]:
         """Try to get information about system bodies."""
         if not isinstance(system, StarsSystem):
-            raise Raise.type_error(
+            raise Raise.error(
+                f"StarsSystem type expected, '{type(system)}' received",
+                TypeError,
                 self.__class__.__name__,
                 inspect.currentframe(),
-                f"StarsSystem type expected, '{type(system)}' received",
             )
         url = Url()
         out_url = url.bodies_url(system)

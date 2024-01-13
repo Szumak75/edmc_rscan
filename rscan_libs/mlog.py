@@ -5,7 +5,7 @@ Created on 04 jan 2023.
 @author: szumak@virthost.pl
 """
 
-from attribtool.ndattrib import NoDynamicAttributes
+from jsktoolbox.attribtool import NoDynamicAttributes
 
 
 class MLogProcessor(NoDynamicAttributes):

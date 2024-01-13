@@ -9,8 +9,8 @@
 import inspect
 from typing import Optional, List, Dict, Union
 
-from attribtool.ndattrib import NoDynamicAttributes
-from raisetool.formatter import Raise
+from jsktoolbox.attribtool import NoDynamicAttributes
+from jsktoolbox.raisetool import Raise
 
 # from rscan_libs.tools import Numbers
 
@@ -77,10 +77,11 @@ class StarsSystem(NoDynamicAttributes):
         elif isinstance(arg, str) and arg.isdigit():
             self.__address = int(arg)
         else:
-            raise Raise.type_error(
+            raise Raise.error(
+                f"Int type expected, '{type(arg)}' received",
+                TypeError,
                 self.__class__.__name__,
                 inspect.currentframe(),
-                f"Int type expected, '{type(arg)}' received",
             )
 
     @property
@@ -96,10 +97,11 @@ class StarsSystem(NoDynamicAttributes):
                 self.address = None
                 self.star_pos = None
         else:
-            raise Raise.type_error(
+            raise Raise.error(
+                f"String type expected, '{type(arg)}' received.",
+                TypeError,
                 self.__class__.__name__,
                 inspect.currentframe(),
-                f"String type expected, '{type(arg)}' received.",
             )
 
     @property
@@ -114,10 +116,11 @@ class StarsSystem(NoDynamicAttributes):
         elif isinstance(arg, (int, float)):
             self.__pos_x = float(arg)
         else:
-            raise Raise.type_error(
+            raise Raise.error(
+                f"String type expected, '{type(arg)}' received.",
+                TypeError,
                 self.__class__.__name__,
                 inspect.currentframe(),
-                f"String type expected, '{type(arg)}' received.",
             )
 
     @property
@@ -132,10 +135,11 @@ class StarsSystem(NoDynamicAttributes):
         elif isinstance(arg, (int, float)):
             self.__pos_y = float(arg)
         else:
-            raise Raise.type_error(
+            raise Raise.error(
+                f"String type expected, '{type(arg)}' received.",
+                TypeError,
                 self.__class__.__name__,
                 inspect.currentframe(),
-                f"String type expected, '{type(arg)}' received.",
             )
 
     @property
@@ -150,10 +154,11 @@ class StarsSystem(NoDynamicAttributes):
         elif isinstance(arg, (int, float)):
             self.__pos_z = float(arg)
         else:
-            raise Raise.type_error(
+            raise Raise.error(
+                f"String type expected, '{type(arg)}' received.",
+                TypeError,
                 self.__class__.__name__,
                 inspect.currentframe(),
-                f"String type expected, '{type(arg)}' received.",
             )
 
     @property
@@ -168,10 +173,11 @@ class StarsSystem(NoDynamicAttributes):
         elif isinstance(arg, List) and len(arg) == 3:
             (self.pos_x, self.pos_y, self.pos_z) = arg
         else:
-            raise Raise.type_error(
+            raise Raise.error(
+                f"List type expected, '{type(arg)}' received.",
+                TypeError,
                 self.__class__.__name__,
                 inspect.currentframe(),
-                f"List type expected, '{type(arg)}' received.",
             )
 
     @property
@@ -201,10 +207,11 @@ class StarsSystem(NoDynamicAttributes):
         if value is None:
             self.__data = {}
         if not isinstance(value, Dict):
-            raise Raise.value_error(
+            raise Raise.error(
+                f"Type of data containet is dict, '{type(value)}' received, cannot proceed.",
+                TypeError,
                 self.__class__.__name__,
                 inspect.currentframe(),
-                f"Type of data containet is dict, '{type(value)}' received, cannot proceed.",
             )
         self.__data = value
 

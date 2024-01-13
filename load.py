@@ -12,8 +12,8 @@ import tkinter as tk
 from queue import SimpleQueue
 from threading import Thread
 from typing import Any, Dict, Optional, Tuple
-from attribtool.ndattrib import NoDynamicAttributes
-from raisetool.formatter import Raise
+from jsktoolbox.raisetool import Raise
+from jsktoolbox.attribtool import NoDynamicAttributes
 
 from config import config
 from rscan_libs.data import RscanData
@@ -60,10 +60,11 @@ class EDRS(MLogProcessor, MLogClient, NoDynamicAttributes):
         if isinstance(value, EdrsDialog):
             self.__dialog = value
         else:
-            raise Raise.type_error(
+            raise Raise.error(
+                f"EdrsDialog type expected, '{type(value)} received.'",
+                TypeError,
                 self.__class__.__name__,
                 inspect.currentframe(),
-                f"EdrsDialog type expected, '{type(value)} received.'",
             )
 
     @property
@@ -76,10 +77,11 @@ class EDRS(MLogProcessor, MLogClient, NoDynamicAttributes):
         if isinstance(value, RscanData):
             self.__data = value
         else:
-            raise Raise.type_error(
+            raise Raise.error(
+                f"RscanData type expected, '{type(value)} received.'",
+                TypeError,
                 self.__class__.__name__,
                 inspect.currentframe(),
-                f"RscanData type expected, '{type(value)} received.'",
             )
 
     def th_logger(self) -> None:

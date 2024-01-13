@@ -13,8 +13,8 @@ from queue import Queue, SimpleQueue
 from threading import Thread
 from tkinter import ttk
 from typing import List, Optional, Union, Tuple
-from attribtool.ndattrib import NoDynamicAttributes
-from raisetool.formatter import Raise
+from jsktoolbox.attribtool import NoDynamicAttributes
+from jsktoolbox.raisetool import Raise
 
 from rscan_libs.cartesianmath import Euclid
 from rscan_libs.data import RscanData
@@ -72,30 +72,33 @@ class EdrsScanDialog(tk.Toplevel, MLogClient):
         if isinstance(log_queue, (Queue, SimpleQueue)):
             self.logger = LogClient(log_queue)
         else:
-            raise Raise.type_error(
+            raise Raise.error(
+                f"Queue or SimpleQueue type expected, '{type(log_queue)}' received.",
+                TypeError,
                 self.__class__.__name__,
                 inspect.currentframe(),
-                f"Queue or SimpleQueue type expected, '{type(log_queue)}' received.",
             )
 
         if isinstance(data, RscanData):
             self.__data = data
             self.debug(inspect.currentframe(), f"{self.__data}")
         else:
-            raise Raise.type_error(
+            raise Raise.error(
+                f"RscanData type expected, '{type(data)}' received",
+                TypeError,
                 self.__class__.__name__,
                 inspect.currentframe(),
-                f"RscanData type expected, '{type(data)}' received",
             )
 
         # Euclid's algorithm for calculating the length of vectors
         if isinstance(euclid_alg, Euclid):
             self.__tools["math"] = euclid_alg
         else:
-            raise Raise.type_error(
+            raise Raise.error(
+                f"Euclid type expected, '{type(euclid_alg)}' received",
+                TypeError,
                 self.__class__.__name__,
                 inspect.currentframe(),
-                f"Euclid type expected, '{type(euclid_alg)}' received",
             )
 
         self.debug(inspect.currentframe(), "Initialize dataset")
@@ -444,29 +447,32 @@ class EdrsDialog(MLogClient, NoDynamicAttributes):
         if isinstance(log_queue, (Queue, SimpleQueue)):
             self.logger = LogClient(log_queue)
         else:
-            raise Raise.type_error(
+            raise Raise.error(
+                f"Queue or SimpleQueue type expected, '{type(log_queue)}' received.",
+                TypeError,
                 self.__class__.__name__,
                 inspect.currentframe(),
-                f"Queue or SimpleQueue type expected, '{type(log_queue)}' received.",
             )
 
         if isinstance(data, RscanData):
             self.__data = data
             self.debug(inspect.currentframe(), f"{self.__data}")
         else:
-            raise Raise.type_error(
+            raise Raise.error(
+                f"RscanData type expected, '{type(data)}' received",
+                TypeError,
                 self.__class__.__name__,
                 inspect.currentframe(),
-                f"RscanData type expected, '{type(data)}' received",
             )
 
         if isinstance(parent, tk.Frame):
             self.__parent = parent
         else:
-            raise Raise.type_error(
+            raise Raise.error(
+                f"tk.Frame type expected, '{type(parent)}' received",
+                TypeError,
                 self.__class__.__name__,
                 inspect.currentframe(),
-                f"tk.Frame type expected, '{type(parent)}' received",
             )
 
         self.__windows = []

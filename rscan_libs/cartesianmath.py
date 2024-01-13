@@ -12,8 +12,8 @@ import time
 from queue import Queue, SimpleQueue
 from typing import List, Union
 from types import FrameType
-from attribtool.ndattrib import NoDynamicAttributes
-from raisetool.formatter import Raise
+from jsktoolbox.attribtool import NoDynamicAttributes
+from jsktoolbox.raisetool import Raise
 
 from rscan_libs.data import RscanData
 from rscan_libs.mlog import MLogClient
@@ -55,20 +55,22 @@ class Euclid(MLogClient, NoDynamicAttributes):
         if isinstance(queue, (Queue, SimpleQueue)):
             self.logger = LogClient(queue)
         else:
-            raise Raise.type_error(
+            raise Raise.error(
+                f"Queue or SimpleQueue type expected, '{type(queue)}' received.",
+                TypeError,
                 self.__class__.__name__,
                 inspect.currentframe(),
-                f"Queue or SimpleQueue type expected, '{type(queue)}' received.",
             )
 
         if isinstance(data, RscanData):
             self.__data = data
             self.debug(inspect.currentframe(), f"{self.__data}")
         else:
-            raise Raise.type_error(
+            raise Raise.error(
+                f"RscanData type expected, '{type(data)}' received",
+                TypeError,
                 self.__class__.__name__,
                 inspect.currentframe(),
-                f"RscanData type expected, '{type(data)}' received",
             )
 
         self.debug(inspect.currentframe(), "Initialize dataset")

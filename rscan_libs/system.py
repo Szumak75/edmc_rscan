@@ -18,8 +18,8 @@ from typing import Union, Optional, List, Dict
 from distutils.spawn import find_executable
 from logging.handlers import RotatingFileHandler
 from queue import Queue, SimpleQueue
-from attribtool.ndattrib import NoDynamicAttributes
-from raisetool.formatter import Raise
+from jsktoolbox.attribtool import NoDynamicAttributes
+from jsktoolbox.raisetool import Raise
 
 
 class Clip(NoDynamicAttributes):
@@ -66,9 +66,9 @@ class Clip(NoDynamicAttributes):
                     except:
                         print(
                             Raise.message(
+                                "Pyperclip requires the gtk or PyQt4 module installed, or the xclip command.",
                                 self.__class__.__name__,
                                 inspect.currentframe(),
-                                "Pyperclip requires the gtk or PyQt4 module installed, or the xclip command.",
                             )
                         )
         self.__copy = setcb
@@ -289,10 +289,11 @@ class Log(NoDynamicAttributes):
         if isinstance(level, int) and ll_test.has_key(level):
             self.__level = level
         else:
-            raise Raise.type_error(
+            raise Raise.error(
+                f"Int type level expected, '{type(level)}' received.",
+                TypeError,
                 self.__class__.__name__,
                 inspect.currentframe(),
-                f"Int type level expected, '{type(level)}' received.",
             )
 
     @property
@@ -387,10 +388,11 @@ class LogProcessor(NoDynamicAttributes):
                 for msg in message.log:
                     self.__engine.notset("%s", msg)
         else:
-            raise Raise.type_error(
+            raise Raise.error(
+                f"Log type expected, {type(message)} received.",
+                TypeError,
                 self.__class__.__name__,
                 inspect.currentframe(),
-                f"Log type expected, {type(message)} received.",
             )
 
     @property
@@ -428,10 +430,11 @@ class LogClient(NoDynamicAttributes):
         if isinstance(queue, (Queue, SimpleQueue)):
             self.__queue = queue
         else:
-            raise Raise.type_error(
-                self.__class__.__name__,
-                inspect.currentframe,
+            raise Raise.error(
                 f"Queue or SimpleQueue type expected, '{type(queue)}' received.",
+                TypeError,
+                self.__class__.__name__,
+                inspect.currentframe(),
             )
 
     @property
