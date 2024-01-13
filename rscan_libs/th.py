@@ -73,7 +73,7 @@ class ThSystemSearch(Thread, MLogClient):
                 self.__class__.__name__,
                 inspect.currentframe(),
             )
-        self.__math = euclid_alg
+        self.__math: Euclid = euclid_alg
 
         # initialize private variables
         self.__parent = parent
@@ -113,7 +113,7 @@ class ThSystemSearch(Thread, MLogClient):
         self.status(
             f"{len(systems)} systems found, flight route calculations in progress..."
         )
-        systems_out = self.__flightroute_systems(rsystems)
+        systems_out: List[StarsSystem] = self.__flightroute_systems(rsystems)
         self.debug(inspect.currentframe(), f"Search result: {systems_out}")
         # put it into result list
         dsum: float = 0.0
@@ -126,7 +126,7 @@ class ThSystemSearch(Thread, MLogClient):
         )
         self.logger.info = f"{pname}->{cname}: Done."
 
-    def debug(self, currentframe: Optional[FrameType], message: str = ""):
+    def debug(self, currentframe: Optional[FrameType], message: str = "") -> None:
         """Build debug message."""
         pname: str = f"{self.__data.pluginname}"
         cname: str = f"{self.__class__.__name__}"
