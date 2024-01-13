@@ -14,6 +14,7 @@ from queue import Queue, SimpleQueue
 from threading import Thread
 from tkinter import ttk
 from typing import List, Optional, Union, Tuple, Dict, Any
+from types import FrameType
 from jsktoolbox.attribtool import NoDynamicAttributes
 from jsktoolbox.raisetool import Raise
 
@@ -537,7 +538,7 @@ class EdrsDialog(MLogClient, NoDynamicAttributes):
             f"numbers of windows: {len(self.__windows)}",
         )
 
-    def debug(self, currentframe: Optional[TypeFrame], message: str = "") -> None:
+    def debug(self, currentframe: Optional[FrameType], message: str = "") -> None:
         """Build debug message."""
         pname = f"{self.__data.pluginname}"
         cname = f"{self.__class__.__name__}"
