@@ -222,7 +222,7 @@ class ThSystemSearch(Thread, MLogClient):
 
         return url.radius_url(self.start_system, self.radius)
 
-    def __buils_radius_systems_list(self, systems: list) -> Optional[List]:
+    def __buils_radius_systems_list(self, systems: List) -> Optional[List[StarsSystem]]:
         """Build filtered systems list from EDSM API output."""
         out = []
         out_body = []
@@ -258,7 +258,8 @@ class ThSystemSearch(Thread, MLogClient):
             #     #         count += 1
             #     #         out.append(system)
 
-        self.logger.info = f"Found {count} systems"
+        if self.logger:
+            self.logger.info = f"Found {count} systems"
         return out
 
     def __get_bodies_information(self, system: StarsSystem) -> Optional[Dict]:

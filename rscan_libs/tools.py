@@ -14,7 +14,7 @@ from itertools import permutations
 from operator import itemgetter
 from queue import Queue, SimpleQueue
 from sys import maxsize
-from typing import Dict, Optional, List, Tuple, Union
+from typing import Dict, Optional, List, Tuple, Union, Any
 from jsktoolbox.attribtool import NoDynamicAttributes
 from jsktoolbox.raisetool import Raise
 
@@ -181,7 +181,7 @@ class Url(NoDynamicAttributes):
 class Numbers(NoDynamicAttributes):
     """Numbers tool."""
 
-    def is_float(self, element: any) -> bool:
+    def is_float(self, element: Any) -> bool:
         """Check, if element is proper float variable."""
         if element is None:
             return False
@@ -195,22 +195,22 @@ class Numbers(NoDynamicAttributes):
 class AlgTsp(Ialg, MLogClient, NoDynamicAttributes):
     """Travelling salesman problem."""
 
-    __pluginname = None
-    __math = None
-    __data = None
-    __tmp = None
-    __jumprange = None
-    __final = None
+    __pluginname: str = None  # type: ignore
+    __math: Euclid = None  # type: ignore
+    __data: List[StarsSystem] = None  # type: ignore
+    __tmp: List[List[float]] = None  # type: ignore
+    __jumprange: int = None  # type: ignore
+    __final: List[StarsSystem] = None  # type: ignore
 
     def __init__(
         self,
         start: StarsSystem,
         systems: List[StarsSystem],
         jumprange: int,
-        log_queue: Union[Queue, SimpleQueue],
+        log_queue: Optional[Union[Queue, SimpleQueue]],
         euclid_alg: Euclid,
         plugin_name: str,
-    ):
+    ) -> None:
         """Construct instance object.
 
         params:
@@ -274,7 +274,7 @@ class AlgTsp(Ialg, MLogClient, NoDynamicAttributes):
         for item in systems:
             self.__data.append(item)
 
-    def run(self):
+    def run(self) -> None:
         """Run algorithm."""
         # stage 1: generate a cost table
         self.__stage_1_costs()
@@ -283,9 +283,9 @@ class AlgTsp(Ialg, MLogClient, NoDynamicAttributes):
         # finalize
         self.__final_update()
 
-    def __stage_1_costs(self):
+    def __stage_1_costs(self) -> None:
         """Stage 1: generate a cost table."""
-        count = len(self.__data)
+        count: int = len(self.__data)
         for idx in range(count):
             self.__tmp.append([])
             for idx2 in range(count):
@@ -296,29 +296,23 @@ class AlgTsp(Ialg, MLogClient, NoDynamicAttributes):
                 )
         self.debug(inspect.currentframe(), f"{self.__tmp}")
 
-    def __stage_2_solution(self):
+    def __stage_2_solution(self) -> None:
         """Stage 2: search the solution."""
-        out = []
-        vertex = []
-        start = 0
+        out: List[Any] = []
+        vertex: List[int] = []
+        start: int = 0
         for i in range(len(self.__data)):
             if i != start:
                 vertex.append(i)
         # store minimum weight Hamilto Cycle
-        min_path = maxsize
+        min_path: float = float(maxsize)
         next_permutation = permutations(vertex)
 
         for i in next_permutation:
             # store current Path weight
-            current_pathweight = 0
-
-            # self.debug(
-            #     inspect.currentframe(),
-            #     f"NEXT: {i}"
-            # )
-            #
+            current_pathweight: float = 0.0
             # compute current path weight
-            k = start
+            k: int = start
             for j in i:
                 current_pathweight += self.__tmp[k][j]
                 k = j
@@ -330,14 +324,16 @@ class AlgTsp(Ialg, MLogClient, NoDynamicAttributes):
                 min_path = current_pathweight
 
         # best solution
-        self.logger.debug = f"DATA: {self.__data}"
-        self.logger.debug = f"PATH: {out}"
+        if self.logger:
+            self.logger.debug = f"DATA: {self.__data}"
+        if self.logger:
+            self.logger.debug = f"PATH: {out}"
         # add start system as first
         self.__tmp = [0]
         # and merge with output
         self.__tmp.extend(list(out[1]))
 
-    def __final_update(self):
+    def __final_update(self) -> None:
         """Build final dataset."""
         self.__final = []
         dsum = 0
@@ -349,265 +345,25 @@ class AlgTsp(Ialg, MLogClient, NoDynamicAttributes):
             )
             dsum += system.data["distance"]
             self.__final.append(system)
-        self.logger.debug = f"FINAL Distance: {dsum:.2f} ly"
-        self.logger.debug = f"INPUT: {self.__data}"
-        self.logger.debug = f"OUTPUT: {self.__final}"
+        if self.logger:
+            self.logger.debug = f"FINAL Distance: {dsum:.2f} ly"
+        if self.logger:
+            self.logger.debug = f"INPUT: {self.__data}"
+        if self.logger:
+            self.logger.debug = f"OUTPUT: {self.__final}"
 
-    def debug(self, currentframe, message=""):
+    def debug(self, currentframe, message="") -> None:
         """Build debug message."""
-        pname = f"{self.__pluginname}"
-        cname = f"{self.__class__.__name__}"
-        mname = f"{currentframe.f_code.co_name}"
+        pname: str = f"{self.__pluginname}"
+        cname: str = f"{self.__class__.__name__}"
+        mname: str = f"{currentframe.f_code.co_name}"
         if message != "":
             message = f": {message}"
-        self.logger.debug = f"{pname}->{cname}.{mname}{message}"
+        if self.logger:
+            self.logger.debug = f"{pname}->{cname}.{mname}{message}"
 
     @property
-    def get_final(self) -> list:
-        """Return final data."""
-        return self.__final
-
-
-class AlgGenetic(Ialg, MLogClient, NoDynamicAttributes):
-    """Genetic algorithm solving the problem of finding the best path."""
-
-    __pluginname = None
-    __math = None
-    __data = None
-    __tmp = None
-    __jumprange = None
-    __final = None
-    __count = None
-
-    def __init__(
-        self,
-        start: StarsSystem,
-        systems: List[StarsSystem],
-        jumprange: int,
-        log_queue: Union[Queue, SimpleQueue],
-        euclid_alg: Euclid,
-        plugin_name: str,
-    ):
-        """Construct instance object.
-
-        params:
-        start: StarsSystem - object with starting position.
-        systems: list(StarsSystem,...) - list with point of interest to visit
-        jumprange: int - jumprange in ly
-        log_queue: queue for LogClient
-        euclid_alg: Euclid - object of initialized vectors class
-        plugin_name: str - name of plugin for debug log
-        """
-        self.__count: int = 100
-        self.__pluginname = plugin_name
-        # init log subsystem
-        if isinstance(log_queue, (Queue, SimpleQueue)):
-            self.logger = LogClient(log_queue)
-        else:
-            raise Raise.error(
-                f"Queue or SimpleQueue type expected, '{type(log_queue)}' received.",
-                TypeError,
-                self.__class__.__name__,
-                inspect.currentframe(),
-            )
-        # Euclid's algorithm for calculating the length of vectors
-        if isinstance(euclid_alg, Euclid):
-            self.__math = euclid_alg
-        else:
-            raise Raise.error(
-                f"Euclid type expected, '{type(euclid_alg)}' received",
-                TypeError,
-                self.__class__.__name__,
-                inspect.currentframe(),
-            )
-        if isinstance(jumprange, int):
-            self.__jumprange = jumprange
-        else:
-            raise Raise.error(
-                f"Int type expected, '{type(jumprange)}' received",
-                TypeError,
-                self.__class__.__name__,
-                inspect.currentframe(),
-            )
-        if not isinstance(start, StarsSystem):
-            raise Raise.error(
-                f"StarsSystem type expected, '{type(start)}' received.",
-                TypeError,
-                self.__class__.__name__,
-                inspect.currentframe(),
-            )
-        if not isinstance(systems, list):
-            raise Raise.error(
-                f"list type expected, '{type(systems)}' received.",
-                TypeError,
-                self.__class__.__name__,
-                inspect.currentframe(),
-            )
-        self.debug(inspect.currentframe(), "Initialize dataset")
-
-        self.__data = []
-        self.__tmp = []
-        self.__final = []
-        self.__data.append(start)
-        for item in systems:
-            self.__data.append(item)
-
-    def run(self):
-        """Run algorithm."""
-        # stage 1: generate a starting population
-        self.__stage_1_generator()
-        # show debug
-        # self.debug(
-        #     inspect.currentframe(),
-        #     "Stage 1 list is:"
-        # )
-        # for item in self.__tmp:
-        #     self.logger.debug = f"{item}"
-        # self.debug(
-        #     inspect.currentframe(),
-        #     "Stage 1 list end."
-        # )
-        count = 0
-        while count < self.__count:
-            count += 1
-            # stage 2: crossing
-            start = 1
-            end = len(self.__tmp) - 2
-            while start < end:
-                self.__stage_2_crossing(start, end)
-                start += 1
-                end -= 1
-            # stage 3: mutating
-            end = len(self.__tmp)
-            for _ in range(0, end):
-                self.__stage_3_mutating(random.randrange(0, end))
-            # stage 4: sorting
-            self.__tmp = sorted(self.__tmp, key=itemgetter(0))
-            # stage 5: removing bad
-            self.__stage_5_remove_bad()
-        self.__final_update()
-
-    def __stage_1_generator(self):
-        """Generate a starting population."""
-        count = len(self.__data)
-        items = int(count * self.__count)
-        for _ in range(items):
-            tmp = []
-            # first item is path length
-            tmp.append(0)
-            # second item is start system idx in self__data
-            tmp.append([0, 0.0])
-            rand = [*range(1, count)]
-            # self.logger.debug = f"rand: {rand}"
-            # randomize data
-            random.shuffle(rand)
-            # self.logger.debug = f"random rand: {rand}"
-            # create dataset
-            for idx in rand:
-                tmp.append([idx, 0.0])
-            # self.logger.debug = f"tmp: {tmp}"
-            tmp = self.__compute_path_length(tmp)
-            # self.logger.debug = f"tmp: {tmp}"
-            # add to population list
-            self.__tmp.append(tmp)
-
-    def __stage_2_crossing(self, start: int, end: int):
-        """Stage 2: crossing."""
-        # self.logger.debug = f"Start[{start}]: {self.__tmp[start]}"
-        # self.logger.debug = f"End[{end}]: {self.__tmp[end]}"
-        tmp = []
-        # first item is path length
-        tmp.append(0)
-        # second item is start system idx in self__data
-        tmp.append([0, 0.0])
-        # [total path, [start system], [first point], ...]
-        for idx in range(2, len(self.__tmp[end])):
-            if idx < int((len(self.__tmp[end]) + 2) / 2):
-                tmp.append(copy.deepcopy(self.__tmp[end][idx]))
-        for idx in range(2, len(self.__tmp[start])):
-            test = True
-            for idx2 in range(2, len(tmp)):
-                if self.__tmp[start][idx][0] == tmp[idx2][0]:
-                    test = False
-            if test:
-                tmp.append(copy.deepcopy(self.__tmp[start][idx]))
-        tmp = self.__compute_path_length(tmp)
-        self.__tmp.append(tmp)
-
-    def __stage_3_mutating(self, start: int):
-        """Stage 3: mutating."""
-        first = random.randrange(2, len(self.__tmp[start]))
-        second = random.randrange(2, len(self.__tmp[start]))
-        while first == second:
-            second = random.randrange(2, len(self.__tmp[start]))
-
-        tmp = copy.deepcopy(self.__tmp[start])
-        # self.logger.debug = f"TMP-in: {tmp}"
-        ifirst = tmp[first]
-        tmp[first] = tmp[second]
-        tmp[second] = ifirst
-        tmp = self.__compute_path_length(tmp)
-        # self.logger.debug = f"TMP-out: {tmp}"
-
-        self.__tmp.append(tmp)
-
-    def __stage_5_remove_bad(self):
-        """Stage 5: remove the worst results."""
-        count = len(self.__data)
-        items = int(count * 2)
-        tmp = []
-        for idx in range(items):
-            tmp.append(copy.deepcopy(self.__tmp[idx]))
-        self.__tmp = None
-        self.__tmp = tmp
-
-    def __compute_path_length(self, arg: list, flag: bool = False) -> list:
-        """Compute path length."""
-        # compute partial path length
-        for idx in range(2, len(arg)):
-            distance = self.__math.distance(
-                self.__data[arg[idx - 1][0]].star_pos,
-                self.__data[arg[idx][0]].star_pos,
-            )
-            if not flag:
-                if distance > self.__jumprange:
-                    distance = distance * 10
-            arg[idx][1] = distance
-        # compute total path length
-        for idx in range(2, len(arg)):
-            arg[0] += arg[idx][1]
-        # self.logger.debug = f"arg: {arg}"
-        return arg
-
-    def __final_update(self):
-        """Build final dataset."""
-        self.__final = []
-        dsum = 0
-        print(self.__tmp[0])
-        self.__tmp[0][0] = 0
-        self.__tmp[0] = self.__compute_path_length(self.__tmp[0], True)
-        print(self.__tmp[0])
-        for idx in range(2, len(self.__tmp[0])):
-            self.logger.debug = f"FINAL: {idx} -> {self.__tmp[0][idx]}"
-            system = self.__data[self.__tmp[0][idx][0]]
-            system.data["distance"] = self.__tmp[0][idx][1]
-            dsum += system.data["distance"]
-            self.__final.append(system)
-        self.logger.debug = f"FINAL Distance: {dsum:.2f} ly"
-        self.logger.debug = f"INPUT: {self.__data}"
-        self.logger.debug = f"OUTPUT: {self.__final}"
-
-    def debug(self, currentframe, message=""):
-        """Build debug message."""
-        pname = f"{self.__pluginname}"
-        cname = f"{self.__class__.__name__}"
-        mname = f"{currentframe.f_code.co_name}"
-        if message != "":
-            message = f": {message}"
-        self.logger.debug = f"{pname}->{cname}.{mname}{message}"
-
-    @property
-    def get_final(self) -> list:
+    def get_final(self) -> List[StarsSystem]:
         """Return final data."""
         return self.__final
 
@@ -615,27 +371,27 @@ class AlgGenetic(Ialg, MLogClient, NoDynamicAttributes):
 class AlgGeneticGPT(Ialg, MLogClient, NoDynamicAttributes):
     """Genetic algorithm solving the problem of finding the best path."""
 
-    __pluginname = None
-    __math = None
-    __final = None
+    __pluginname: str = None  # type: ignore
+    __math: Euclid = None  # type: ignore
+    __final: List[StarsSystem] = None  # type: ignore
 
-    __points = None
-    __start_point = None
-    __max_distance = None
-    __population_size = None
-    __generations = None
-    __mutation_rate = None
-    __crossover_rate = None
+    __points = None  # type: ignore
+    __start_point = None  # type: ignore
+    __max_distance = None  # type: ignore
+    __population_size = None  # type: ignore
+    __generations = None  # type: ignore
+    __mutation_rate = None  # type: ignore
+    __crossover_rate = None  # type: ignore
 
     def __init__(
         self,
         start: StarsSystem,
         systems: List[StarsSystem],
         jumprange: int,
-        log_queue: Union[Queue, SimpleQueue],
+        log_queue: Optional[Union[Queue, SimpleQueue]],
         euclid_alg: Euclid,
         plugin_name: str,
-    ):
+    ) -> None:
         """Construct instance object.
 
         params:
@@ -669,7 +425,7 @@ class AlgGeneticGPT(Ialg, MLogClient, NoDynamicAttributes):
                 inspect.currentframe(),
             )
         if isinstance(jumprange, int):
-            self.__max_distance = jumprange
+            self.__max_distance: int = jumprange
         else:
             raise Raise.error(
                 f"Int type expected, '{type(jumprange)}' received",
@@ -693,12 +449,12 @@ class AlgGeneticGPT(Ialg, MLogClient, NoDynamicAttributes):
             )
         self.debug(inspect.currentframe(), "Initialize dataset")
 
-        self.__points = systems
-        self.__start_point = start
-        self.__population_size = 100
-        self.__generations = 100
-        self.__mutation_rate = 0.05
-        self.__crossover_rate = 0.4
+        self.__points: List[StarsSystem] = systems
+        self.__start_point: StarsSystem = start
+        self.__population_size: int = 100
+        self.__generations: int = 100
+        self.__mutation_rate: float = 0.05
+        self.__crossover_rate: float = 0.4
 
     def __generate_individual(self) -> List[StarsSystem]:
         individual: List[StarsSystem] = [self.__start_point]
@@ -768,7 +524,7 @@ class AlgGeneticGPT(Ialg, MLogClient, NoDynamicAttributes):
 
     def __evolve(self) -> List[StarsSystem]:
         population = self.__generate_population()
-        best_individual: List[StarsSystem] = None
+        best_individual: List[StarsSystem] = None  # type: ignore
         for i in range(self.__generations):
             fitnesses = [self.__get_fitness(individual) for individual in population]
             best_individual = population[fitnesses.index(max(fitnesses))]
@@ -795,7 +551,8 @@ class AlgGeneticGPT(Ialg, MLogClient, NoDynamicAttributes):
             end.data["distance"] = self.__math.distance(start.star_pos, end.star_pos)
             dsum += end.data["distance"]
             start = end
-        self.logger.debug = f"FINAL Distance: {dsum:.2f} ly"
+        if self.logger:
+            self.logger.debug = f"FINAL Distance: {dsum:.2f} ly"
 
     def debug(self, currentframe, message=""):
         """Build debug message."""
@@ -804,10 +561,11 @@ class AlgGeneticGPT(Ialg, MLogClient, NoDynamicAttributes):
         mname = f"{currentframe.f_code.co_name}"
         if message != "":
             message = f": {message}"
-        self.logger.debug = f"{pname}->{cname}.{mname}{message}"
+        if self.logger:
+            self.logger.debug = f"{pname}->{cname}.{mname}{message}"
 
     @property
-    def get_final(self) -> list:
+    def get_final(self) -> List[StarsSystem]:
         """Return final data."""
         return self.__final
 

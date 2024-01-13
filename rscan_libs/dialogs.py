@@ -9,10 +9,11 @@
 import inspect
 import time
 import tkinter as tk
+from tkinter import font
 from queue import Queue, SimpleQueue
 from threading import Thread
 from tkinter import ttk
-from typing import List, Optional, Union, Tuple
+from typing import List, Optional, Union, Tuple, Dict, Any
 from jsktoolbox.attribtool import NoDynamicAttributes
 from jsktoolbox.raisetool import Raise
 
@@ -31,18 +32,18 @@ class EdrsScanDialog(tk.Toplevel, MLogClient):
 
     __closed = False
     # RScanData
-    __data = None
+    __data: RscanData = None  # type: ignore
     # start system name
-    __start = None
+    __start: StarsSystem = None  # type: ignore
     # stars list
-    __stars = None
+    __stars: List[Any] = None  # type: ignore
     # wighets container
-    __widgets = None
+    __widgets: Dict[str, Any] = None  # type: ignore
     # th worker
-    __rscan_th = None
-    __rscan_qth = None
-    __fonts = None
-    __tools = None
+    __rscan_th: Thread = None  # type: ignore
+    __rscan_qth: SimpleQueue = None  # type: ignore
+    __fonts: Dict[str, Any] = None  # type: ignore
+    __tools: Dict[str, Any] = None  # type: ignore
 
     def __init__(
         self,
@@ -50,7 +51,7 @@ class EdrsScanDialog(tk.Toplevel, MLogClient):
         data: RscanData,
         euclid_alg: Euclid,
         master=None,
-    ):
+    ) -> None:
         """Initialize dataset."""
         super().__init__(master=master)
 
@@ -61,12 +62,12 @@ class EdrsScanDialog(tk.Toplevel, MLogClient):
 
         # witgets declaration
         self.__widgets = {}
-        self.__widgets["status"]: Optional[tk.StringVar] = None
-        self.__widgets["fdata"]: Optional[tk.LabelFrame] = None
-        self.__widgets["system"]: Optional[tk.Entry] = None
-        self.__widgets["radius"]: Optional[tk.Entry] = None
-        self.__widgets["sbutton"]: Optional[tk.Button] = None
-        self.__widgets["spanel"]: Optional[VerticalScrolledFrame] = None
+        self.__widgets["status"] = None  #: Optional[tk.StringVar]
+        self.__widgets["fdata"] = None  #: Optional[tk.LabelFrame]
+        self.__widgets["system"] = None  #: Optional[tk.Entry]
+        self.__widgets["radius"] = None  #: Optional[tk.Entry]
+        self.__widgets["sbutton"] = None  #: Optional[tk.Button]
+        self.__widgets["spanel"] = None  #: Optional[VerticalScrolledFrame]
 
         # init log subsystem
         if isinstance(log_queue, (Queue, SimpleQueue)):
@@ -119,14 +120,14 @@ class EdrsScanDialog(tk.Toplevel, MLogClient):
 
         # fonts configure
         self.__fonts = {
-            "bold": tk.font.Font(
+            "bold": font.Font(
                 family="Helvetica",
                 size=10,
-                weight=tk.font.BOLD,
-                overstrike=0,
+                weight=font.BOLD,
+                overstrike=False,
             ),
-            "normal": tk.font.Font(family="Helvetica", size=10, overstrike=0),
-            "strike": tk.font.Font(family="Helvetica", size=10, overstrike=1),
+            "normal": font.Font(family="Helvetica", size=10, overstrike=False),
+            "strike": font.Font(family="Helvetica", size=10, overstrike=True),
         }
 
         # create window
@@ -141,7 +142,7 @@ class EdrsScanDialog(tk.Toplevel, MLogClient):
     #         f"Delete window: {self.title()}"
     #     )
     #
-    def __frame_build(self):
+    def __frame_build(self) -> None:
         """Create window."""
         self.title(self.__data.pluginname)
         self.geometry("600x400")
@@ -176,7 +177,7 @@ class EdrsScanDialog(tk.Toplevel, MLogClient):
         command_frame.columnconfigure(4, weight=1)
         command_frame.rowconfigure(0, weight=1)
         tk.Label(command_frame, text="Start system:").grid(row=0, column=0, sticky=tk.E)
-        system_name = tk.Entry(command_frame, textvariable="")
+        system_name = tk.Entry(command_frame, textvariable=tk.StringVar(value=""))
         system_name.grid(row=0, column=1, sticky=tk.EW)
         if self.__data.starsystem.name is not None:
             system_name.delete(0, tk.END)
@@ -212,14 +213,14 @@ class EdrsScanDialog(tk.Toplevel, MLogClient):
         # closing event
         self.protocol("WM_DELETE_WINDOW", self.__on_closing)
 
-    def __on_closing(self):
+    def __on_closing(self) -> None:
         """Run on closing event."""
         self.debug(inspect.currentframe(), "Window is closing now.")
         self.__closed = True
         self.__rscan_qth.put(None)
         self.destroy()
 
-    def __to_clipboard(self, clip_text: str):
+    def __to_clipboard(self, clip_text: str) -> None:
         """Copy txt to clipboard."""
         # USE: command=lambda: self.__to_clipboard('txt')
         self.debug(inspect.currentframe(), f"string: '{clip_text}'")
@@ -233,7 +234,7 @@ class EdrsScanDialog(tk.Toplevel, MLogClient):
             clip.update()
             clip.destroy()
 
-    def __generator(self):
+    def __generator(self) -> None:
         """Command button callback."""
         # get variables
         system = self.__widgets["system"].get()
@@ -242,7 +243,7 @@ class EdrsScanDialog(tk.Toplevel, MLogClient):
         self.debug(inspect.currentframe(), f"radius: {radius}, type:{type(radius)}")
 
         if not system or not radius:
-            msg = ""
+            msg: str = ""
             if not system:
                 msg = "System"
             if not radius and msg:
@@ -272,7 +273,7 @@ class EdrsScanDialog(tk.Toplevel, MLogClient):
         # put it into queue
         self.__rscan_qth.put(obj)
 
-    def __disable_button(self, flag: bool):
+    def __disable_button(self, flag: bool) -> None:
         """Disable generator button on working time."""
         if self.__widgets["sbutton"] is None:
             return
@@ -282,34 +283,38 @@ class EdrsScanDialog(tk.Toplevel, MLogClient):
             else:
                 self.__widgets["sbutton"].config(state=tk.ACTIVE)
 
-    def th_worker(self):
+    def th_worker(self) -> None:
         """Run thread for getting data and computing results."""
-        pname = self.__data.pluginname
-        cname = self.__class__.__name__
-        self.logger.info = f"{pname}->{cname}: Starting worker..."
+        pname: str = self.__data.pluginname
+        cname: str = self.__class__.__name__
+        if self.logger:
+            self.logger.info = f"{pname}->{cname}: Starting worker..."
         while not self.__data.shutting_down:
-            item = self.__rscan_qth.get(True)
+            item: ThSystemSearch = self.__rscan_qth.get(True)
             if item is None:
                 break
             self.__disable_button(True)
-            self.logger.info = (
-                f"{pname}->{cname}: Get new search work for "
-                f"{item.start_system.name} with radius: {item.radius}ly"
-            )
-            tstart = time.time()
+            if self.logger:
+                self.logger.info = (
+                    f"{pname}->{cname}: Get new search work for "
+                    f"{item.start_system.name} with radius: {item.radius}ly"
+                )
+            tstart: float = time.time()
             # start processing request
             item.start()
             item.join()
             # getting results
-            tstop = time.time()
-            self.logger.info = (
-                f"{pname}->{cname}: Work is done in: {int(tstop-tstart)}s"
-            )
+            tstop: float = time.time()
+            if self.logger:
+                self.logger.info = (
+                    f"{pname}->{cname}: Work is done in: {int(tstop-tstart)}s"
+                )
             self.__process_work_output(item.get_result)
             self.__disable_button(False)
-        self.logger.info = f"{pname}->{cname}: worker finished."
+        if self.logger:
+            self.logger.info = f"{pname}->{cname}: worker finished."
 
-    def __process_work_output(self, systems: Optional[List]):
+    def __process_work_output(self, systems: Optional[List[StarsSystem]]) -> None:
         """Build frame with found systems."""
         # destroy previous data
         for item in self.__stars:
@@ -318,11 +323,13 @@ class EdrsScanDialog(tk.Toplevel, MLogClient):
         self.__stars = []
         # generate new list
         count = 0
-        for system in systems:
-            count += 1
-            self.__build_row_frame(count, system)
 
-    def __build_row_frame(self, count: int, item: StarsSystem):
+        if systems:
+            for system in systems:
+                count += 1
+                self.__build_row_frame(count, system)
+
+    def __build_row_frame(self, count: int, item: StarsSystem) -> None:
         """Construct and return Frame row for search dialog."""
         list_object = []
         # StarsSystem [0]
@@ -346,14 +353,14 @@ class EdrsScanDialog(tk.Toplevel, MLogClient):
         list_object.append(lname)
 
         # create range label
-        distance = "??"
+        distance: str = "??"
         jump = 50
         if "distance" in item.data:
             distance = f"{item.data['distance']:.2f}"
         ljump = tk.Label(frame, text=f"[{distance:} ly]", font=self.__fonts["normal"])
         ljump.pack(side=tk.LEFT)
         if self.__data.jumprange:
-            jump = self.__data.jumprange - 4
+            jump: float = self.__data.jumprange - 4
         if "distance" in item.data and item.data["distance"] > jump:
             ljump["font"] = self.__fonts["bold"]
             ljump["fg"] = "red"
@@ -393,17 +400,18 @@ class EdrsScanDialog(tk.Toplevel, MLogClient):
             if item[0].name == self.__data.starsystem.name:
                 item[2]["font"] = self.__fonts["strike"]
 
-    def debug(self, currentframe, message=""):
+    def debug(self, currentframe, message="") -> None:
         """Build debug message."""
         pname = f"{self.__data.pluginname}"
         cname = f"{self.__class__.__name__}"
         mname = f"{currentframe.f_code.co_name}"
         if message != "":
             message = f": {message}"
-        self.logger.debug = f"{pname}->{cname}.{mname}{message}"
+        if self.logger:
+            self.logger.debug = f"{pname}->{cname}.{mname}{message}"
 
     @property
-    def is_closed(self):
+    def is_closed(self) -> bool:
         """Check, if window is closed."""
         return self.__closed
 
@@ -413,7 +421,7 @@ class EdrsScanDialog(tk.Toplevel, MLogClient):
         return self.__widgets["status"]
 
     @status.setter
-    def status(self, message):
+    def status(self, message) -> None:
         """Set status message."""
         if self.__widgets["status"] is not None:
             if message:
@@ -426,22 +434,22 @@ class EdrsDialog(MLogClient, NoDynamicAttributes):
     """Create config dialog for plugin."""
 
     # RscanData
-    __data = None
+    __data: RscanData = None  # type: ignore
     # tk.Frame
-    __parent = None
+    __parent: tk.Frame = None  # type: ignore
     # ttk.Button
-    __button = None
+    __button: ttk.Button = None  # type: ignore
     # list
-    __windows = None
+    __windows: List[EdrsScanDialog] = None  # type: ignore
     # Tools
-    __tools = None
+    __tools: Dict[str, Any] = None  # type: ignore
 
     def __init__(
         self,
         parent: tk.Frame,
         log_queue: Queue or SimpleQueue,
         data: RscanData,
-    ):
+    ) -> None:
         """Initialize datasets."""
         # init log subsystem
         if isinstance(log_queue, (Queue, SimpleQueue)):
@@ -488,7 +496,7 @@ class EdrsDialog(MLogClient, NoDynamicAttributes):
     #         window.close()
     #         del window
 
-    def button(self):
+    def button(self) -> ttk.Button:
         """Give me the button for main application frame."""
         if self.__button is None:
             self.__button = ttk.Button(
@@ -501,7 +509,7 @@ class EdrsDialog(MLogClient, NoDynamicAttributes):
             self.__button.grid(sticky=tk.NSEW)
         return self.__button
 
-    def dialog_update(self):
+    def dialog_update(self) -> None:
         """Do update for windows."""
         self.debug(
             inspect.currentframe(),
@@ -511,7 +519,7 @@ class EdrsDialog(MLogClient, NoDynamicAttributes):
             if not window.is_closed:
                 window.dialog_update()
 
-    def __bt_callback(self):
+    def __bt_callback(self) -> None:
         """Run main button callback."""
         self.debug(inspect.currentframe(), "click!")
         # purge closed window from list
@@ -529,23 +537,24 @@ class EdrsDialog(MLogClient, NoDynamicAttributes):
             f"numbers of windows: {len(self.__windows)}",
         )
 
-    def debug(self, currentframe, message=""):
+    def debug(self, currentframe: Optional[TypeFrame], message: str = "") -> None:
         """Build debug message."""
         pname = f"{self.__data.pluginname}"
         cname = f"{self.__class__.__name__}"
         mname = f"{currentframe.f_code.co_name}"
         if message != "":
             message = f": {message}"
-        self.logger.debug = f"{pname}->{cname}.{mname}{message}"
+        if self.logger:
+            self.logger.debug = f"{pname}->{cname}.{mname}{message}"
 
 
 class ToolTip:
     """Simple ToolTip class."""
 
-    def __init__(self, widget: tk.Toplevel, text: str = None):
+    def __init__(self, widget: tk.Toplevel, text: str = None) -> None:
         """Create class object."""
 
-        def on_enter(event: tk.Event):
+        def on_enter(event: tk.Event) -> None:
             """Call freom <Enter> event.
 
             parameters:
@@ -558,7 +567,7 @@ class ToolTip:
             self.label = tk.Label(self.tooltip, text=self.text)
             self.label.pack()
 
-        def on_leave(event: tk.Event):
+        def on_leave(event: tk.Event) -> None:
             """Call from <Leave> event.
 
             parameters:
@@ -580,7 +589,7 @@ class VerticalScrolledFrame(tk.Frame):
     * This frame only allows vertical scrolling.
     """
 
-    def __init__(self, parent, *args, **kw):
+    def __init__(self, parent, *args, **kw) -> None:
         tk.Frame.__init__(self, parent, *args, **kw)
 
         # Create a canvas object and a vertical scrollbar for scrolling it.
@@ -600,13 +609,16 @@ class VerticalScrolledFrame(tk.Frame):
         # Create a frame inside the canvas which will be scrolled with it.
         # self.interior = interior = ttk.Frame(canvas)
         self.interior = interior = tk.Frame(canvas)
-        interior_id = canvas.create_window(0, 0, window=interior, anchor=tk.NW)
+        interior_id: int = canvas.create_window(0, 0, window=interior, anchor=tk.NW)
 
         # Track changes to the canvas and frame width and sync them,
         # also updating the scrollbar.
-        def _configure_interior(event):
+        def _configure_interior(event) -> None:
             # Update the scrollbars to match the size of the inner frame.
-            size = (interior.winfo_reqwidth(), interior.winfo_reqheight())
+            size: tuple[int, int] = (
+                interior.winfo_reqwidth(),
+                interior.winfo_reqheight(),
+            )
             canvas.config(scrollregion="0 0 %s %s" % size)
             if interior.winfo_reqwidth() != canvas.winfo_width():
                 # Update the canvas's width to fit the inner frame.
@@ -614,7 +626,7 @@ class VerticalScrolledFrame(tk.Frame):
 
         interior.bind("<Configure>", _configure_interior)
 
-        def _configure_canvas(event):
+        def _configure_canvas(event) -> None:
             if interior.winfo_reqwidth() != canvas.winfo_width():
                 # Update the inner frame's width to fill the canvas.
                 canvas.itemconfigure(interior_id, width=canvas.winfo_width())

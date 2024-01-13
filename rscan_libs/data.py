@@ -8,7 +8,7 @@
 
 
 import inspect
-from typing import Union
+from typing import Union, Optional, Dict, Any
 from jsktoolbox.attribtool import NoDynamicAttributes
 from jsktoolbox.raisetool import Raise
 from rscan_libs.stars import StarsSystem
@@ -17,9 +17,9 @@ from rscan_libs.stars import StarsSystem
 class RscanData(NoDynamicAttributes):
     """Data container for username and current system."""
 
-    __data = None
+    __data: Dict[str, Any] = None  # type: ignore
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize dataset."""
         self.__data = {
             "cmdr": None,
@@ -31,7 +31,7 @@ class RscanData(NoDynamicAttributes):
             "shutdown": False,
         }
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Give me class dump."""
         return (
             f"{self.__class__.__name__}(cmdr='{self.__data['cmdr']}', "
@@ -47,7 +47,7 @@ class RscanData(NoDynamicAttributes):
         return self.__data["jumpsystem"]
 
     @jumpsystem.setter
-    def jumpsystem(self, value: StarsSystem):
+    def jumpsystem(self, value: Optional[StarsSystem]) -> None:
         if value is None:
             self.__data["jumpsystem"] = StarsSystem()
         elif isinstance(value, StarsSystem):
@@ -59,7 +59,7 @@ class RscanData(NoDynamicAttributes):
         return self.__data["starsystem"]
 
     @starsystem.setter
-    def starsystem(self, value: StarsSystem):
+    def starsystem(self, value: StarsSystem) -> None:
         if value is None:
             self.__data["starsystem"] = StarsSystem()
         elif isinstance(value, StarsSystem):
@@ -71,7 +71,7 @@ class RscanData(NoDynamicAttributes):
         return self.__data["jumprange"]
 
     @jumprange.setter
-    def jumprange(self, value: Union[str, int, float]):
+    def jumprange(self, value: Union[str, int, float]) -> None:
         if value is not None and isinstance(value, (str, int, float)):
             try:
                 self.__data["jumprange"] = float(value)
@@ -84,7 +84,7 @@ class RscanData(NoDynamicAttributes):
         return self.__data["pluginname"]
 
     @pluginname.setter
-    def pluginname(self, value: str):
+    def pluginname(self, value: str) -> None:
         if value is not None and isinstance(value, str):
             self.__data["pluginname"] = value
 
@@ -94,7 +94,7 @@ class RscanData(NoDynamicAttributes):
         return self.__data["version"]
 
     @version.setter
-    def version(self, value: str):
+    def version(self, value: str) -> None:
         if value is not None and isinstance(value, str):
             self.__data["version"] = value
 
@@ -104,7 +104,7 @@ class RscanData(NoDynamicAttributes):
         return self.__data["cmdr"]
 
     @cmdr.setter
-    def cmdr(self, value):
+    def cmdr(self, value) -> None:
         if value is not None and value != self.cmdr:
             self.__data["cmdr"] = value
 
@@ -114,7 +114,7 @@ class RscanData(NoDynamicAttributes):
         return self.__data["shutdown"]
 
     @shutting_down.setter
-    def shutting_down(self, value: bool):
+    def shutting_down(self, value: bool) -> None:
         if isinstance(value, bool):
             self.__data["shutdown"] = value
         else:

@@ -10,7 +10,7 @@ import inspect
 import math
 import time
 from queue import Queue, SimpleQueue
-from typing import List, Union
+from typing import List, Union, Callable, Optional
 from types import FrameType
 from jsktoolbox.attribtool import NoDynamicAttributes
 from jsktoolbox.raisetool import Raise
@@ -37,10 +37,10 @@ class Euclid(MLogClient, NoDynamicAttributes):
     A class that calculates the length of a vector in Cartesian space.
     """
 
-    __test = None
-    __data = None
+    __test: List[Callable] = None  # type: ignore
+    __data: RscanData = None  # type: ignore
 
-    def __init__(self, queue: Union[Queue, SimpleQueue], data: RscanData):
+    def __init__(self, queue: Union[Queue, SimpleQueue], data: RscanData) -> None:
         """Create class object."""
         self.__test = [
             self.__numpy_l2,
@@ -75,17 +75,18 @@ class Euclid(MLogClient, NoDynamicAttributes):
 
         self.debug(inspect.currentframe(), "Initialize dataset")
 
-    def benchmark(self):
+    def benchmark(self) -> None:
         """Do benchmark test.
 
         Compare the computational efficiency of functions for real data
         and choose the right priority of their use.
         """
-        pname = f"{self.__data.pluginname}"
-        cname = f"{self.__class__.__name__}"
+        pname: str = f"{self.__data.pluginname}"
+        cname: str = f"{self.__class__.__name__}"
 
-        self.logger.info = f"{pname}->{cname}: Warming up math system..."
-        data1 = [
+        if self.logger:
+            self.logger.info = f"{pname}->{cname}: Warming up math system..."
+        data1: List[List[float]] = [
             [641.71875, -536.06250, -6886.37500],
             [10.31250, -160.53125, 74.18750],
             [51.40625, -54.40625, -30.50000],
@@ -97,7 +98,7 @@ class Euclid(MLogClient, NoDynamicAttributes):
             [5.62500, -36.65625, -33.87500],
             [-0.56250, -43.71875, -30.81250],
         ]
-        data2 = [
+        data2: List[List[float]] = [
             [67.50000, -74.90625, -93.68750],
             [134.12500, 15.09375, -63.87500],
             [124.50000, 4.31250, -49.12500],
@@ -120,10 +121,10 @@ class Euclid(MLogClient, NoDynamicAttributes):
 
         # start test
         for item in test:
-            tstart = time.time()
+            tstart: float = time.time()
             for idx in range(0, len(data1)):
                 item(data1[idx], data2[idx])
-            tstop = time.time()
+            tstop: float = time.time()
             bench_out[tstop - tstart] = item
 
         # optimize list of the methods
@@ -132,18 +133,22 @@ class Euclid(MLogClient, NoDynamicAttributes):
             self.__test.append(bench_out[idx])
             self.debug(inspect.currentframe(), f"{idx}: {bench_out[idx]}")
 
-        self.logger.info = f"{pname}->{cname}: done."
+        if self.logger:
+            self.logger.info = f"{pname}->{cname}: done."
 
-    def debug(self, currentframe: FrameType, message: str = ""):
+    def debug(self, currentframe: Optional[FrameType], message: str = "") -> None:
         """Build debug message."""
-        pname = f"{self.__data.pluginname}"
-        cname = f"{self.__class__.__name__}"
-        mname = f"{currentframe.f_code.co_name}"
+        pname: str = f"{self.__data.pluginname}"
+        cname: str = f"{self.__class__.__name__}"
+        mname: str = (
+            f"{currentframe.f_code.co_name}" if currentframe is not None else ""
+        )
         if message != "":
             message = f": {message}"
-        self.logger.debug = f"{pname}->{cname}.{mname}{message}"
+        if self.logger:
+            self.logger.debug = f"{pname}->{cname}.{mname}{message}"
 
-    def __core(self, point_1: List, point_2: List) -> float:
+    def __core(self, point_1: List[float], point_2: List[float]) -> float:
         """Do calculations without math libraries.
 
         The method iterates over each pair of vector elements,
@@ -151,7 +156,7 @@ class Euclid(MLogClient, NoDynamicAttributes):
         """
         return sum((i - j) ** 2 for i, j in zip(point_1, point_2)) ** 0.5
 
-    def __math(self, point_1: List, point_2: List) -> float:
+    def __math(self, point_1: List[float], point_2: List[float]) -> Optional[float]:
         """Try to use math lib."""
         try:
             return math.dist(point_1, point_2)
@@ -159,19 +164,19 @@ class Euclid(MLogClient, NoDynamicAttributes):
             self.debug(inspect.currentframe(), f"{ex}")
             return None
 
-    def __numpy_l2(self, point_1: List, point_2: List) -> float:
+    def __numpy_l2(self, point_1: List[float], point_2: List[float]) -> Optional[float]:
         """Try to use numpy lib.
 
         The method uses the fact that the Euclidean distance of two vectors
         is nothing but the L^2 norm of their difference.
         """
         try:
-            return np.linalg.norm(np.array(point_1) - np.array(point_2))
+            return np.linalg.norm(np.array(point_1) - np.array(point_2))  # type: ignore
         except Exception as ex:
             self.debug(inspect.currentframe(), f"{ex}")
             return None
 
-    def __numpy(self, point_1: List, point_2: List) -> float:
+    def __numpy(self, point_1: List[float], point_2: List[float]) -> Optional[float]:
         """Try to use numpy lib.
 
         The method is an optimization of the core method using numpy
@@ -183,7 +188,7 @@ class Euclid(MLogClient, NoDynamicAttributes):
             self.debug(inspect.currentframe(), f"{ex}")
             return None
 
-    def __einsum(self, point_1: List, point_2: List) -> float:
+    def __einsum(self, point_1: List[float], point_2: List[float]) -> Optional[float]:
         """Try to use numpy lib.
 
         Einstein summation convention.
@@ -195,7 +200,7 @@ class Euclid(MLogClient, NoDynamicAttributes):
             self.debug(inspect.currentframe(), f"{ex}")
             return None
 
-    def __scipy(self, point_1: List, point_2: List) -> float:
+    def __scipy(self, point_1: List, point_2: List) -> Optional[float]:
         """Try to use scipy lib.
 
         The scipy library has a built-in function to calculate
@@ -207,9 +212,9 @@ class Euclid(MLogClient, NoDynamicAttributes):
             self.debug(inspect.currentframe(), f"{ex}")
             return None
 
-    def distance(self, point_1: List, point_2: List) -> float:
+    def distance(self, point_1: List[float], point_2: List[float]) -> float:
         """Find the first working algorithm and do the calculations."""
-        out = None
+        out: float = None  # type: ignore
         i = 0
 
         while out is None:
