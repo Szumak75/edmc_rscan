@@ -87,31 +87,33 @@ class ThSystemSearch(Thread, MLogClient):
         cname: str = self.__class__.__name__
         self.logger.info = f"{pname}->{cname}: Starting new work..."
         # build radius query
-        qurl = self.__build_radius_query()
+        qurl: Optional[str] = self.__build_radius_query()
         if qurl is None:
             return
         # create query object
         url = Url()
         # quering starts database
-        systems = url.url_query(qurl)
+        systems: List[Dict[str, Any]] = url.url_query(qurl)
         if self.logger:
             self.logger.debug = f"Systems from JSON: {systems}"
-        if systems is None:
+        if not systems:
             return
         # filtering system
-        systems = self.__buils_radius_systems_list(systems)
+        rsystems: Optional[List[StarsSystem]] = self.__buils_radius_systems_list(
+            systems
+        )
         # self.debug(
         #     inspect.currentframe(),
         #     f"Search result: {systems}"
         # )
-        if not systems:
+        if not rsystems:
             self.status("0 systems found.")
             return
         # tracerouting optimization
         self.status(
             f"{len(systems)} systems found, flight route calculations in progress..."
         )
-        systems_out = self.__flightroute_systems(systems)
+        systems_out = self.__flightroute_systems(rsystems)
         self.debug(inspect.currentframe(), f"Search result: {systems_out}")
         # put it into result list
         dsum: float = 0.0
@@ -176,7 +178,7 @@ class ThSystemSearch(Thread, MLogClient):
         return self.__radius
 
     @radius.setter
-    def radius(self, value: Union[int, float]):
+    def radius(self, value: Union[int, float]) -> None:
         try:
             self.__radius = int(value)
         except Exception as ex:
@@ -224,11 +226,12 @@ class ThSystemSearch(Thread, MLogClient):
 
         return url.radius_url(self.start_system, self.radius)
 
-    def __buils_radius_systems_list(self, systems: List) -> Optional[List[StarsSystem]]:
+    def __buils_radius_systems_list(
+        self, systems: List[Dict[str, Any]]
+    ) -> Optional[List[StarsSystem]]:
         """Build filtered systems list from EDSM API output."""
-        out = []
-        out_body = []
-        systems_count = len(systems)
+        out: List[StarsSystem] = []
+        systems_count: int = len(systems)
         cur_count = 0
         count = 0
         for item in systems:
@@ -239,56 +242,41 @@ class ThSystemSearch(Thread, MLogClient):
                 system = StarsSystem()
                 system.update_from_edsm(item)
                 system.data["bodies"] = None
-                # self.debug(
-                #     inspect.currentframe(),
-                #     f"{item}"
-                # )
                 self.debug(
                     inspect.currentframe(),
                     f"EDSM system nr:{count} {system}",
                 )
                 out.append(system)
-            # else:
-            #     self.logger.debug = f"OTHER: {item}"
-            #     # system = StarsSystem()
-            #     # system.update_from_edsm(item)
-            #     # # out_body.append(item)
-            #     # bodies = self.__get_bodies_information(system)
-            #     # if bodies and 'bodies' in bodies:
-            #     #     system.data['bodies'] = len(bodies['bodies'])
-            #     #     if system.data['bodycount'] != system.data['bodies']:
-            #     #         count += 1
-            #     #         out.append(system)
 
         if self.logger:
             self.logger.info = f"Found {count} systems"
         return out
 
-    def __get_bodies_information(self, system: StarsSystem) -> Optional[Dict]:
-        """Try to get information about system bodies."""
-        if not isinstance(system, StarsSystem):
-            raise Raise.error(
-                f"StarsSystem type expected, '{type(system)}' received",
-                TypeError,
-                self.__class__.__name__,
-                inspect.currentframe(),
-            )
-        url = Url()
-        out_url = url.bodies_url(system)
-        if not out_url:
-            return {}
-        # quering EDSM
-        out = url.url_query(out_url)
-        if out is None:
-            return {}
-        return out
+    # def __get_bodies_information(self, system: StarsSystem) -> Optional[Dict]:
+    #     """Try to get information about system bodies."""
+    #     if not isinstance(system, StarsSystem):
+    #         raise Raise.error(
+    #             f"StarsSystem type expected, '{type(system)}' received",
+    #             TypeError,
+    #             self.__class__.__name__,
+    #             inspect.currentframe(),
+    #         )
+    #     url = Url()
+    #     out_url: str = url.bodies_url(system)
+    #     if not out_url:
+    #         return {}
+    #     # quering EDSM
+    #     out: List[Dict[str, Any]] = url.url_query(out_url)
+    #     if out is None:
+    #         return {}
+    #     return out
 
-    def __flightroute_systems(self, systems: List[StarsSystem]) -> Optional[List]:
+    def __flightroute_systems(self, systems: List[StarsSystem]) -> List[StarsSystem]:
         """Try to find the optimal order of flight."""
         jump = 50
-        out = []
+        out: List[StarsSystem] = []
         if self.__data.jumprange is not None:
-            jump = int(self.__data.jumprange) - 4
+            jump: int = int(self.__data.jumprange) - 4
         if len(systems) > 10:
             alg = AlgGeneticGPT(
                 self.start_system,

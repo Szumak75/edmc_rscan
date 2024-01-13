@@ -164,11 +164,11 @@ class Url(NoDynamicAttributes):
             print(ex)
         return None
 
-    def url_query(self, url: str) -> Optional[Dict]:
+    def url_query(self, url: str) -> List[Dict[str, Any]]:
         """Return result of query for url."""
-        out = None
+        out = []
         if not url:
-            return None
+            return out
 
         try:
             response: requests.Response = requests.get(url, timeout=60)
