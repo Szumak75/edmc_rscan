@@ -19,7 +19,7 @@ from rscan_libs.mlog import MLogClient
 from jsktoolbox.raisetool import Raise
 from rscan_libs.stars import StarsSystem
 from rscan_libs.system import LogClient
-from rscan_libs.tools import AlgGenetic, AlgGeneticGPT, AlgTsp, Numbers, Url
+from rscan_libs.tools import AlgGeneticGPT, AlgTsp, Numbers, Url
 
 
 class ThSystemSearch(Thread, MLogClient):
