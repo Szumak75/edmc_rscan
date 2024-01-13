@@ -41,53 +41,50 @@ class ThSystemSearch(Thread, MLogClient):
         log_queue: Union[Queue, SimpleQueue],
         data: RscanData,
         euclid_alg: Euclid,
-    ):
+    ) -> None:
         """Create object instance of class."""
         Thread.__init__(self, name=self.__class__.__name__)
         self.__stop_event = Event()
         # init log subsystem
-        if isinstance(log_queue, (Queue, SimpleQueue)):
-            self.logger = LogClient(log_queue)
-        else:
+        if not isinstance(log_queue, (Queue, SimpleQueue)):
             raise Raise.error(
                 f"Queue or SimpleQueue type expected, '{type(log_queue)}' received.",
                 TypeError,
                 self.__class__.__name__,
                 inspect.currentframe(),
             )
+        self.logger = LogClient(log_queue)
 
-        if isinstance(data, RscanData):
-            self.__data = data
-            self.debug(inspect.currentframe(), f"{self.__data}")
-        else:
+        if not isinstance(data, RscanData):
             raise Raise.error(
                 f"RscanData type expected, '{type(data)}' received",
                 TypeError,
                 self.__class__.__name__,
                 inspect.currentframe(),
             )
+        self.__data: RscanData = data
+        self.debug(inspect.currentframe(), f"{self.__data}")
 
         # Euclid's algorithm for calculating the length of vectors
-        if isinstance(euclid_alg, Euclid):
-            self.__math = euclid_alg
-        else:
+        if not isinstance(euclid_alg, Euclid):
             raise Raise.error(
                 f"Euclid type expected, '{type(euclid_alg)}' received",
                 TypeError,
                 self.__class__.__name__,
                 inspect.currentframe(),
             )
+        self.__math = euclid_alg
 
         # initialize private variables
         self.__parent = parent
-        self.__start_system = None
-        self.__radius = None
-        self.__found = []
+        self.__start_system: StarsSystem = None  # type: ignore
+        self.__radius: int = None  # type: ignore
+        self.__found: List[StarsSystem] = []
 
-    def run(self):
+    def run(self) -> None:
         """Run the work."""
-        pname = self.__data.pluginname
-        cname = self.__class__.__name__
+        pname: str = self.__data.pluginname
+        cname: str = self.__class__.__name__
         self.logger.info = f"{pname}->{cname}: Starting new work..."
         # build radius query
         qurl = self.__build_radius_query()
@@ -123,17 +120,17 @@ class ThSystemSearch(Thread, MLogClient):
         )
         self.logger.info = f"{pname}->{cname}: Done."
 
-    def debug(self, currentframe: FrameType, message: str = ""):
+    def debug(self, currentframe: Optional[FrameType], message: str = ""):
         """Build debug message."""
-        pname = f"{self.__data.pluginname}"
-        cname = f"{self.__class__.__name__}"
-        mname = f"{currentframe.f_code.co_name}"
+        pname: str = f"{self.__data.pluginname}"
+        cname: str = f"{self.__class__.__name__}"
+        mname: str = f"{currentframe.f_code.co_name}" if currentframe else ""
         if message != "":
             message = f": {message}"
         self.logger.debug = f"{pname}->{cname}.{mname}{message}"
         inspect.currentframe()
 
-    def status(self, message: Any):
+    def status(self, message: Any) -> None:
         """Write message to status bar."""
         self.__parent.status = f"{message}"
 
@@ -142,7 +139,7 @@ class ThSystemSearch(Thread, MLogClient):
         """Get stop event flag."""
         return self.__stop_event.isSet()
 
-    def stop(self):
+    def stop(self) -> None:
         """Set stop event."""
         if not self.stopped:
             self.debug(inspect.currentframe(), "Stopping event is set now.")
@@ -154,12 +151,12 @@ class ThSystemSearch(Thread, MLogClient):
         return self.__found
 
     @property
-    def start_system(self) -> Optional[StarsSystem]:
+    def start_system(self) -> StarsSystem:
         """Give me start system for search radius."""
         return self.__start_system
 
     @start_system.setter
-    def start_system(self, value: StarsSystem):
+    def start_system(self, value: StarsSystem) -> None:
         if not isinstance(value, StarsSystem):
             raise Raise.error(
                 f"StarsSystem type expected, '{type(value)}' received.",
@@ -192,7 +189,7 @@ class ThSystemSearch(Thread, MLogClient):
         else:
             self.logger.info = f"Radius is set to: {self.radius} ly."
 
-    def __progress(self, cur: int, systems_count: int):
+    def __progress(self, cur: int, systems_count: int) -> None:
         """Set progress status in parent."""
         if systems_count == 0:
             self.status("Found 0 systems")
@@ -218,7 +215,8 @@ class ThSystemSearch(Thread, MLogClient):
         if self.start_system.pos_x is None:
             out = url.system_query(self.start_system)
             self.debug(inspect.currentframe(), f"Start System data: {out}")
-            self.start_system.update_from_edsm(out)
+            if out:
+                self.start_system.update_from_edsm(out)
 
         return url.radius_url(self.start_system, self.radius)
 

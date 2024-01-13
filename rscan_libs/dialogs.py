@@ -48,7 +48,7 @@ class EdrsScanDialog(tk.Toplevel, MLogClient):
 
     def __init__(
         self,
-        log_queue: Queue or SimpleQueue,
+        log_queue: Union[Queue, SimpleQueue],
         data: RscanData,
         euclid_alg: Euclid,
         master=None,
@@ -71,37 +71,34 @@ class EdrsScanDialog(tk.Toplevel, MLogClient):
         self.__widgets["spanel"] = None  #: Optional[VerticalScrolledFrame]
 
         # init log subsystem
-        if isinstance(log_queue, (Queue, SimpleQueue)):
-            self.logger = LogClient(log_queue)
-        else:
+        if not isinstance(log_queue, (Queue, SimpleQueue)):
             raise Raise.error(
                 f"Queue or SimpleQueue type expected, '{type(log_queue)}' received.",
                 TypeError,
                 self.__class__.__name__,
                 inspect.currentframe(),
             )
+        self.logger = LogClient(log_queue)
 
-        if isinstance(data, RscanData):
-            self.__data = data
-            self.debug(inspect.currentframe(), f"{self.__data}")
-        else:
+        if not isinstance(data, RscanData):
             raise Raise.error(
                 f"RscanData type expected, '{type(data)}' received",
                 TypeError,
                 self.__class__.__name__,
                 inspect.currentframe(),
             )
+        self.__data = data
+        self.debug(inspect.currentframe(), f"{self.__data}")
 
         # Euclid's algorithm for calculating the length of vectors
-        if isinstance(euclid_alg, Euclid):
-            self.__tools["math"] = euclid_alg
-        else:
+        if not isinstance(euclid_alg, Euclid):
             raise Raise.error(
                 f"Euclid type expected, '{type(euclid_alg)}' received",
                 TypeError,
                 self.__class__.__name__,
                 inspect.currentframe(),
             )
+        self.__tools["math"] = euclid_alg
 
         self.debug(inspect.currentframe(), "Initialize dataset")
 
@@ -382,7 +379,7 @@ class EdrsScanDialog(tk.Toplevel, MLogClient):
         btn = tk.Button(
             frame,
             text="C",
-            command=lambda: self.__to_clipboard(item.name),
+            command=lambda: self.__to_clipboard(f"{item.name}"),
             font=self.__fonts["normal"],
         )
         btn.pack(side=tk.RIGHT)
@@ -391,7 +388,7 @@ class EdrsScanDialog(tk.Toplevel, MLogClient):
         # finish
         self.__stars.append(list_object)
 
-    def dialog_update(self):
+    def dialog_update(self) -> None:
         """Update current position in system list."""
         if self.__data.shutting_down:
             self.__rscan_qth.put(None)
@@ -401,11 +398,11 @@ class EdrsScanDialog(tk.Toplevel, MLogClient):
             if item[0].name == self.__data.starsystem.name:
                 item[2]["font"] = self.__fonts["strike"]
 
-    def debug(self, currentframe, message="") -> None:
+    def debug(self, currentframe: Optional[FrameType], message: str = "") -> None:
         """Build debug message."""
-        pname = f"{self.__data.pluginname}"
-        cname = f"{self.__class__.__name__}"
-        mname = f"{currentframe.f_code.co_name}"
+        pname: str = f"{self.__data.pluginname}"
+        cname: str = f"{self.__class__.__name__}"
+        mname: str = f"{currentframe.f_code.co_name}" if currentframe else ""
         if message != "":
             message = f": {message}"
         if self.logger:
@@ -448,41 +445,38 @@ class EdrsDialog(MLogClient, NoDynamicAttributes):
     def __init__(
         self,
         parent: tk.Frame,
-        log_queue: Queue or SimpleQueue,
+        log_queue: Union[Queue, SimpleQueue],
         data: RscanData,
     ) -> None:
         """Initialize datasets."""
         # init log subsystem
-        if isinstance(log_queue, (Queue, SimpleQueue)):
-            self.logger = LogClient(log_queue)
-        else:
+        if not isinstance(log_queue, (Queue, SimpleQueue)):
             raise Raise.error(
                 f"Queue or SimpleQueue type expected, '{type(log_queue)}' received.",
                 TypeError,
                 self.__class__.__name__,
                 inspect.currentframe(),
             )
+        self.logger = LogClient(log_queue)
 
-        if isinstance(data, RscanData):
-            self.__data = data
-            self.debug(inspect.currentframe(), f"{self.__data}")
-        else:
+        if not isinstance(data, RscanData):
             raise Raise.error(
                 f"RscanData type expected, '{type(data)}' received",
                 TypeError,
                 self.__class__.__name__,
                 inspect.currentframe(),
             )
+        self.__data = data
+        self.debug(inspect.currentframe(), f"{self.__data}")
 
-        if isinstance(parent, tk.Frame):
-            self.__parent = parent
-        else:
+        if not isinstance(parent, tk.Frame):
             raise Raise.error(
                 f"tk.Frame type expected, '{type(parent)}' received",
                 TypeError,
                 self.__class__.__name__,
                 inspect.currentframe(),
             )
+        self.__parent = parent
 
         self.__windows = []
 
@@ -490,12 +484,6 @@ class EdrsDialog(MLogClient, NoDynamicAttributes):
         self.__tools = {}
         self.__tools["euclid"] = Euclid(log_queue, data)
         self.__tools["euclid"].benchmark()
-
-    # def __del__(self):
-    #     """Destroy datasets on close."""
-    #     for window in self.__windows:
-    #         window.close()
-    #         del window
 
     def button(self) -> ttk.Button:
         """Give me the button for main application frame."""
@@ -540,9 +528,9 @@ class EdrsDialog(MLogClient, NoDynamicAttributes):
 
     def debug(self, currentframe: Optional[FrameType], message: str = "") -> None:
         """Build debug message."""
-        pname = f"{self.__data.pluginname}"
-        cname = f"{self.__class__.__name__}"
-        mname = f"{currentframe.f_code.co_name}"
+        pname: str = f"{self.__data.pluginname}"
+        cname: str = f"{self.__class__.__name__}"
+        mname: str = f"{currentframe.f_code.co_name}" if currentframe else ""
         if message != "":
             message = f": {message}"
         if self.logger:
@@ -552,7 +540,10 @@ class EdrsDialog(MLogClient, NoDynamicAttributes):
 class ToolTip:
     """Simple ToolTip class."""
 
-    def __init__(self, widget: tk.Toplevel, text: str = None) -> None:
+    tooltip: tk.Toplevel
+    label: tk.Label
+
+    def __init__(self, widget: tk.Toplevel, text: str = "") -> None:
         """Create class object."""
 
         def on_enter(event: tk.Event) -> None:
@@ -620,7 +611,7 @@ class VerticalScrolledFrame(tk.Frame):
                 interior.winfo_reqwidth(),
                 interior.winfo_reqheight(),
             )
-            canvas.config(scrollregion="0 0 %s %s" % size)
+            canvas.config(scrollregion="0 0 %s %s" % size) # type: ignore
             if interior.winfo_reqwidth() != canvas.winfo_width():
                 # Update the canvas's width to fit the inner frame.
                 canvas.config(width=interior.winfo_reqwidth())

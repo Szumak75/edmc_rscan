@@ -5,7 +5,11 @@ Created on 04 jan 2023.
 @author: szumak@virthost.pl
 """
 
+from queue import SimpleQueue, Queue
+from typing import Union, Any
 from jsktoolbox.attribtool import NoDynamicAttributes
+
+from rscan_libs.system import LogClient, LogProcessor
 
 
 class MLogProcessor(NoDynamicAttributes):
@@ -14,7 +18,7 @@ class MLogProcessor(NoDynamicAttributes):
     Container for logger processor methods.
     """
 
-    __logger_queue = None
+    __logger_queue: Union[Queue, SimpleQueue] = None  # type: ignore
     __log_processor_engine = None
     __thread_logger = None
 
@@ -28,7 +32,7 @@ class MLogProcessor(NoDynamicAttributes):
         self.__thread_logger = value
 
     @property
-    def qlog(self):
+    def qlog(self) -> Union[Queue, SimpleQueue]:  
         """Give me access to queue handler."""
         return self.__logger_queue
 
@@ -54,14 +58,14 @@ class MLogClient:
     Container for logger methods.
     """
 
-    __logger = None
+    __logger: LogClient = None  # type: ignore
 
     @property
-    def logger(self):
+    def logger(self) -> LogClient:
         """Give me logger handler."""
         return self.__logger
 
     @logger.setter
-    def logger(self, arg):
+    def logger(self, arg) -> None:
         """Set logger instance."""
         self.__logger = arg

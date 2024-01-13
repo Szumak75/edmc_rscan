@@ -14,11 +14,13 @@ from itertools import permutations
 from operator import itemgetter
 from queue import Queue, SimpleQueue
 from sys import maxsize
+from types import FrameType
 from typing import Dict, Optional, List, Tuple, Union, Any
 from jsktoolbox.attribtool import NoDynamicAttributes
 from jsktoolbox.raisetool import Raise
 
 import requests
+from requests.utils import requote_uri
 from rscan_libs.cartesianmath import Euclid
 from rscan_libs.interfaces import Ialg
 from rscan_libs.mlog import MLogClient
@@ -32,9 +34,9 @@ class Url(NoDynamicAttributes):
     Class for serving HTTP/HTTPS requests.
     """
 
-    __options = None
-    __systems_url = None
-    __system_url = None
+    __options: Dict[str, int] = None  # type: ignore
+    __systems_url: str = None  # type: ignore
+    __system_url: str = None  # type: ignore
 
     def __init__(self):
         """Create Url helper object."""
@@ -52,7 +54,7 @@ class Url(NoDynamicAttributes):
     @property
     def options(self) -> str:
         """Get url options string."""
-        out = ""
+        out: str = ""
         for key, value in self.__options.items():
             out += f"&{key}={value}"
         return out
@@ -68,11 +70,11 @@ class Url(NoDynamicAttributes):
             )
 
         if ssystem.address:
-            return requests.utils.requote_uri(
+            return requote_uri(
                 f"{self.__system_url}bodies?systemId={ssystem.address}{self.options}"
             )
         if ssystem.name:
-            return requests.utils.requote_uri(
+            return requote_uri(
                 f"{self.__system_url}bodies?systemName={ssystem.name}{self.options}"
             )
         return ""
@@ -88,7 +90,7 @@ class Url(NoDynamicAttributes):
             )
 
         if ssystem.name:
-            return requests.utils.requote_uri(
+            return requote_uri(
                 f"{self.__systems_url}system?systemName={ssystem.name}{self.options}"
             )
         return ""
@@ -111,7 +113,7 @@ class Url(NoDynamicAttributes):
                 radius = 100
 
         if ssystem.name:
-            return requests.utils.requote_uri(
+            return requote_uri(
                 f"{self.__systems_url}sphere-systems?systemName={ssystem.name}&radius={radius}{self.options}"
             )
         return ""
@@ -134,7 +136,7 @@ class Url(NoDynamicAttributes):
                 size = 200
 
         if ssystem.name:
-            return requests.utils.requote_uri(
+            return requote_uri(
                 f"{self.__systems_url}cube-systems?systemName={ssystem.name}&size={size}{self.options}"
             )
         return ""
@@ -148,12 +150,12 @@ class Url(NoDynamicAttributes):
                 self.__class__.__name__,
                 inspect.currentframe(),
             )
-        url = self.system_url(ssystem)
+        url: str = self.system_url(ssystem)
         if not url:
             return None
 
         try:
-            response = requests.get(url, timeout=30)
+            response: requests.Response = requests.get(url, timeout=30)
             if response.status_code != 200:
                 print(f"Error calling API for system data: {response.status_code}")
                 return None
@@ -168,7 +170,7 @@ class Url(NoDynamicAttributes):
             return None
 
         try:
-            response = requests.get(url, timeout=60)
+            response: requests.Response = requests.get(url, timeout=60)
             if response.status_code != 200:
                 print(f"Error calling API for EDSM data: {response.status_code}")
                 return None
@@ -337,6 +339,8 @@ class AlgTsp(Ialg, MLogClient, NoDynamicAttributes):
         """Build final dataset."""
         self.__final = []
         dsum = 0
+        if self.logger:
+            self.logger.debug = f"TMP: {self.__tmp}"
         for idx in range(1, len(self.__tmp)):
             system = self.__data[self.__tmp[idx]]
             system.data["distance"] = self.__math.distance(
@@ -352,11 +356,11 @@ class AlgTsp(Ialg, MLogClient, NoDynamicAttributes):
         if self.logger:
             self.logger.debug = f"OUTPUT: {self.__final}"
 
-    def debug(self, currentframe, message="") -> None:
+    def debug(self, currentframe: Optional[FrameType], message: str = "") -> None:
         """Build debug message."""
         pname: str = f"{self.__pluginname}"
         cname: str = f"{self.__class__.__name__}"
-        mname: str = f"{currentframe.f_code.co_name}"
+        mname: str = f"{currentframe.f_code.co_name}" if currentframe else ""
         if message != "":
             message = f": {message}"
         if self.logger:
