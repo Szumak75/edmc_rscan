@@ -7,7 +7,7 @@
 """
 
 import inspect
-from typing import Optional, List, Dict, Union
+from typing import Optional, List, Dict, Union, Any
 
 from jsktoolbox.attribtool import NoDynamicAttributes
 from jsktoolbox.raisetool import Raise
@@ -23,20 +23,20 @@ class StarsSystem(NoDynamicAttributes):
     __pos_x: Optional[float] = None
     __pos_y: Optional[float] = None
     __pos_z: Optional[float] = None
-    __data = None
+    __data: Optional[Dict[str, Any]] = None
 
     def __init__(
         self,
         name: Optional[str] = None,
         address: Optional[int] = None,
         star_pos: Optional[List] = None,
-    ):
+    ) -> None:
         """Create Star System object."""
         self.name = name
         self.address = address
         self.star_pos = star_pos
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Give me class dump."""
         return (
             f"{self.__class__.__name__}(name='{self.name}', "
@@ -45,7 +45,7 @@ class StarsSystem(NoDynamicAttributes):
             f"data={self.data})"
         )
 
-    def update_from_edsm(self, data: Dict):
+    def update_from_edsm(self, data: Dict) -> None:
         """Update records from given EDSM Api dict."""
         if data is None or not isinstance(data, Dict):
             return
@@ -71,7 +71,7 @@ class StarsSystem(NoDynamicAttributes):
         return self.__address
 
     @address.setter
-    def address(self, arg: Optional[Union[int, str]]):
+    def address(self, arg: Optional[Union[int, str]]) -> None:
         if arg is None or isinstance(arg, int):
             self.__address = arg
         elif isinstance(arg, str) and arg.isdigit():
@@ -90,7 +90,7 @@ class StarsSystem(NoDynamicAttributes):
         return self.__name
 
     @name.setter
-    def name(self, arg: Optional[str]):
+    def name(self, arg: Optional[str]) -> None:
         if arg is None or isinstance(arg, str):
             self.__name = arg
             if arg is None:
@@ -110,7 +110,7 @@ class StarsSystem(NoDynamicAttributes):
         return self.__pos_x
 
     @pos_x.setter
-    def pos_x(self, arg: Optional[float]):
+    def pos_x(self, arg: Optional[float]) -> None:
         if arg is None:
             self.__pos_x = arg
         elif isinstance(arg, (int, float)):
@@ -129,7 +129,7 @@ class StarsSystem(NoDynamicAttributes):
         return self.__pos_y
 
     @pos_y.setter
-    def pos_y(self, arg: Optional[float]):
+    def pos_y(self, arg: Optional[float]) -> None:
         if arg is None:
             self.__pos_y = arg
         elif isinstance(arg, (int, float)):
@@ -148,7 +148,7 @@ class StarsSystem(NoDynamicAttributes):
         return self.__pos_z
 
     @pos_z.setter
-    def pos_z(self, arg: Optional[float]):
+    def pos_z(self, arg: Optional[float]) -> None:
         if arg is None:
             self.__pos_z = arg
         elif isinstance(arg, (int, float)):
@@ -167,7 +167,7 @@ class StarsSystem(NoDynamicAttributes):
         return [self.pos_x, self.pos_y, self.pos_z]
 
     @star_pos.setter
-    def star_pos(self, arg: Optional[List] = None):
+    def star_pos(self, arg: Optional[List] = None) -> None:
         if arg is None:
             (self.pos_x, self.pos_y, self.pos_z) = (None, None, None)
         elif isinstance(arg, List) and len(arg) == 3:
@@ -188,7 +188,7 @@ class StarsSystem(NoDynamicAttributes):
         return ""
 
     @star_class.setter
-    def star_class(self, value: str):
+    def star_class(self, value: str) -> None:
         """Set StarClass string."""
         self.data["StarClass"] = value
 
@@ -203,7 +203,7 @@ class StarsSystem(NoDynamicAttributes):
         return self.__data
 
     @data.setter
-    def data(self, value: Optional[Dict]):
+    def data(self, value: Optional[Dict]) -> None:
         if value is None:
             self.__data = {}
         if not isinstance(value, Dict):
