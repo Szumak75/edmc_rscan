@@ -300,7 +300,8 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
         obj.start_system = self.__start
 
         # put it into queue
-        self.__rscan_qth.put(obj)
+        if obj:
+            self.__rscan_qth.put(obj)
 
     def __disable_button(self, flag: bool) -> None:
         """Disable generator button on working time."""
@@ -372,7 +373,11 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
 
         # create count label
         tk.Label(
-            frame, text=f" {count}: ", font=self.__fonts[EdrsScanDialog.__Keys.NORMAL]
+            frame,
+            text=f" {count}: ",
+            font=self.__fonts[EdrsScanDialog.__Keys.NORMAL],
+            relief=tk.GROOVE,
+            borderwidth=1,
         ).pack(side=tk.LEFT)
 
         # create name label [2]
