@@ -7,13 +7,16 @@
 """
 
 
+import logging
 import tkinter as tk
+from tkinter import ttk
 from typing import Any, Dict, Optional, Tuple
 
 from config import config
 from rscan_libs.dialogs import EdrsDialog
-from rscan_libs.system import LogLevels
 from rscan_libs.edrs import EDRS
+from rscan_libs.system import LogLevels
+
 
 edrs_object = EDRS()
 
@@ -26,7 +29,10 @@ def plugin_start3(plugin_dir: str) -> str:
     """
     edrs_object.logger.debug = f"{edrs_object.data.pluginname}->plugin_start3 start..."
     # loglevel set from config
-    edrs_object.log_processor.loglevel = LogLevels().get(config.get_str("loglevel"))
+    loglevel: Optional[int] = LogLevels().get(config.get_str("loglevel"))
+    edrs_object.log_processor.loglevel = (
+        loglevel if loglevel is not None else logging.DEBUG
+    )
     edrs_object.logger.debug = f"{edrs_object.data.pluginname}->plugin_start3 done."
     return f"{edrs_object.data.pluginname}"
 
@@ -47,10 +53,10 @@ def plugin_stop() -> None:
     )
     edrs_object.qlog.put(None)
     edrs_object.thlog.join()
-    edrs_object.thlog = None
+    edrs_object.thlog = None  # type: ignore
 
 
-def plugin_app(parent: tk.Frame) -> Tuple[tk.Label, tk.Label]:
+def plugin_app(parent: tk.Frame) -> Tuple[tk.Label, ttk.Button]:
     """Create a pair of TK widgets for the EDMarketConnector main window.
 
     parent:     The root EDMarketConnector window
@@ -63,7 +69,7 @@ def plugin_app(parent: tk.Frame) -> Tuple[tk.Label, tk.Label]:
     )
     if edrs_object.dialog is None:
         edrs_object.dialog = EdrsDialog(parent, edrs_object.qlog, edrs_object.data)
-    button = edrs_object.dialog.button()
+    button: ttk.Button = edrs_object.dialog.button()
     edrs_object.logger.debug = f"{edrs_object.data.pluginname}->plugin_app: done."
     return label, button
 
@@ -76,7 +82,10 @@ def prefs_changed(cmdr: str, is_beta: bool) -> None:
     """
     edrs_object.logger.debug = f"{edrs_object.data.pluginname}->prefs_changed: start..."
     # set loglevel after config update
-    edrs_object.log_processor.loglevel = LogLevels().get(config.get_str("loglevel"))
+    loglevel: Optional[int] = LogLevels().get(config.get_str("loglevel"))
+    edrs_object.log_processor.loglevel = (
+        loglevel if loglevel is not None else logging.DEBUG
+    )
     edrs_object.logger.debug = f"{edrs_object.data.pluginname}->prefs_changed: done."
 
 

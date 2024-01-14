@@ -6,27 +6,24 @@
   Purpose:
 """
 
-from inspect import currentframe
-from typing import Optional, Union, Dict, List
+import inspect
+from typing import Optional, List, Dict, Union, Any
 
+from jsktoolbox.attribtool import NoDynamicAttributes
 from jsktoolbox.raisetool import Raise
-from jsktoolbox.attribtool import ReadOnlyClass
-from jsktoolbox.libs.base_data import BData
+
+# from rscan_libs.tools import Numbers
 
 
-class _Keys(object, metaclass=ReadOnlyClass):
-    """Keys container class."""
-
-    ADDRESS = "__address__"
-    DATA = "__data_container__"
-    NAME = "__name__"
-    POS_X = "__x__"
-    POS_Y = "__y__"
-    POS_Z = "__z__"
-
-
-class StarsSystem(BData):
+class StarsSystem(NoDynamicAttributes):
     """StarsSystem container class."""
+
+    __name: Optional[str] = None
+    __address: Optional[int] = None
+    __pos_x: Optional[float] = None
+    __pos_y: Optional[float] = None
+    __pos_z: Optional[float] = None
+    __data: Optional[Dict[str, Any]] = None
 
     def __init__(
         self,
@@ -42,7 +39,7 @@ class StarsSystem(BData):
     def __repr__(self) -> str:
         """Give me class dump."""
         return (
-            f"{self._c_name}(name='{self.name}', "
+            f"{self.__class__.__name__}(name='{self.name}', "
             f"address={self.address}, "
             f"starpos={self.star_pos}, "
             f"data={self.data})"
@@ -50,7 +47,7 @@ class StarsSystem(BData):
 
     def update_from_edsm(self, data: Dict) -> None:
         """Update records from given EDSM Api dict."""
-        if data is None or not isinstance(data, dict):
+        if data is None or not isinstance(data, Dict):
             return
 
         self.name = data.get("name", self.name)
@@ -71,111 +68,101 @@ class StarsSystem(BData):
     @property
     def address(self) -> Optional[int]:
         """Give me address of system."""
-        if _Keys.ADDRESS not in self._data:
-            self._data[_Keys.ADDRESS] = None
-        return self._data[_Keys.ADDRESS]
+        return self.__address
 
     @address.setter
     def address(self, arg: Optional[Union[int, str]]) -> None:
         if arg is None or isinstance(arg, int):
-            self._data[_Keys.ADDRESS] = arg
+            self.__address = arg
         elif isinstance(arg, str) and arg.isdigit():
-            self._data[_Keys.ADDRESS] = int(arg)
+            self.__address = int(arg)
         else:
             raise Raise.error(
-                f"Expected Int type, received: '{type(arg)}'",
+                f"Int type expected, '{type(arg)}' received",
                 TypeError,
-                self._c_name,
-                currentframe(),
+                self.__class__.__name__,
+                inspect.currentframe(),
             )
 
     @property
     def name(self) -> Optional[str]:
         """Give me name of system."""
-        if _Keys.NAME not in self._data:
-            self._data[_Keys.NAME] = None
-        return self._data[_Keys.NAME]
+        return self.__name
 
     @name.setter
     def name(self, arg: Optional[str]) -> None:
         if arg is None or isinstance(arg, str):
-            self._data[_Keys.NAME] = arg
+            self.__name = arg
             if arg is None:
                 self.address = None
                 self.star_pos = None
         else:
             raise Raise.error(
-                f"Expected String type, received: '{type(arg)}'.",
+                f"String type expected, '{type(arg)}' received.",
                 TypeError,
-                self._c_name,
-                currentframe(),
+                self.__class__.__name__,
+                inspect.currentframe(),
             )
 
     @property
     def pos_x(self) -> Optional[float]:
         """Give me pos_x of system."""
-        if _Keys.POS_X not in self._data:
-            self._data[_Keys.POS_X] = None
-        return self._data[_Keys.POS_X]
+        return self.__pos_x
 
     @pos_x.setter
     def pos_x(self, arg: Optional[float]) -> None:
         if arg is None:
-            self._data[_Keys.POS_X] = arg
+            self.__pos_x = arg
         elif isinstance(arg, (int, float)):
-            self._data[_Keys.POS_X] = float(arg)
+            self.__pos_x = float(arg)
         else:
             raise Raise.error(
-                f"Expected int or float type, received: '{type(arg)}'.",
+                f"String type expected, '{type(arg)}' received.",
                 TypeError,
-                self._c_name,
-                currentframe(),
+                self.__class__.__name__,
+                inspect.currentframe(),
             )
 
     @property
     def pos_y(self) -> Optional[float]:
         """Give me pos_y of system."""
-        if _Keys.POS_Y not in self._data:
-            self._data[_Keys.POS_Y] = None
-        return self._data[_Keys.POS_Y]
+        return self.__pos_y
 
     @pos_y.setter
     def pos_y(self, arg: Optional[float]) -> None:
         if arg is None:
-            self._data[_Keys.POS_Y] = arg
+            self.__pos_y = arg
         elif isinstance(arg, (int, float)):
-            self._data[_Keys.POS_Y] = float(arg)
+            self.__pos_y = float(arg)
         else:
             raise Raise.error(
-                f"Expected int or float type, received: '{type(arg)}'.",
+                f"String type expected, '{type(arg)}' received.",
                 TypeError,
-                self._c_name,
-                currentframe(),
+                self.__class__.__name__,
+                inspect.currentframe(),
             )
 
     @property
     def pos_z(self) -> Optional[float]:
         """Give me pos_z of system."""
-        if _Keys.POS_Z not in self._data:
-            self._data[_Keys.POS_Z] = None
-        return self._data[_Keys.POS_Z]
+        return self.__pos_z
 
     @pos_z.setter
     def pos_z(self, arg: Optional[float]) -> None:
         if arg is None:
-            self._data[_Keys.POS_Z] = arg
+            self.__pos_z = arg
         elif isinstance(arg, (int, float)):
-            self._data[_Keys.POS_Z] = float(arg)
+            self.__pos_z = float(arg)
         else:
             raise Raise.error(
-                f"Expected int or float type, received: '{type(arg)}'.",
+                f"String type expected, '{type(arg)}' received.",
                 TypeError,
-                self._c_name,
-                currentframe(),
+                self.__class__.__name__,
+                inspect.currentframe(),
             )
 
     @property
-    def star_pos(self) -> List[float]:
+    def star_pos(self) -> List:
         """Give me star position list."""
         return [self.pos_x, self.pos_y, self.pos_z]
 
@@ -183,14 +170,14 @@ class StarsSystem(BData):
     def star_pos(self, arg: Optional[List] = None) -> None:
         if arg is None:
             (self.pos_x, self.pos_y, self.pos_z) = (None, None, None)
-        elif isinstance(arg, list) and len(arg) == 3:
+        elif isinstance(arg, List) and len(arg) == 3:
             (self.pos_x, self.pos_y, self.pos_z) = arg
         else:
             raise Raise.error(
-                f"Expected list type, received: '{type(arg)}'.",
+                f"List type expected, '{type(arg)}' received.",
                 TypeError,
-                self._c_name,
-                currentframe(),
+                self.__class__.__name__,
+                inspect.currentframe(),
             )
 
     @property
@@ -211,22 +198,22 @@ class StarsSystem(BData):
 
         This is dictionary object for storing various elements.
         """
-        if _Keys.DATA not in self._data:
-            self._data[_Keys.DATA] = {}
-        return self._data[_Keys.DATA]
+        if self.__data is None:
+            self.__data = {}
+        return self.__data
 
     @data.setter
     def data(self, value: Optional[Dict]) -> None:
         if value is None:
-            self._data[_Keys.DATA] = {}
+            self.__data = {}
         if not isinstance(value, Dict):
             raise Raise.error(
                 f"Type of data containet is dict, '{type(value)}' received, cannot proceed.",
-                ValueError,
-                self._c_name,
-                currentframe(),
+                TypeError,
+                self.__class__.__name__,
+                inspect.currentframe(),
             )
-        self._data[_Keys.DATA] = value
+        self.__data = value
 
 
 # #[EOF]#######################################################################

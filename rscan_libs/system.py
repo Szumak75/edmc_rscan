@@ -6,61 +6,41 @@
   Purpose:
 """
 
-
 import ctypes
-
+import inspect
 import logging
 import os
 import platform
 import subprocess
 import sys
 import tempfile
-
-from inspect import currentframe
+from typing import Union, Optional, List, Dict, Any
+from distutils.spawn import find_executable
 from logging.handlers import RotatingFileHandler
-from queue import Queue
-from typing import Optional, Union, List, Callable
-from jsktoolbox.libs.base_data import BData, BClasses
+from queue import Queue, SimpleQueue
+from jsktoolbox.attribtool import NoDynamicAttributes
 from jsktoolbox.raisetool import Raise
-from jsktoolbox.attribtool import ReadOnlyClass
 
 
-class _Keys(object, metaclass=ReadOnlyClass):
-    """Keys container class."""
-
-    BIT32 = "32-bit"
-    BIT64 = "64-bit"
-    COPY = "_copy_"
-    DARWIN = "Darwin"
-    DIR = "__dir__"
-    ENGINE = "__engine__"
-    HOME = "__home__"
-    LINUX = "Linux"
-    LOGLVL = "__lvl__"
-    MAC = "mac"
-    NAME = "__name__"
-    NT = "nt"
-    PASTE = "_paste_"
-    POSIX = "posix"
-    QUEUE = "__quq__"
-    TMP = "__tmp__"
-    WINDOWS = "Windows"
-    X86_64 = "x86_64"
-
-
-class Clip(BData):
+class Clip(NoDynamicAttributes):
     """System clipboard tool."""
 
-    def __init__(self):
+    __copy = None
+    __paste = None
+
+    def __init__(self) -> None:
         """Create instance of class."""
-        setcb = getcb = None
-        if os.name == _Keys.NT or platform.system() == _Keys.WINDOWS:
+        setcb = None
+        getcb = None
+        if os.name == "nt" or platform.system() == "Windows":
+            import ctypes
+
             getcb = self.__win_get_clipboard
             setcb = self.__win_set_clipboard
-        elif os.name == _Keys.MAC or platform.system() == _Keys.DARWIN:
+        elif os.name == "mac" or platform.system() == "Darwin":
             getcb = self.__mac_get_clipboard
             setcb = self.__mac_set_clipboard
-        elif os.name == _Keys.POSIX or platform.system() == _Keys.LINUX:
+        elif os.name == "posix" or platform.system() == "Linux":
             xclipExists = os.system("which xclip > /dev/null") == 0
             if xclipExists:
                 getcb = self.__xclip_get_clipboard
@@ -88,31 +68,29 @@ class Clip(BData):
                         print(
                             Raise.message(
                                 "Pyperclip requires the gtk or PyQt4 module installed, or the xclip command.",
-                                self._c_name,
-                                currentframe(),
+                                self.__class__.__name__,
+                                inspect.currentframe(),
                             )
                         )
-        self._data[_Keys.COPY] = setcb
-        self._data[_Keys.PASTE] = getcb
+        self.__copy = setcb
+        self.__paste = getcb
 
     @property
-    def is_tool(self) -> bool:
+    def is_tool(self):
         """Return True if the tool is avaiable."""
-        return (
-            self._data[_Keys.COPY] is not None and self._data[_Keys.PASTE] is not None
-        )
+        return self.__copy is not None and self.__paste is not None
 
     @property
-    def copy(self) -> Callable:
+    def copy(self):
         """Return copy handler."""
-        return self._data[_Keys.COPY]
+        return self.__copy
 
     @property
-    def paste(self) -> Callable:
+    def paste(self):
         """Return paste handler."""
-        return self._data[_Keys.PASTE]
+        return self.__paste
 
-    def __win_get_clipboard(self) -> str:
+    def __win_get_clipboard(self):
         """Get windows clipboard data."""
         ctypes.windll.user32.OpenClipboard(0)
         pcontents = ctypes.windll.user32.GetClipboardData(1)  # 1 is CF_TEXT
@@ -121,7 +99,7 @@ class Clip(BData):
         ctypes.windll.user32.CloseClipboard()
         return data
 
-    def __win_set_clipboard(self, text: str) -> None:
+    def __win_set_clipboard(self, text) -> None:
         """Set windows clipboard data."""
         text = str(text)
         GMEM_DDESHARE = 0x2000
@@ -148,7 +126,7 @@ class Clip(BData):
         ctypes.windll.user32.SetClipboardData(1, hCd)
         ctypes.windll.user32.CloseClipboard()
 
-    def __mac_set_clipboard(self, text: str) -> None:
+    def __mac_set_clipboard(self, text) -> None:
         """Set MacOS clipboard data."""
         text = str(text)
         outf = os.popen("pbcopy", "w")
@@ -162,11 +140,11 @@ class Clip(BData):
         outf.close()
         return content
 
-    def __gtk_get_clipboard(self) -> str:
+    def __gtk_get_clipboard(self):
         """Get GTK clipboard data."""
         return gtk.Clipboard().wait_for_text()
 
-    def __gtk_set_clipboard(self, text: str) -> None:
+    def __gtk_set_clipboard(self, text) -> None:
         """Set GTK clipboard data."""
         global cb
         text = str(text)
@@ -178,12 +156,12 @@ class Clip(BData):
         """Get QT clipboard data."""
         return str(cb.text())
 
-    def __qt_set_clipboard(self, text: str) -> None:
+    def __qt_set_clipboard(self, text) -> None:
         """Set QT clipboard data."""
         text = str(text)
         cb.setText(text)
 
-    def __xclip_set_clipboard(self, text: str) -> None:
+    def __xclip_set_clipboard(self, text) -> None:
         """Set xclip clipboard data."""
         text = str(text)
         outf = os.popen("xclip -selection c", "w")
@@ -197,7 +175,7 @@ class Clip(BData):
         outf.close()
         return content
 
-    def __xsel_set_clipboard(self, text: str) -> None:
+    def __xsel_set_clipboard(self, text) -> None:
         """Set xsel clipboard data."""
         text = str(text)
         outf = os.popen("xsel -i", "w")
@@ -212,8 +190,10 @@ class Clip(BData):
         return content
 
 
-class Directory(BData):
+class Directory(NoDynamicAttributes):
     """Container class to store the directory path."""
+
+    __dir: str = None  # type: ignore
 
     def is_directory(self, path_string: str) -> bool:
         """Check if the given string is a directory.
@@ -225,11 +205,9 @@ class Directory(BData):
         return os.path.exists(path_string) and os.path.isdir(path_string)
 
     @property
-    def dir(self) -> Optional[str]:
+    def dir(self) -> str:
         """Property that returns directory string."""
-        if _Keys.DIR not in self._data:
-            self._data[_Keys.DIR] = None
-        return self._data[_Keys.DIR]
+        return self.__dir
 
     @dir.setter
     def dir(self, arg: str) -> None:
@@ -238,27 +216,30 @@ class Directory(BData):
         given path must exists.
         """
         if self.is_directory(arg):
-            self._data[_Keys.DIR] = arg
+            self.__dir = arg
 
 
-class Env(BData):
+class Env(NoDynamicAttributes):
     """Environmental class."""
+
+    __tmp: str = None  # type: ignore
+    __home: str = None  # type: ignore
 
     def __init__(self) -> None:
         """Initialize Env class."""
-        home = os.getenv("HOME")
+        home: Optional[str] = os.getenv("HOME")
         if home is None:
             home = os.getenv("HOMEPATH")
             if home is not None:
                 home = f"{os.getenv('HOMEDRIVE')}{home}"
-        self._data[_Keys.HOME] = home
+        self.__home = home if home else ""
 
-        tmp = os.getenv("TMP")
+        tmp: Optional[str] = os.getenv("TMP")
         if tmp is None:
             tmp = os.getenv("TEMP")
             if tmp is None:
                 tmp = tempfile.gettempdir()
-        self._data[_Keys.TMP] = tmp
+        self.__tmp = tmp
 
     def check_dir(self, directory: str) -> str:
         """Check if dir exists, return dir or else HOME."""
@@ -268,16 +249,18 @@ class Env(BData):
 
     def os_arch(self) -> str:
         """Return multiplatform os architecture."""
-        os_arch = _Keys.BIT32
-        if os.name == _Keys.NT:
-            output = subprocess.check_output(["wmic", "os", "get", "OSArchitecture"])
+        os_arch = "32-bit"
+        if os.name == "nt":
+            output = subprocess.check_output(
+                ["wmic", "os", "get", "OSArchitecture"]
+            ).decode()
             os_arch = output.split()[1]
         else:
-            output = subprocess.check_output(["uname", "-m"])
-            if _Keys.X86_64 in output:
-                os_arch = _Keys.BIT64
+            output: str = subprocess.check_output(["uname", "-m"]).decode()
+            if "x86_64" in output:
+                os_arch = "64-bit"
             else:
-                os_arch = _Keys.BIT32
+                os_arch = "32-bit"
         return os_arch
 
     @property
@@ -288,37 +271,32 @@ class Env(BData):
     @property
     def home(self) -> str:
         """Property that returns home directory string."""
-        return self._data[_Keys.HOME]
+        return self.__home
 
     @property
     def tmpdir(self) -> str:
         """Property that returns tmp directory string."""
-        return self._data[_Keys.TMP]
-
-    @property
-    def plugin_dir(self) -> str:
-        """Return plugin dir path."""
-        return f"{os.path.dirname(os.path.dirname(__file__))}"
+        return self.__tmp
 
 
-class Log(BClasses):
+class Log(NoDynamicAttributes):
     """Create Log container class."""
 
-    __data = None
-    __level = None
+    __data: List[str] = None  # type: ignore
+    __level: int = None  # type: ignore
 
-    def __init__(self, level: int) -> None:
-        """Constructor."""
+    def __init__(self, level) -> None:
+        """Class constructor."""
         self.__data = []
         ll_test = LogLevels()
         if isinstance(level, int) and ll_test.has_key(level):
             self.__level = level
         else:
             raise Raise.error(
-                f"Expected Int type, received: '{type(level)}'.",
+                f"Int type level expected, '{type(level)}' received.",
                 TypeError,
-                self._c_name,
-                currentframe(),
+                self.__class__.__name__,
+                inspect.currentframe(),
             )
 
     @property
@@ -327,17 +305,16 @@ class Log(BClasses):
         return self.__level
 
     @property
-    def log(self) -> Optional[List[str]]:
+    def log(self) -> List[str]:
         """Get list of logs."""
         return self.__data
 
     @log.setter
-    def log(self, arg: Optional[Union[List, str, int, float]]):
+    def log(self, arg: Optional[Union[List, str]]) -> None:
         """Set data log."""
-        if arg is None or (isinstance(arg, list) and not bool(arg)):
-            self.__data = None
+        if arg is None or (isinstance(arg, List) and not bool(arg)):
             self.__data = []
-        if isinstance(arg, list):
+        if isinstance(arg, List):
             for msg in arg:
                 self.__data.append(f"{msg}")
         elif arg is None:
@@ -346,13 +323,17 @@ class Log(BClasses):
             self.__data.append(f"{arg}")
 
 
-class LogProcessor(BData):
+class LogProcessor(NoDynamicAttributes):
     """Log processor access API."""
+
+    __name: str = None  # type: ignore
+    __engine: logging.Logger = None  # type: ignore
+    __loglevel: int = None  # type: ignore
 
     def __init__(self, name: str) -> None:
         """Create instance class object for processing single message."""
         # name of app
-        self._data[_Keys.NAME] = name
+        self.__name = name
         self.loglevel = LogLevels().notset
         self.__logger_init()
 
@@ -364,107 +345,104 @@ class LogProcessor(BData):
         """Initialize logger engine."""
         self.close()
 
-        self._data[_Keys.ENGINE] = logging.getLogger(self._data[_Keys.NAME])
-        self._data[_Keys.ENGINE].setLevel(LogLevels().debug)
+        self.__engine = logging.getLogger(self.__name)
+        self.__engine.setLevel(LogLevels().debug)
 
         hlog = RotatingFileHandler(
-            filename=os.path.join(Env().tmpdir, f"{self._data[_Keys.NAME]}.log"),
+            filename=os.path.join(Env().tmpdir, f"{self.__name}.log"),
             maxBytes=100000,
             backupCount=5,
         )
 
         hlog.setLevel(self.loglevel)
         hlog.setFormatter(logging.Formatter("%(asctime)s %(message)s"))
-        self._data[_Keys.ENGINE].addHandler(hlog)
-        self._data[_Keys.ENGINE].info("Logger initialization complete")
+        self.__engine.addHandler(hlog)
+        self.__engine.info("Logger initialization complete")
 
     def close(self) -> None:
         """Close log subsystem."""
-        if _Keys.ENGINE in self._data and self._data[_Keys.ENGINE] is not None:
-            for handler in self._data[_Keys.ENGINE].handlers:
+        if self.__engine is not None:
+            for handler in self.__engine.handlers:
                 handler.close()
-                self._data[_Keys.ENGINE].removeHandler(handler)
-            self._data[_Keys.ENGINE] = None
+                self.__engine.removeHandler(handler)
+            self.__engine = None  # type: ignore
 
     def send(self, message: Log) -> None:
         """Send single message to log engine."""
-        if _Keys.ENGINE not in self._data:
-            # skip
-            return
         lgl = LogLevels()
         if isinstance(message, Log):
             if message.loglevel == lgl.critical:
                 for msg in message.log:
-                    self._data[_Keys.ENGINE].critical("%s", msg)
+                    self.__engine.critical("%s", msg)
             elif message.loglevel == lgl.debug:
                 for msg in message.log:
-                    self._data[_Keys.ENGINE].debug("%s", msg)
+                    self.__engine.debug("%s", msg)
             elif message.loglevel == lgl.error:
                 for msg in message.log:
-                    self._data[_Keys.ENGINE].error("%s", msg)
+                    self.__engine.error("%s", msg)
             elif message.loglevel == lgl.info:
                 for msg in message.log:
-                    self._data[_Keys.ENGINE].info("%s", msg)
+                    self.__engine.info("%s", msg)
             elif message.loglevel == lgl.warning:
                 for msg in message.log:
-                    self._data[_Keys.ENGINE].warning("%s", msg)
+                    self.__engine.warning("%s", msg)
             else:
                 for msg in message.log:
-                    self._data[_Keys.ENGINE].notset("%s", msg)
+                    self.__engine.notset("%s", msg)  # type: ignore
         else:
             raise Raise.error(
-                f"Expected Log type, received: {type(message)}.",
+                f"Log type expected, {type(message)} received.",
                 TypeError,
-                self._c_name,
-                currentframe(),
+                self.__class__.__name__,
+                inspect.currentframe(),
             )
 
     @property
     def loglevel(self) -> int:
         """Property that returns loglevel."""
-        if _Keys.LOGLVL not in self._data:
-            self._data[_Keys.LOGLVL] = 0
-        return self._data[_Keys.LOGLVL]
+        return self.__loglevel
 
     @loglevel.setter
     def loglevel(self, arg: int) -> None:
         """Setter for log level parameter."""
-        if self._data[_Keys.LOGLVL] == arg:
+        if self.__loglevel == arg:
             log = Log(LogLevels().debug)
             log.log = "LogLevel has not changed"
             self.send(log)
             return
         ll_test = LogLevels()
         if isinstance(arg, int) and ll_test.has_key(arg):
-            self._data[_Keys.LOGLVL] = arg
+            self.__loglevel = arg
         else:
             tmp = "Unable to set LogLevel to {}, defaulted to INFO"
             log = Log(LogLevels().warning)
             log.log = tmp.format(arg)
             self.send(log)
-            self._data[_Keys.LOGLVL] = LogLevels().info
+            self.__loglevel = LogLevels().info
         self.__logger_init()
 
 
-class LogClient(BData):
+class LogClient(NoDynamicAttributes):
     """Log client class API."""
 
-    def __init__(self, queue: Queue) -> None:
+    __queue: Union[Queue, SimpleQueue] = None  # type: ignore
+
+    def __init__(self, queue: Union[Queue, SimpleQueue]) -> None:
         """Create instance class object."""
-        if isinstance(queue, Queue):
-            self._data[_Keys.QUEUE] = queue
+        if isinstance(queue, (Queue, SimpleQueue)):
+            self.__queue = queue
         else:
             raise Raise.error(
-                f"Expected Queue type, received: '{type(queue)}'.",
+                f"Queue or SimpleQueue type expected, '{type(queue)}' received.",
                 TypeError,
-                self._c_name,
-                currentframe(),
+                self.__class__.__name__,
+                inspect.currentframe(),
             )
 
     @property
-    def queue(self) -> Queue:
+    def queue(self) -> Union[Queue, SimpleQueue]:
         """Give me queue object."""
-        return self._data[_Keys.QUEUE]
+        return self.__queue
 
     @property
     def critical(self) -> str:
@@ -479,7 +457,7 @@ class LogClient(BData):
         """
         log = Log(LogLevels().critical)
         log.log = message
-        self._data[_Keys.QUEUE].put(log)
+        self.__queue.put(log)
 
     @property
     def debug(self) -> str:
@@ -494,7 +472,7 @@ class LogClient(BData):
         """
         log = Log(LogLevels().debug)
         log.log = message
-        self._data[_Keys.QUEUE].put(log)
+        self.__queue.put(log)
 
     @property
     def error(self) -> str:
@@ -509,7 +487,7 @@ class LogClient(BData):
         """
         log = Log(LogLevels().error)
         log.log = message
-        self._data[_Keys.QUEUE].put(log)
+        self.__queue.put(log)
 
     @property
     def info(self) -> str:
@@ -524,7 +502,7 @@ class LogClient(BData):
         """
         log = Log(LogLevels().info)
         log.log = message
-        self._data[_Keys.QUEUE].put(log)
+        self.__queue.put(log)
 
     @property
     def warning(self) -> str:
@@ -539,7 +517,7 @@ class LogClient(BData):
         """
         log = Log(LogLevels().warning)
         log.log = message
-        self._data[_Keys.QUEUE].put(log)
+        self.__queue.put(log)
 
     @property
     def notset(self) -> str:
@@ -554,18 +532,18 @@ class LogClient(BData):
         """
         log = Log(LogLevels().notset)
         log.log = message
-        self._data[_Keys.QUEUE].put(log)
+        self.__queue.put(log)
 
 
-class LogLevels(BData):
+class LogLevels(NoDynamicAttributes):
     """Log levels keys.
 
     This is a container class with properties that return the proper
     logging levels defined in the logging module.
     """
 
-    __keys = None
-    __txt = None
+    __keys: Dict[int, bool] = None  # type: ignore
+    __txt: Dict[str, int] = None  # type: ignore
 
     def __init__(self) -> None:
         """Create Log instance."""
@@ -587,13 +565,13 @@ class LogLevels(BData):
             "NOTSET": self.notset,
         }
 
-    def get(self, level: str) -> Optional[int]:
+    def get(self, level: Union[int, str]) -> Optional[int]:
         """Get int log level."""
         if level in self.__txt:
             return self.__txt[level]
         return None
 
-    def has_key(self, level: int) -> bool:
+    def has_key(self, level: Union[int, str]) -> bool:
         """Check, if level is in proper keys."""
         if level in self.__keys or level in self.__txt:
             return True
