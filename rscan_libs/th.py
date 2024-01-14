@@ -22,15 +22,18 @@ from rscan_libs.system import LogClient
 from rscan_libs.tools import AlgGenetic, AlgTsp, Numbers, Url
 
 
-class ThSystemSearch(Thread, ThBaseObject, BLogClient):
+class ThSystemSearch(Thread, BLogClient):
     """Thread system search engine."""
 
-    __data = None
-    __found = None
-    __math = None
-    __parent = None
-    __radius = None
-    __start_system = None
+    __slots__ = [
+        "__parent",
+        "__data",
+        "__math",
+        "__stop_event",
+        "__start_system",
+        "__radius",
+        "__found",
+    ]
 
     def __init__(
         self,
@@ -140,7 +143,7 @@ class ThSystemSearch(Thread, ThBaseObject, BLogClient):
     @property
     def stopped(self) -> bool:
         """Get stop event flag."""
-        return self._stop_event.isSet()
+        return self.__stop_event.isSet()
 
     def stop(self) -> None:
         """Set stop event."""
@@ -167,7 +170,7 @@ class ThSystemSearch(Thread, ThBaseObject, BLogClient):
                 self.__class__.__name__,
                 inspect.currentframe(),
             )
-        self.__start_system: StarsSystem = value
+        self.__start_system = value
 
     @property
     def radius(self) -> Optional[int]:
