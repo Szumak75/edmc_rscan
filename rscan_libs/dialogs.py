@@ -378,7 +378,7 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
         # create name label [2]
         lname = tk.Label(frame, text=f"{item.name}")
         lname.pack(side=tk.LEFT)
-        lname[EdrsScanDialog.__Keys.FONT] = self.__fonts[EdrsScanDialog.__Keys.NORMAL]
+        lname["font"] = self.__fonts[EdrsScanDialog.__Keys.NORMAL]
         list_object.append(lname)
 
         # create range label
