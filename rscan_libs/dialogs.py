@@ -133,6 +133,13 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
 
         self.debug(inspect.currentframe(), "Constructor work done.")
 
+    # def __del__(self):
+    #     """Destroy datasets on close."""
+    #     self.debug(
+    #         inspect.currentframe(),
+    #         f"Delete window: {self.title()}"
+    #     )
+    #
     def __frame_build(self) -> None:
         """Create window."""
         self.title(self.__data.pluginname)
@@ -201,9 +208,6 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
         status.pack(side=tk.LEFT)
         self.__widgets["status"] = status_string
 
-        # init flags
-        self._data[DialogKeys.CLOSED] = False
-
         # closing event
         self.protocol("WM_DELETE_WINDOW", self.__on_closing)
 
@@ -257,12 +261,12 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
         obj = ThSystemSearch(self, self.logger.queue, self.__data, self.__tools["math"])
         obj.radius = radius
         # initializing start system for search engine
-        if DialogKeys.START not in self._data or self._data[DialogKeys.START] is None:
-            self._data[DialogKeys.START] = StarsSystem(name=system)
-        if self._data[DialogKeys.START].name != system:
-            self._data[DialogKeys.START].name = None
-            self._data[DialogKeys.START].name = system
-        obj.start_system = self._data[DialogKeys.START]
+        if self.__start is None:
+            self.__start = StarsSystem(name=system)
+        if self.__start.name != system:
+            self.__start.name = None
+            self.__start.name = system
+        obj.start_system = self.__start
 
         # put it into queue
         self.__rscan_qth.put(obj)
@@ -410,7 +414,7 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
         return self.__closed
 
     @property
-    def status(self):
+    def status(self) -> Optional[tk.StringVar]:
         """Return status object."""
         return self.__widgets["status"]
 
@@ -491,8 +495,8 @@ class EdrsDialog(BLogClient, NoDynamicAttributes):
                 default=tk.ACTIVE,
                 # state=tk.DISABLED
             )
-            self._data[DialogKeys.BUTTON].grid(sticky=tk.NSEW)
-        return self._data[DialogKeys.BUTTON]
+            self.__button.grid(sticky=tk.NSEW)
+        return self.__button
 
     def dialog_update(self) -> None:
         """Do update for windows."""
