@@ -548,7 +548,7 @@ class LogLevels(NoDynamicAttributes):
     def __init__(self) -> None:
         """Create Log instance."""
         # loglevel initialization database
-        self.__keys: dict[int, bool] = {
+        self.__keys = {
             self.info: True,
             self.debug: True,
             self.warning: True,
@@ -556,7 +556,7 @@ class LogLevels(NoDynamicAttributes):
             self.notset: True,
             self.critical: True,
         }
-        self.__txt: dict[str, int] = {
+        self.__txt = {
             "INFO": self.info,
             "DEBUG": self.debug,
             "WARNING": self.warning,
