@@ -395,7 +395,7 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
         if self.__data.jumprange:
             jump: float = self.__data.jumprange - 4
         if "distance" in item.data and item.data["distance"] > jump:
-            ljump[EdrsScanDialog.__Keys.FONT] = self.__fonts[EdrsScanDialog.__Keys.BOLD]
+            ljump["font"] = self.__fonts[EdrsScanDialog.__Keys.BOLD]
             ljump["fg"] = "red"
             CreateToolTip(
                 ljump,
