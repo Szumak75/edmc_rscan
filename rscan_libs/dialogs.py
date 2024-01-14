@@ -17,6 +17,7 @@ from typing import List, Optional, Union, Tuple, Dict, Any
 from types import FrameType
 from jsktoolbox.attribtool import NoDynamicAttributes
 from jsktoolbox.raisetool import Raise
+from jsktoolbox.attribtool import ReadOnlyClass
 
 from rscan_libs.cartesianmath import Euclid
 from rscan_libs.data import RscanData
@@ -30,6 +31,22 @@ from rscan_libs.dialogs_tools import CreateToolTip
 
 class EdrsScanDialog(tk.Toplevel, BLogClient):
     """Create new  window."""
+
+    class __Keys(object, metaclass=ReadOnlyClass):
+        """Private keys."""
+
+        BOLD: str = "_bold_"
+        CLIP: str = "_clip_"
+        FDATA: str = "_fdata_"
+        FONT: str = "_font_"
+        MATH: str = "_math_"
+        NORMAL: str = "_normal_"
+        RADIUS: str = "_radius_"
+        SBUTTON: str = "_sbutton_"
+        SPANEL: str = "_spanel_"
+        STATUS: str = "_status_"
+        STRIKE: str = "_strike_"
+        SYSTEM: str = "_system_"
 
     __closed = False
     # RScanData
@@ -57,18 +74,23 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
         super().__init__(master=master)
 
         # tools
-        self.__tools = {"clip": None, "math": None}
+        self.__tools = {
+            EdrsScanDialog.__Keys.CLIP: None,
+            EdrsScanDialog.__Keys.MATH: None,
+        }
 
-        self.__tools["clip"] = Clip()
+        self.__tools[EdrsScanDialog.__Keys.CLIP] = Clip()
 
         # witgets declaration
         self.__widgets = {}
-        self.__widgets["status"] = None  #: Optional[tk.StringVar]
-        self.__widgets["fdata"] = None  #: Optional[tk.LabelFrame]
-        self.__widgets["system"] = None  #: Optional[tk.Entry]
-        self.__widgets["radius"] = None  #: Optional[tk.Entry]
-        self.__widgets["sbutton"] = None  #: Optional[tk.Button]
-        self.__widgets["spanel"] = None  #: Optional[VerticalScrolledFrame]
+        self.__widgets[EdrsScanDialog.__Keys.STATUS] = None  #: Optional[tk.StringVar]
+        self.__widgets[EdrsScanDialog.__Keys.FDATA] = None  #: Optional[tk.LabelFrame]
+        self.__widgets[EdrsScanDialog.__Keys.SYSTEM] = None  #: Optional[tk.Entry]
+        self.__widgets[EdrsScanDialog.__Keys.RADIUS] = None  #: Optional[tk.Entry]
+        self.__widgets[EdrsScanDialog.__Keys.SBUTTON] = None  #: Optional[tk.Button]
+        self.__widgets[
+            EdrsScanDialog.__Keys.SPANEL
+        ] = None  #: Optional[VerticalScrolledFrame]
 
         # init log subsystem
         if not isinstance(log_queue, (Queue, SimpleQueue)):
@@ -98,7 +120,7 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
                 self.__class__.__name__,
                 inspect.currentframe(),
             )
-        self.__tools["math"] = euclid_alg
+        self.__tools[EdrsScanDialog.__Keys.MATH] = euclid_alg
 
         self.debug(inspect.currentframe(), "Initialize dataset")
 
@@ -118,14 +140,18 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
 
         # fonts configure
         self.__fonts = {
-            "bold": font.Font(
+            EdrsScanDialog.__Keys.BOLD: font.Font(
                 family="Helvetica",
                 size=10,
                 weight=font.BOLD,
                 overstrike=False,
             ),
-            "normal": font.Font(family="Helvetica", size=10, overstrike=False),
-            "strike": font.Font(family="Helvetica", size=10, overstrike=True),
+            EdrsScanDialog.__Keys.NORMAL: font.Font(
+                family="Helvetica", size=10, overstrike=False
+            ),
+            EdrsScanDialog.__Keys.STRIKE: font.Font(
+                family="Helvetica", size=10, overstrike=True
+            ),
         }
 
         # create window
@@ -180,25 +206,25 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
         if self.__data.starsystem.name is not None:
             system_name.delete(0, tk.END)
             system_name.insert(0, self.__data.starsystem.name)
-        self.__widgets["system"] = system_name
+        self.__widgets[EdrsScanDialog.__Keys.SYSTEM] = system_name
         tk.Label(command_frame, text="Radius:").grid(row=0, column=2, sticky=tk.E)
         radius = tk.Entry(command_frame, textvariable=tk.StringVar(value="50"), width=5)
         radius.grid(row=0, column=3, sticky=tk.W)
-        self.__widgets["radius"] = radius
+        self.__widgets[EdrsScanDialog.__Keys.RADIUS] = radius
         bgenerator = tk.Button(command_frame, text="Search", command=self.__generator)
         bgenerator.grid(row=0, column=4, sticky=tk.E)
         CreateToolTip(bgenerator, "Locate visited systems that have not been explored.")
-        self.__widgets["sbutton"] = bgenerator
+        self.__widgets[EdrsScanDialog.__Keys.SBUTTON] = bgenerator
 
         # create data panel
         data_frame = tk.LabelFrame(self, text=" Flight route ")
         data_frame.grid(row=r_data_idx, padx=5, pady=5, sticky=tk.NSEW)
-        self.__widgets["fdata"] = data_frame
+        self.__widgets[EdrsScanDialog.__Keys.FDATA] = data_frame
 
         # create scrolled panel
         spanel = VerticalScrolledFrame(data_frame)
         spanel.pack(ipadx=1, ipady=1, fill=tk.BOTH, expand=tk.TRUE)
-        self.__widgets["spanel"] = spanel
+        self.__widgets[EdrsScanDialog.__Keys.SPANEL] = spanel
 
         # create status panel
         status_frame = tk.LabelFrame(self, text="")
@@ -206,7 +232,7 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
         status_string = tk.StringVar()
         status = tk.Label(status_frame, textvariable=status_string)
         status.pack(side=tk.LEFT)
-        self.__widgets["status"] = status_string
+        self.__widgets[EdrsScanDialog.__Keys.STATUS] = status_string
 
         # closing event
         self.protocol("WM_DELETE_WINDOW", self.__on_closing)
@@ -222,8 +248,8 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
         """Copy txt to clipboard."""
         # USE: command=lambda: self.__to_clipboard('txt')
         self.debug(inspect.currentframe(), f"string: '{clip_text}'")
-        if self.__tools["clip"].is_tool:
-            self.__tools["clip"].copy(clip_text)
+        if self.__tools[EdrsScanDialog.__Keys.CLIP].is_tool:
+            self.__tools[EdrsScanDialog.__Keys.CLIP].copy(clip_text)
         else:
             clip = tk.Tk()
             clip.withdraw()
@@ -235,19 +261,19 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
     def __generator(self) -> None:
         """Command button callback."""
         # get variables
-        system = self.__widgets["system"].get()
-        radius = self.__widgets["radius"].get()
+        system = self.__widgets[EdrsScanDialog.__Keys.SYSTEM].get()
+        radius = self.__widgets[EdrsScanDialog.__Keys.RADIUS].get()
         self.debug(inspect.currentframe(), f"system: {system}, type:{type(system)}")
         self.debug(inspect.currentframe(), f"radius: {radius}, type:{type(radius)}")
 
         if not system or not radius:
             msg: str = ""
             if not system:
-                msg = "System"
+                msg = "system"
             if not radius and msg:
                 msg = f"{msg} and radius"
             elif not radius:
-                msg = "Radius"
+                msg = "radius"
             msg = f"{msg} must be set for processing request."
             self.status = msg
             return
@@ -258,7 +284,12 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
             return
 
         # build thread object for worker
-        obj = ThSystemSearch(self, self.logger.queue, self.__data, self.__tools["math"])
+        obj = ThSystemSearch(
+            self,
+            self.logger.queue,
+            self.__data,
+            self.__tools[EdrsScanDialog.__Keys.MATH],
+        )
         obj.radius = radius
         # initializing start system for search engine
         if self.__start is None:
@@ -273,13 +304,13 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
 
     def __disable_button(self, flag: bool) -> None:
         """Disable generator button on working time."""
-        if self.__widgets["sbutton"] is None:
+        if self.__widgets[EdrsScanDialog.__Keys.SBUTTON] is None:
             return
         if isinstance(flag, bool):
             if flag:
-                self.__widgets["sbutton"].config(state=tk.DISABLED)
+                self.__widgets[EdrsScanDialog.__Keys.SBUTTON].config(state=tk.DISABLED)
             else:
-                self.__widgets["sbutton"].config(state=tk.ACTIVE)
+                self.__widgets[EdrsScanDialog.__Keys.SBUTTON].config(state=tk.ACTIVE)
 
     def th_worker(self) -> None:
         """Run thread for getting data and computing results."""
@@ -335,19 +366,19 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
 
         # create frame [1]
         # frame = tk.Frame(self.__widgets['fdata'])
-        frame = tk.Frame(self.__widgets["spanel"].interior)
+        frame = tk.Frame(self.__widgets[EdrsScanDialog.__Keys.SPANEL].interior)
         frame.pack(fill=tk.X)
         list_object.append(frame)
 
         # create count label
-        tk.Label(frame, text=f" {count}: ", font=self.__fonts["normal"]).pack(
-            side=tk.LEFT
-        )
+        tk.Label(
+            frame, text=f" {count}: ", font=self.__fonts[EdrsScanDialog.__Keys.NORMAL]
+        ).pack(side=tk.LEFT)
 
         # create name label [2]
         lname = tk.Label(frame, text=f"{item.name}")
         lname.pack(side=tk.LEFT)
-        lname["font"] = self.__fonts["normal"]
+        lname[EdrsScanDialog.__Keys.FONT] = self.__fonts[EdrsScanDialog.__Keys.NORMAL]
         list_object.append(lname)
 
         # create range label
@@ -355,12 +386,16 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
         jump = 50
         if "distance" in item.data:
             distance = f"{item.data['distance']:.2f}"
-        ljump = tk.Label(frame, text=f"[{distance:} ly]", font=self.__fonts["normal"])
+        ljump = tk.Label(
+            frame,
+            text=f"[{distance:} ly]",
+            font=self.__fonts[EdrsScanDialog.__Keys.NORMAL],
+        )
         ljump.pack(side=tk.LEFT)
         if self.__data.jumprange:
             jump: float = self.__data.jumprange - 4
         if "distance" in item.data and item.data["distance"] > jump:
-            ljump["font"] = self.__fonts["bold"]
+            ljump[EdrsScanDialog.__Keys.FONT] = self.__fonts[EdrsScanDialog.__Keys.BOLD]
             ljump["fg"] = "red"
             CreateToolTip(
                 ljump,
@@ -380,7 +415,7 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
             frame,
             text="C",
             command=lambda: self.__to_clipboard(f"{item.name}"),
-            font=self.__fonts["normal"],
+            font=self.__fonts[EdrsScanDialog.__Keys.NORMAL],
         )
         btn.pack(side=tk.RIGHT)
         CreateToolTip(btn, "Copy to clipboard")
@@ -396,7 +431,9 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
         # update located system
         for item in self.__stars:
             if item[0].name == self.__data.starsystem.name:
-                item[2]["font"] = self.__fonts["strike"]
+                item[2][EdrsScanDialog.__Keys.FONT] = self.__fonts[
+                    EdrsScanDialog.__Keys.STRIKE
+                ]
 
     def debug(self, currentframe: Optional[FrameType], message: str = "") -> None:
         """Build debug message."""
@@ -416,16 +453,16 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
     @property
     def status(self) -> Optional[tk.StringVar]:
         """Return status object."""
-        return self.__widgets["status"]
+        return self.__widgets[EdrsScanDialog.__Keys.STATUS]
 
     @status.setter
     def status(self, message) -> None:
         """Set status message."""
-        if self.__widgets["status"] is not None:
+        if self.__widgets[EdrsScanDialog.__Keys.STATUS] is not None:
             if message:
-                self.__widgets["status"].set(f"{message}")
+                self.__widgets[EdrsScanDialog.__Keys.STATUS].set(f"{message}")
             else:
-                self.__widgets["status"].set("")
+                self.__widgets[EdrsScanDialog.__Keys.STATUS].set("")
 
 
 class EdrsDialog(BLogClient, NoDynamicAttributes):
