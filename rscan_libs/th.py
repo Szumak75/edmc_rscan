@@ -15,14 +15,14 @@ from types import FrameType
 
 from rscan_libs.cartesianmath import Euclid
 from rscan_libs.data import RscanData
-from rscan_libs.mlog import MLogClient
+from rscan_libs.base_log import BLogClient
 from jsktoolbox.raisetool import Raise
 from rscan_libs.stars import StarsSystem
 from rscan_libs.system import LogClient
-from rscan_libs.tools import AlgGeneticGPT, AlgTsp, Numbers, Url
+from rscan_libs.tools import AlgGenetic, AlgTsp, Numbers, Url
 
 
-class ThSystemSearch(Thread, MLogClient):
+class ThSystemSearch(Thread, BLogClient):
     """Thread system search engine."""
 
     __slots__ = [
@@ -278,7 +278,7 @@ class ThSystemSearch(Thread, MLogClient):
         if self.__data.jumprange is not None:
             jump: int = int(self.__data.jumprange) - 4
         if len(systems) > 10:
-            alg = AlgGeneticGPT(
+            alg = AlgGenetic(
                 self.start_system,
                 systems,
                 jump,

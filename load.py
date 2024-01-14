@@ -20,11 +20,11 @@ from jsktoolbox.attribtool import NoDynamicAttributes
 from config import config
 from rscan_libs.data import RscanData
 from rscan_libs.dialogs import EdrsDialog
-from rscan_libs.mlog import MLogClient, MLogProcessor
+from rscan_libs.base_log import BLogClient, BLogProcessor
 from rscan_libs.system import LogClient, LogLevels, LogProcessor
 
 
-class EDRS(MLogProcessor, MLogClient, NoDynamicAttributes):
+class EDRS(BLogProcessor, BLogClient, NoDynamicAttributes):
     """edrs_object main class."""
 
     __data: RscanData = None  # type: ignore
@@ -36,7 +36,7 @@ class EDRS(MLogProcessor, MLogClient, NoDynamicAttributes):
         self.data = RscanData()
 
         self.data.pluginname = "EDRS"
-        self.data.version = "0.2.12"
+        self.data.version = "0.2.13"
 
         # logging subsystem
         self.qlog = SimpleQueue()
@@ -132,7 +132,7 @@ def plugin_stop() -> None:
     )
     edrs_object.qlog.put(None)
     edrs_object.thlog.join()
-    edrs_object.thlog = None
+    edrs_object.thlog = None  # type: ignore
 
 
 def plugin_app(parent: tk.Frame) -> Tuple[tk.Label, ttk.Button]:

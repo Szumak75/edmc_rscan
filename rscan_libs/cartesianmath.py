@@ -16,7 +16,7 @@ from jsktoolbox.attribtool import NoDynamicAttributes
 from jsktoolbox.raisetool import Raise
 
 from rscan_libs.data import RscanData
-from rscan_libs.mlog import MLogClient
+from rscan_libs.base_log import BLogClient
 from rscan_libs.system import LogClient
 
 
@@ -31,7 +31,7 @@ except ModuleNotFoundError:
     pass
 
 
-class Euclid(MLogClient, NoDynamicAttributes):
+class Euclid(BLogClient, NoDynamicAttributes):
     """Euclid.
 
     A class that calculates the length of a vector in Cartesian space.

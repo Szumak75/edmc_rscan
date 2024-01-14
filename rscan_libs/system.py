@@ -227,14 +227,14 @@ class Env(NoDynamicAttributes):
 
     def __init__(self) -> None:
         """Initialize Env class."""
-        home = os.getenv("HOME")
+        home: Optional[str] = os.getenv("HOME")
         if home is None:
             home = os.getenv("HOMEPATH")
             if home is not None:
                 home = f"{os.getenv('HOMEDRIVE')}{home}"
         self.__home = home if home else ""
 
-        tmp = os.getenv("TMP")
+        tmp: Optional[str] = os.getenv("TMP")
         if tmp is None:
             tmp = os.getenv("TEMP")
             if tmp is None:
@@ -256,7 +256,7 @@ class Env(NoDynamicAttributes):
             ).decode()
             os_arch = output.split()[1]
         else:
-            output = subprocess.check_output(["uname", "-m"]).decode()
+            output: str = subprocess.check_output(["uname", "-m"]).decode()
             if "x86_64" in output:
                 os_arch = "64-bit"
             else:
@@ -305,12 +305,12 @@ class Log(NoDynamicAttributes):
         return self.__level
 
     @property
-    def log(self) -> List:
+    def log(self) -> List[str]:
         """Get list of logs."""
         return self.__data
 
     @log.setter
-    def log(self, arg) -> None:
+    def log(self, arg: Optional[Union[List, str]]) -> None:
         """Set data log."""
         if arg is None or (isinstance(arg, List) and not bool(arg)):
             self.__data = []

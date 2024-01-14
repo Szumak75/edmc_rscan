@@ -20,7 +20,7 @@ from jsktoolbox.raisetool import Raise
 
 from rscan_libs.cartesianmath import Euclid
 from rscan_libs.data import RscanData
-from rscan_libs.mlog import MLogClient
+from rscan_libs.base_log import BLogClient
 from rscan_libs.stars import StarsSystem
 from rscan_libs.system import Clip, LogClient
 from rscan_libs.th import ThSystemSearch
@@ -28,7 +28,7 @@ from rscan_libs.tools import Numbers
 from rscan_libs.dialogs_tools import CreateToolTip
 
 
-class EdrsScanDialog(tk.Toplevel, MLogClient):
+class EdrsScanDialog(tk.Toplevel, BLogClient):
     """Create new  window."""
 
     __closed = False
@@ -428,7 +428,7 @@ class EdrsScanDialog(tk.Toplevel, MLogClient):
                 self.__widgets["status"].set("")
 
 
-class EdrsDialog(MLogClient, NoDynamicAttributes):
+class EdrsDialog(BLogClient, NoDynamicAttributes):
     """Create config dialog for plugin."""
 
     # RscanData
@@ -611,7 +611,7 @@ class VerticalScrolledFrame(tk.Frame):
                 interior.winfo_reqwidth(),
                 interior.winfo_reqheight(),
             )
-            canvas.config(scrollregion="0 0 %s %s" % size) # type: ignore
+            canvas.config(scrollregion="0 0 %s %s" % size)  # type: ignore
             if interior.winfo_reqwidth() != canvas.winfo_width():
                 # Update the canvas's width to fit the inner frame.
                 canvas.config(width=interior.winfo_reqwidth())

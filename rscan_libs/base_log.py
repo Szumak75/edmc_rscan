@@ -14,15 +14,15 @@ from jsktoolbox.attribtool import NoDynamicAttributes
 from rscan_libs.system import LogClient, LogProcessor
 
 
-class MLogProcessor(NoDynamicAttributes):
+class BLogProcessor(NoDynamicAttributes):
     """MLogProcessor metaclass.
 
     Container for logger processor methods.
     """
 
     __logger_queue: Union[Queue, SimpleQueue] = None  # type: ignore
-    __log_processor_engine: LogProcessor = None # type: ignore
-    __thread_logger:Thread = None # type: ignore
+    __log_processor_engine: LogProcessor = None  # type: ignore
+    __thread_logger: Thread = None  # type: ignore
 
     @property
     def thlog(self) -> Thread:
@@ -30,7 +30,7 @@ class MLogProcessor(NoDynamicAttributes):
         return self.__thread_logger
 
     @thlog.setter
-    def thlog(self, value) -> None:
+    def thlog(self, value: Thread) -> None:
         self.__thread_logger = value
 
     @property
@@ -39,7 +39,7 @@ class MLogProcessor(NoDynamicAttributes):
         return self.__logger_queue
 
     @qlog.setter
-    def qlog(self, value) -> None:
+    def qlog(self, value: Union[Queue, SimpleQueue]) -> None:
         """Setter for logging queue."""
         self.__logger_queue = value
 
@@ -49,12 +49,12 @@ class MLogProcessor(NoDynamicAttributes):
         return self.__log_processor_engine
 
     @log_processor.setter
-    def log_processor(self, value) -> None:
+    def log_processor(self, value: LogProcessor) -> None:
         """Setter for log processor instance."""
         self.__log_processor_engine = value
 
 
-class MLogClient:
+class BLogClient:
     """MLogClass metaclass.
 
     Container for logger methods.
@@ -68,6 +68,6 @@ class MLogClient:
         return self.__logger
 
     @logger.setter
-    def logger(self, arg) -> None:
+    def logger(self, arg: LogClient) -> None:
         """Set logger instance."""
         self.__logger = arg

@@ -23,7 +23,7 @@ import requests
 from requests.utils import requote_uri
 from rscan_libs.cartesianmath import Euclid
 from rscan_libs.interfaces import Ialg
-from rscan_libs.mlog import MLogClient
+from rscan_libs.base_log import BLogClient
 from rscan_libs.stars import StarsSystem
 from rscan_libs.system import LogClient
 
@@ -38,7 +38,7 @@ class Url(NoDynamicAttributes):
     __systems_url: str = None  # type: ignore
     __system_url: str = None  # type: ignore
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Create Url helper object."""
         self.__options = {
             "showId": 1,
@@ -195,7 +195,7 @@ class Numbers(NoDynamicAttributes):
             return False
 
 
-class AlgTsp(Ialg, MLogClient, NoDynamicAttributes):
+class AlgTsp(Ialg, BLogClient, NoDynamicAttributes):
     """Travelling salesman problem."""
 
     __pluginname: str = None  # type: ignore
@@ -373,20 +373,20 @@ class AlgTsp(Ialg, MLogClient, NoDynamicAttributes):
         return self.__final
 
 
-class AlgGeneticGPT(Ialg, MLogClient, NoDynamicAttributes):
+class AlgGenetic(Ialg, BLogClient, NoDynamicAttributes):
     """Genetic algorithm solving the problem of finding the best path."""
 
     __pluginname: str = None  # type: ignore
     __math: Euclid = None  # type: ignore
     __final: List[StarsSystem] = None  # type: ignore
 
-    __points = None  # type: ignore
-    __start_point = None  # type: ignore
-    __max_distance = None  # type: ignore
-    __population_size = None  # type: ignore
-    __generations = None  # type: ignore
-    __mutation_rate = None  # type: ignore
-    __crossover_rate = None  # type: ignore
+    __points: List[StarsSystem] = None  # type: ignore
+    __start_point: StarsSystem = None  # type: ignore
+    __max_distance: int = None  # type: ignore
+    __population_size: int = None  # type: ignore
+    __generations: int = None  # type: ignore
+    __mutation_rate: float = None  # type: ignore
+    __crossover_rate: float = None  # type: ignore
 
     def __init__(
         self,
@@ -430,7 +430,7 @@ class AlgGeneticGPT(Ialg, MLogClient, NoDynamicAttributes):
                 inspect.currentframe(),
             )
         if isinstance(jumprange, int):
-            self.__max_distance: int = jumprange
+            self.__max_distance = jumprange
         else:
             raise Raise.error(
                 f"Int type expected, '{type(jumprange)}' received",
@@ -454,12 +454,12 @@ class AlgGeneticGPT(Ialg, MLogClient, NoDynamicAttributes):
             )
         self.debug(inspect.currentframe(), "Initialize dataset")
 
-        self.__points: List[StarsSystem] = systems
-        self.__start_point: StarsSystem = start
-        self.__population_size: int = 100
-        self.__generations: int = 100
-        self.__mutation_rate: float = 0.05
-        self.__crossover_rate: float = 0.4
+        self.__points = systems
+        self.__start_point = start
+        self.__population_size = 100
+        self.__generations = 100
+        self.__mutation_rate = 0.05
+        self.__crossover_rate = 0.4
 
     def __generate_individual(self) -> List[StarsSystem]:
         individual: List[StarsSystem] = [self.__start_point]
@@ -497,6 +497,8 @@ class AlgGeneticGPT(Ialg, MLogClient, NoDynamicAttributes):
     def __select_parents(
         self, population: List[List[StarsSystem]]
     ) -> Tuple[List[StarsSystem], List[StarsSystem]]:
+        parent1: List[StarsSystem]
+        parent2: List[StarsSystem]
         parent1, parent2 = random.choices(
             population,
             weights=[self.__get_fitness(individual) for individual in population],
@@ -509,13 +511,15 @@ class AlgGeneticGPT(Ialg, MLogClient, NoDynamicAttributes):
     ) -> List[StarsSystem]:
         if random.random() > self.__crossover_rate:
             return parent1
-        crossover_point = random.randint(1, len(parent1) - 2)
-        child = parent1[:crossover_point] + [
+        crossover_point: int = random.randint(1, len(parent1) - 2)
+        child: List[StarsSystem] = parent1[:crossover_point] + [
             point for point in parent2 if point not in parent1[:crossover_point]
         ]
         return child
 
     def __mutate(self, individual: List[StarsSystem]) -> List[StarsSystem]:
+        mutation_point1: int
+        mutation_point2: int
         if random.random() > self.__mutation_rate:
             return individual
         mutation_point1, mutation_point2 = random.sample(
@@ -528,15 +532,20 @@ class AlgGeneticGPT(Ialg, MLogClient, NoDynamicAttributes):
         return individual
 
     def __evolve(self) -> List[StarsSystem]:
-        population = self.__generate_population()
+        population: List[List[StarsSystem]] = self.__generate_population()
         best_individual: List[StarsSystem] = None  # type: ignore
         for i in range(self.__generations):
-            fitnesses = [self.__get_fitness(individual) for individual in population]
+            fitnesses: List[float] = [
+                self.__get_fitness(individual) for individual in population
+            ]
             best_individual = population[fitnesses.index(max(fitnesses))]
             if len(best_individual) == len(self.__points) + 1:
                 break
-            new_population = [best_individual]
+            new_population: List[List[StarsSystem]] = [best_individual]
             while len(new_population) < self.__population_size:
+                parent1: List[StarsSystem]
+                parent2: List[StarsSystem]
+                child: List[StarsSystem]
                 parent1, parent2 = self.__select_parents(population)
                 child = self.__crossover(parent1, parent2)
                 child = self.__mutate(child)
@@ -544,13 +553,13 @@ class AlgGeneticGPT(Ialg, MLogClient, NoDynamicAttributes):
             population = new_population
         return best_individual
 
-    def run(self):
+    def run(self) -> None:
         """Run algorithm."""
         self.__final = self.__evolve()
         self.__final.remove(self.__start_point)
         # update distance
         dsum: float = 0.0
-        start = self.__start_point
+        start: StarsSystem = self.__start_point
         for item in self.__final:
             end: StarsSystem = item
             end.data["distance"] = self.__math.distance(start.star_pos, end.star_pos)
@@ -559,11 +568,11 @@ class AlgGeneticGPT(Ialg, MLogClient, NoDynamicAttributes):
         if self.logger:
             self.logger.debug = f"FINAL Distance: {dsum:.2f} ly"
 
-    def debug(self, currentframe, message=""):
+    def debug(self, currentframe: Optional[FrameType], message: str = "") -> None:
         """Build debug message."""
-        pname = f"{self.__pluginname}"
-        cname = f"{self.__class__.__name__}"
-        mname = f"{currentframe.f_code.co_name}"
+        pname: str = f"{self.__pluginname}"
+        cname: str = f"{self.__class__.__name__}"
+        mname: str = f"{currentframe.f_code.co_name}" if currentframe else ""
         if message != "":
             message = f": {message}"
         if self.logger:
