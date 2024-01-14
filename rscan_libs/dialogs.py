@@ -367,7 +367,11 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
 
         # create frame [1]
         # frame = tk.Frame(self.__widgets['fdata'])
-        frame = tk.Frame(self.__widgets[EdrsScanDialog.__Keys.SPANEL].interior)
+        frame = tk.Frame(
+            self.__widgets[EdrsScanDialog.__Keys.SPANEL].interior,
+            relief=tk.GROOVE,
+            borderwidth=1,
+        )
         frame.pack(fill=tk.X)
         list_object.append(frame)
 
@@ -375,9 +379,7 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
         tk.Label(
             frame,
             text=f" {count}: ",
-            font=self.__fonts[EdrsScanDialog.__Keys.NORMAL],
-            relief=tk.GROOVE,
-            borderwidth=1,
+            font=self.__fonts[EdrsScanDialog.__Keys.NORMAL]
         ).pack(side=tk.LEFT)
 
         # create name label [2]
