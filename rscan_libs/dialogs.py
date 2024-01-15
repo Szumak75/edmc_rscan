@@ -589,11 +589,14 @@ class VerticalScrolledFrame:
     You need to provide the controller separately.
     """
 
-    def __init__(self, master, **kwargs):
+    # https://gist.github.com/novel-yet-trivial/3eddfce704db3082e38c84664fc1fdf8
+
+    def __init__(self, master, **kwargs) -> None:
         width = kwargs.pop("width", None)
         height = kwargs.pop("height", None)
         bg = kwargs.pop("bg", kwargs.pop("background", None))
         self.outer = tk.Frame(master, **kwargs)
+        self.outer.pack(fill=tk.BOTH, expand=tk.TRUE)
 
         self.vsb = tk.Scrollbar(self.outer, orient=tk.VERTICAL)
         self.vsb.pack(fill=tk.Y, side=tk.RIGHT)
@@ -624,22 +627,22 @@ class VerticalScrolledFrame:
             # all other attributes (_w, children, etc) are passed to self.inner
             return getattr(self.inner, item)
 
-    def _on_frame_configure(self, event=None):
+    def _on_frame_configure(self, event=None) -> None:
         x1, y1, x2, y2 = self.canvas.bbox("all")
         height = self.canvas.winfo_height()
         self.canvas.config(scrollregion=(0, 0, x2, max(y2, height)))
 
-    def _bind_mouse(self, event=None):
+    def _bind_mouse(self, event=None) -> None:
         self.canvas.bind_all("<4>", self._on_mousewheel)
         self.canvas.bind_all("<5>", self._on_mousewheel)
         self.canvas.bind_all("<MouseWheel>", self._on_mousewheel)
 
-    def _unbind_mouse(self, event=None):
+    def _unbind_mouse(self, event=None) -> None:
         self.canvas.unbind_all("<4>")
         self.canvas.unbind_all("<5>")
         self.canvas.unbind_all("<MouseWheel>")
 
-    def _on_mousewheel(self, event):
+    def _on_mousewheel(self, event) -> None:
         """Linux uses event.num; Windows / Mac uses event.delta"""
         if event.num == 4 or event.delta > 0:
             self.canvas.yview_scroll(-1, "units")
@@ -650,58 +653,56 @@ class VerticalScrolledFrame:
         return str(self.outer)
 
 
-class VerticalScrolledFrameOld(tk.Frame):
-    """A pure Tkinter scrollable frame that actually works!
-    * Use the 'interior' attribute to place widgets inside the scrollable frame.
-    * Construct and pack/place/grid normally.
-    * This frame only allows vertical scrolling.
-    """
+# class VerticalScrolledFrameOld(tk.Frame):
+#     """A pure Tkinter scrollable frame that actually works!
+#     * Use the 'interior' attribute to place widgets inside the scrollable frame.
+#     * Construct and pack/place/grid normally.
+#     * This frame only allows vertical scrolling.
+#     """
 
-    # https://gist.github.com/novel-yet-trivial/3eddfce704db3082e38c84664fc1fdf8
+#     def __init__(self, parent, *args, **kw) -> None:
+#         tk.Frame.__init__(self, parent, *args, **kw)
 
-    def __init__(self, parent, *args, **kw) -> None:
-        tk.Frame.__init__(self, parent, *args, **kw)
+#         # Create a canvas object and a vertical scrollbar for scrolling it.
+#         # vscrollbar = ttk.Scrollbar(self, orient=tk.VERTICAL)
+#         vscrollbar = tk.Scrollbar(self, orient=tk.VERTICAL)
+#         vscrollbar.pack(fill=tk.Y, side=tk.RIGHT, expand=tk.FALSE)
+#         canvas = tk.Canvas(
+#             self, bd=0, highlightthickness=0, yscrollcommand=vscrollbar.set
+#         )
+#         canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=tk.TRUE)
+#         vscrollbar.config(command=canvas.yview)
 
-        # Create a canvas object and a vertical scrollbar for scrolling it.
-        # vscrollbar = ttk.Scrollbar(self, orient=tk.VERTICAL)
-        vscrollbar = tk.Scrollbar(self, orient=tk.VERTICAL)
-        vscrollbar.pack(fill=tk.Y, side=tk.RIGHT, expand=tk.FALSE)
-        canvas = tk.Canvas(
-            self, bd=0, highlightthickness=0, yscrollcommand=vscrollbar.set
-        )
-        canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=tk.TRUE)
-        vscrollbar.config(command=canvas.yview)
+#         # Reset the view
+#         canvas.xview_moveto(0)
+#         canvas.yview_moveto(0)
 
-        # Reset the view
-        canvas.xview_moveto(0)
-        canvas.yview_moveto(0)
+#         # Create a frame inside the canvas which will be scrolled with it.
+#         # self.interior = interior = ttk.Frame(canvas)
+#         self.interior = interior = tk.Frame(canvas)
+#         interior_id: int = canvas.create_window(0, 0, window=interior, anchor=tk.NW)
 
-        # Create a frame inside the canvas which will be scrolled with it.
-        # self.interior = interior = ttk.Frame(canvas)
-        self.interior = interior = tk.Frame(canvas)
-        interior_id: int = canvas.create_window(0, 0, window=interior, anchor=tk.NW)
+#         # Track changes to the canvas and frame width and sync them,
+#         # also updating the scrollbar.
+#         def _configure_interior(event) -> None:
+#             # Update the scrollbars to match the size of the inner frame.
+#             size: tuple[int, int] = (
+#                 interior.winfo_reqwidth(),
+#                 interior.winfo_reqheight(),
+#             )
+#             canvas.config(scrollregion="0 0 %s %s" % size)  # type: ignore
+#             if interior.winfo_reqwidth() != canvas.winfo_width():
+#                 # Update the canvas's width to fit the inner frame.
+#                 canvas.config(width=interior.winfo_reqwidth())
 
-        # Track changes to the canvas and frame width and sync them,
-        # also updating the scrollbar.
-        def _configure_interior(event) -> None:
-            # Update the scrollbars to match the size of the inner frame.
-            size: tuple[int, int] = (
-                interior.winfo_reqwidth(),
-                interior.winfo_reqheight(),
-            )
-            canvas.config(scrollregion="0 0 %s %s" % size)  # type: ignore
-            if interior.winfo_reqwidth() != canvas.winfo_width():
-                # Update the canvas's width to fit the inner frame.
-                canvas.config(width=interior.winfo_reqwidth())
+#         interior.bind("<Configure>", _configure_interior)
 
-        interior.bind("<Configure>", _configure_interior)
+#         def _configure_canvas(event) -> None:
+#             if interior.winfo_reqwidth() != canvas.winfo_width():
+#                 # Update the inner frame's width to fill the canvas.
+#                 canvas.itemconfigure(interior_id, width=canvas.winfo_width())
 
-        def _configure_canvas(event) -> None:
-            if interior.winfo_reqwidth() != canvas.winfo_width():
-                # Update the inner frame's width to fill the canvas.
-                canvas.itemconfigure(interior_id, width=canvas.winfo_width())
-
-        canvas.bind("<Configure>", _configure_canvas)
+#         canvas.bind("<Configure>", _configure_canvas)
 
 
 # #[EOF]#######################################################################
