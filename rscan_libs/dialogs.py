@@ -596,7 +596,7 @@ class VerticalScrolledFrame:
         height = kwargs.pop("height", None)
         bg = kwargs.pop("bg", kwargs.pop("background", None))
         self.outer = tk.Frame(master, **kwargs)
-        self.outer.pack(fill=tk.BOTH, expand=tk.TRUE)
+        # self.outer.pack(fill=tk.BOTH, expand=tk.TRUE)
 
         self.vsb = tk.Scrollbar(self.outer, orient=tk.VERTICAL)
         self.vsb.pack(fill=tk.Y, side=tk.RIGHT)
