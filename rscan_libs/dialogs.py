@@ -377,9 +377,7 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
 
         # create count label
         tk.Label(
-            frame,
-            text=f" {count}: ",
-            font=self.__fonts[EdrsScanDialog.__Keys.NORMAL]
+            frame, text=f" {count}: ", font=self.__fonts[EdrsScanDialog.__Keys.NORMAL]
         ).pack(side=tk.LEFT)
 
         # create name label [2]
@@ -579,43 +577,6 @@ class EdrsDialog(BLogClient, NoDynamicAttributes):
             message = f": {message}"
         if self.logger:
             self.logger.debug = f"{pname}->{cname}.{mname}{message}"
-
-
-class ToolTip:
-    """Simple ToolTip class."""
-
-    tooltip: tk.Toplevel
-    label: tk.Label
-
-    def __init__(self, widget: tk.Toplevel, text: str = "") -> None:
-        """Create class object."""
-
-        def on_enter(event: tk.Event) -> None:
-            """Call freom <Enter> event.
-
-            parameters:
-                event [tk.Event]
-            """
-            self.tooltip = tk.Toplevel()
-            self.tooltip.overrideredirect(True)
-            self.tooltip.geometry(f"+{event.x_root+15}+{event.y_root+10}")
-
-            self.label = tk.Label(self.tooltip, text=self.text)
-            self.label.pack()
-
-        def on_leave(event: tk.Event) -> None:
-            """Call from <Leave> event.
-
-            parameters:
-                event [tk.Event]
-            """
-            self.tooltip.destroy()
-
-        self.widget = widget
-        self.text = text
-
-        self.widget.bind("<Enter>", on_enter)
-        self.widget.bind("<Leave>", on_leave)
 
 
 class VerticalScrolledFrame(tk.Frame):
