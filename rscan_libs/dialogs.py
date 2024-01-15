@@ -377,6 +377,7 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
             self.__widgets[EdrsScanDialog.__Keys.SPANEL],
             relief=tk.GROOVE,
             borderwidth=1,
+            width=300,
         )
         frame.pack(fill=tk.X, expand=tk.TRUE)
         list_object.append(frame)
