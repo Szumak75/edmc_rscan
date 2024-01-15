@@ -159,13 +159,6 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
 
         self.debug(inspect.currentframe(), "Constructor work done.")
 
-    # def __del__(self):
-    #     """Destroy datasets on close."""
-    #     self.debug(
-    #         inspect.currentframe(),
-    #         f"Delete window: {self.title()}"
-    #     )
-    #
     def __frame_build(self) -> None:
         """Create window."""
         self.title(self.__data.pluginname)
@@ -224,7 +217,6 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
         # create scrolled panel
         spanel = VerticalScrolledFrame(
             data_frame,
-            width=300,
             borderwidth=2,
             relief=tk.SUNKEN,
             background="light gray",
@@ -377,7 +369,6 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
             self.__widgets[EdrsScanDialog.__Keys.SPANEL],
             relief=tk.GROOVE,
             borderwidth=1,
-            width=300,
         )
         frame.pack(fill=tk.X, expand=tk.TRUE)
         list_object.append(frame)
