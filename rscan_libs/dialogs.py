@@ -368,7 +368,8 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
         # create frame [1]
         # frame = tk.Frame(self.__widgets['fdata'])
         frame = tk.Frame(
-            self.__widgets[EdrsScanDialog.__Keys.SPANEL].interior,
+            # self.__widgets[EdrsScanDialog.__Keys.SPANEL].interior,
+            self.__widgets[EdrsScanDialog.__Keys.SPANEL],
             relief=tk.GROOVE,
             borderwidth=1,
         )
