@@ -222,7 +222,13 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
         self.__widgets[EdrsScanDialog.__Keys.FDATA] = data_frame
 
         # create scrolled panel
-        spanel = VerticalScrolledFrame(data_frame)
+        spanel = VerticalScrolledFrame(
+            data_frame,
+            width=300,
+            borderwidth=2,
+            relief=tk.SUNKEN,
+            background="light gray",
+        )
         spanel.pack(ipadx=1, ipady=1, fill=tk.BOTH, expand=tk.TRUE)
         self.__widgets[EdrsScanDialog.__Keys.SPANEL] = spanel
 
@@ -659,6 +665,8 @@ class VerticalScrolledFrameOld(tk.Frame):
     * Construct and pack/place/grid normally.
     * This frame only allows vertical scrolling.
     """
+
+    # https://gist.github.com/novel-yet-trivial/3eddfce704db3082e38c84664fc1fdf8
 
     def __init__(self, parent, *args, **kw) -> None:
         tk.Frame.__init__(self, parent, *args, **kw)
