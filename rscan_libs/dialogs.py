@@ -373,7 +373,7 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
             relief=tk.GROOVE,
             borderwidth=1,
         )
-        frame.pack(fill=tk.X)
+        frame.pack(fill=tk.X, expand=True)
         list_object.append(frame)
 
         # create count label
