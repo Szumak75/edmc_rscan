@@ -596,14 +596,13 @@ class VerticalScrolledFrame:
         height = kwargs.pop("height", None)
         bg = kwargs.pop("bg", kwargs.pop("background", None))
         self.outer = tk.Frame(master, **kwargs)
-        # self.outer.pack(fill=tk.BOTH, expand=tk.TRUE)
 
         self.vsb = tk.Scrollbar(self.outer, orient=tk.VERTICAL)
         self.vsb.pack(fill=tk.Y, side=tk.RIGHT)
         self.canvas = tk.Canvas(
             self.outer, highlightthickness=0, width=width, height=height, bg=bg
         )
-        self.canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        self.canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=tk.TRUE)
         self.canvas["yscrollcommand"] = self.vsb.set
         # mouse scroll does not seem to work with just "bind"; You have
         # to use "bind_all". Therefore to use multiple windows you have
@@ -613,6 +612,7 @@ class VerticalScrolledFrame:
         self.vsb["command"] = self.canvas.yview
 
         self.inner = tk.Frame(self.canvas, bg=bg)
+        # self.inner.pack(fill=tk.BOTH, expand=tk.TRUE)
         # pack the inner Frame into the Canvas with the topleft corner 4 pixels offset
         self.canvas.create_window(4, 4, window=self.inner, anchor="nw")
         self.inner.bind("<Configure>", self._on_frame_configure)
