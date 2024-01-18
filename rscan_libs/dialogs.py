@@ -436,11 +436,11 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
         btn = tk.Button(
             frame,
             # text="C",
-            image=btn_img,
+            # image=btn_img,
             command=lambda: self.__to_clipboard(f"{item.name}"),
             font=self.__fonts[EdrsScanDialog.__Keys.NORMAL],
         )
-        btn.image = btn_img
+        btn.image = btn_img # type: ignore
         btn.pack(side=tk.RIGHT)
         CreateToolTip(btn, "Copy to clipboard")
 
