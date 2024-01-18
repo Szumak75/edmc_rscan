@@ -218,7 +218,7 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
         spanel = VerticalScrolledTkFrame(
             data_frame,
             borderwidth=2,
-            relief=tk.SUNKEN,
+            relief=tk.FLAT,
             background="light gray",
         )
         spanel.pack(ipadx=1, ipady=1, fill=tk.BOTH, expand=tk.TRUE)
