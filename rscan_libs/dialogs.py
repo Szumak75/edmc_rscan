@@ -213,7 +213,11 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
         radius = tk.Entry(command_frame, textvariable=tk.StringVar(value="50"), width=5)
         radius.grid(row=0, column=3, sticky=tk.W)
         self.__widgets[EdrsScanDialog.__Keys.RADIUS] = radius
-        bgenerator = tk.Button(command_frame, text="Search", command=self.__generator)
+        bgenerator_img = tk.PhotoImage(data=Pics.SEARCH_16)
+        bgenerator = tk.Button(
+            command_frame, image=bgenerator_img, command=self.__generator
+        )
+        bgenerator.image = bgenerator_img  # type: ignore
         bgenerator.grid(row=0, column=4, sticky=tk.E)
         CreateToolTip(bgenerator, "Locate visited systems that have not been explored.")
         self.__widgets[EdrsScanDialog.__Keys.SBUTTON] = bgenerator
