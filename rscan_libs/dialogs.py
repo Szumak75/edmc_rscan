@@ -205,6 +205,7 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
         tk.Label(command_frame, text="Start system:").grid(row=0, column=0, sticky=tk.E)
         system_name = tk.Entry(command_frame, textvariable=tk.StringVar(value=""))
         system_name.grid(row=0, column=1, sticky=tk.EW)
+        system_name.bind("<Return>", self.__generator)
         if self.__data.starsystem.name is not None:
             system_name.delete(0, tk.END)
             system_name.insert(0, self.__data.starsystem.name)
@@ -278,7 +279,7 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
             clip.update()
             clip.destroy()
 
-    def __generator(self) -> None:
+    def __generator(self, event: Optional[tk.Event] = None) -> None:
         """Command button callback."""
         # get variables
         system = self.__widgets[EdrsScanDialog.__Keys.SYSTEM].get()
