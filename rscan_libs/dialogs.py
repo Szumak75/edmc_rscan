@@ -27,6 +27,7 @@ from rscan_libs.stars import StarsSystem
 from rscan_libs.system import Clip, LogClient
 from rscan_libs.th import ThSystemSearch
 from rscan_libs.tools import Numbers
+from rscan_libs.gfx import Pics
 
 
 class EdrsScanDialog(tk.Toplevel, BLogClient):
@@ -431,9 +432,11 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
                 "Warning. Required permissions to enter this system.",
             )
         # create clipboard button
+        btn_img = tk.PhotoImage(data=Pics.CLIPBOARD_16)
         btn = tk.Button(
             frame,
-            text="C",
+            # text="C",
+            image=btn_img,
             command=lambda: self.__to_clipboard(f"{item.name}"),
             font=self.__fonts[EdrsScanDialog.__Keys.NORMAL],
         )
