@@ -212,6 +212,7 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
         self.__widgets[EdrsScanDialog.__Keys.SYSTEM] = system_name
         tk.Label(command_frame, text="Radius:").grid(row=0, column=2, sticky=tk.E)
         radius = tk.Entry(command_frame, textvariable=tk.StringVar(value="50"), width=5)
+        radius.bind("<Return>", self.__generator)
         radius.grid(row=0, column=3, sticky=tk.W)
         self.__widgets[EdrsScanDialog.__Keys.RADIUS] = radius
         bgenerator_img = tk.PhotoImage(data=Pics.SEARCH_16)
