@@ -192,8 +192,8 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
             columnspan=2,
             padx=5,
             pady=5,
-            ipadx=2,
-            ipady=2,
+            ipadx=5,
+            ipady=5,
             sticky=tk.EW,
         )
         command_frame.columnconfigure(0, weight=1)
