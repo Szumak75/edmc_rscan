@@ -425,7 +425,9 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
         # permission
         # self.debug(inspect.currentframe(), message=f'{item}')
         if "requirepermit" in item.data and item.data["requirepermit"]:
-            lpermit = tk.Label(frame, text=f"P")
+            lpermit_img = tk.PhotoImage(data=Pics.PERMIT_16)
+            lpermit = tk.Label(frame, image=lpermit_img)
+            lpermit.image = lpermit_img  # type: ignore
             lpermit.pack(side=tk.LEFT)
             CreateToolTip(
                 lpermit,
@@ -436,11 +438,11 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
         btn = tk.Button(
             frame,
             # text="C",
-            # image=btn_img,
+            image=btn_img,
             command=lambda: self.__to_clipboard(f"{item.name}"),
             font=self.__fonts[EdrsScanDialog.__Keys.NORMAL],
         )
-        btn.image = btn_img # type: ignore
+        btn.image = btn_img  # type: ignore
         btn.pack(side=tk.RIGHT)
         CreateToolTip(btn, "Copy to clipboard")
 
