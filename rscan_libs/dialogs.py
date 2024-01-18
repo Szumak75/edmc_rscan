@@ -164,7 +164,8 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
         self.title(self.__data.pluginname)
         self.geometry("600x400")
         # grid configure
-        self.columnconfigure(0, weight=1)
+        self.columnconfigure(0, weight=100)
+        self.columnconfigure(1, weight=1)
         # label row
         r_label_idx = 0
         self.rowconfigure(r_label_idx, weight=1)
@@ -180,12 +181,19 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
 
         # create label
         label = tk.Label(self, text="EDSM Red Scanner Flight Router")
-        label.grid(row=r_label_idx)
+        label.grid(row=r_label_idx, column=0, columnspan=2)
 
         # create command panel
         command_frame = tk.LabelFrame(self, text=" Generator ")
         command_frame.grid(
-            row=r_comm_idx, padx=5, pady=5, ipadx=2, ipady=2, sticky=tk.EW
+            row=r_comm_idx,
+            column=0,
+            columnspan=2,
+            padx=5,
+            pady=5,
+            ipadx=2,
+            ipady=2,
+            sticky=tk.EW,
         )
         command_frame.columnconfigure(0, weight=1)
         command_frame.columnconfigure(1, weight=100)
@@ -211,7 +219,9 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
 
         # create data panel
         data_frame = tk.LabelFrame(self, text=" Flight route ")
-        data_frame.grid(row=r_data_idx, padx=5, pady=5, sticky=tk.NSEW)
+        data_frame.grid(
+            row=r_data_idx, column=0, columnspan=2, padx=5, pady=5, sticky=tk.NSEW
+        )
         self.__widgets[EdrsScanDialog.__Keys.FDATA] = data_frame
 
         # create scrolled panel
@@ -225,12 +235,19 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
         self.__widgets[EdrsScanDialog.__Keys.SPANEL] = spanel
 
         # create status panel
-        status_frame = tk.LabelFrame(self, text="")
-        status_frame.grid(row=r_stat_idx, padx=5, pady=5, sticky=tk.EW)
+        status_frame = tk.Frame(self)
+        status_frame.grid(row=r_stat_idx, column=0, sticky=tk.EW)
+
+        status_lframe = tk.LabelFrame(status_frame, text="")
+        status_lframe.pack(side=tk.LEFT, fill=tk.X, expand=tk.TRUE, padx=5, pady=5)
         status_string = tk.StringVar()
-        status = tk.Label(status_frame, textvariable=status_string)
+        status = tk.Label(status_lframe, textvariable=status_string)
         status.pack(side=tk.LEFT)
         self.__widgets[EdrsScanDialog.__Keys.STATUS] = status_string
+
+        # size grip
+        sizegrip = ttk.Sizegrip(self)
+        sizegrip.grid(row=r_stat_idx, column=1, padx=1, pady=1, sticky=tk.SE)
 
         # closing event
         self.protocol("WM_DELETE_WINDOW", self.__on_closing)
