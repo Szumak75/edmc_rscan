@@ -218,7 +218,7 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
             command_frame, image=bgenerator_img, command=self.__generator
         )
         bgenerator.image = bgenerator_img  # type: ignore
-        bgenerator.grid(row=0, column=4, sticky=tk.E)
+        bgenerator.grid(row=0, column=4, ipadx=2, sticky=tk.E)
         CreateToolTip(bgenerator, "Locate visited systems that have not been explored.")
         self.__widgets[EdrsScanDialog.__Keys.SBUTTON] = bgenerator
 
