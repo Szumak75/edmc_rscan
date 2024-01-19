@@ -164,6 +164,7 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
         """Create window."""
         self.title(self.__data.pluginname)
         self.geometry("600x400")
+        self.minsize(width=400, height=300)
         # grid configure
         self.columnconfigure(0, weight=100)
         self.columnconfigure(1, weight=1)
