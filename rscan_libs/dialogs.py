@@ -36,17 +36,17 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
     class __Keys(object, metaclass=ReadOnlyClass):
         """Private keys."""
 
-        BOLD: str = "_bold_"
+        BOLD: str = "bold"  # tk key
         CLIP: str = "_clip_"
         FDATA: str = "_fdata_"
-        FONT: str = "_font_"
+        FONT: str = "font"  # tk key
         MATH: str = "_math_"
-        NORMAL: str = "_normal_"
+        NORMAL: str = "normal"  # tk key
         RADIUS: str = "_radius_"
         SBUTTON: str = "_sbutton_"
         SPANEL: str = "_spanel_"
         STATUS: str = "_status_"
-        STRIKE: str = "_strike_"
+        STRIKE: str = "strike"  # tk key
         SYSTEM: str = "_system_"
 
     __closed = False
