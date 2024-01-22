@@ -15,6 +15,9 @@ from threading import Thread
 from tkinter import ttk
 from typing import List, Optional, Union, Tuple, Dict, Any
 from types import FrameType
+
+from theme import theme
+
 from jsktoolbox.attribtool import NoDynamicAttributes
 from jsktoolbox.raisetool import Raise
 from jsktoolbox.attribtool import ReadOnlyClass

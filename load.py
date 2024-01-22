@@ -13,6 +13,8 @@ from tkinter import ttk
 from typing import Any, Dict, Optional, Tuple
 
 from config import config
+from theme import theme
+
 from rscan_libs.dialogs import EdrsDialog
 from rscan_libs.edrs import EDRS
 from rscan_libs.system import LogLevels
