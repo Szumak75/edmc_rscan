@@ -12,6 +12,8 @@ import tkinter as tk
 from tkinter import ttk
 from typing import Any, Dict, Optional, Tuple
 
+from jsktoolbox.tktool.widgets import CreateToolTip
+
 from config import config
 from theme import theme
 
@@ -58,22 +60,27 @@ def plugin_stop() -> None:
     edrs_object.thlog = None  # type: ignore
 
 
-def plugin_app(parent: tk.Frame) -> Tuple[tk.Label, ttk.Button]:
+def plugin_app(parent: tk.Frame) -> ttk.Button:
     """Create a pair of TK widgets for the EDMarketConnector main window.
 
     parent:     The root EDMarketConnector window
     """
     edrs_object.logger.debug = f"{edrs_object.data.pluginname}->plugin_app: start..."
-    # add button to main frame
-    label = tk.Label(
-        parent,
-        text=f"{edrs_object.data.pluginname} v{edrs_object.data.version}:",
-    )
     if edrs_object.dialog is None:
         edrs_object.dialog = EdrsDialog(parent, edrs_object.qlog, edrs_object.data)
     button: ttk.Button = edrs_object.dialog.button()
+    CreateToolTip(
+        button,
+        [
+            f"{edrs_object.data.pluginname} v{edrs_object.data.version}",
+            "",
+            "Search the edsm database for partially",
+            "uncovered systems within a given radius",
+            "that require a full scan.",
+        ],
+    )
     edrs_object.logger.debug = f"{edrs_object.data.pluginname}->plugin_app: done."
-    return label, button
+    return button
 
 
 def prefs_changed(cmdr: str, is_beta: bool) -> None:
