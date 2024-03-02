@@ -13,10 +13,11 @@ from threading import Event, Thread
 from typing import Any, Dict, List, Optional, Union
 from types import FrameType
 
+from jsktoolbox.raisetool import Raise
+
 from rscan_libs.cartesianmath import Euclid
 from rscan_libs.data import RscanData
 from rscan_libs.base_log import BLogClient
-from jsktoolbox.raisetool import Raise
 from rscan_libs.stars import StarsSystem
 from rscan_libs.system import LogClient
 from rscan_libs.tools import AlgGenetic, AlgTsp, Numbers, Url
