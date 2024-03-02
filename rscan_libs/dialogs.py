@@ -59,7 +59,7 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
     __start: StarsSystem = None  # type: ignore
     # stars list
     __stars: List[Any] = None  # type: ignore
-    # wighets container
+    # widgets container
     __widgets: Dict[str, Any] = None  # type: ignore
     # th worker
     __rscan_th: Thread = None  # type: ignore
@@ -92,9 +92,9 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
         self.__widgets[EdrsScanDialog.__Keys.SYSTEM] = None  #: Optional[tk.Entry]
         self.__widgets[EdrsScanDialog.__Keys.RADIUS] = None  #: Optional[tk.Entry]
         self.__widgets[EdrsScanDialog.__Keys.SBUTTON] = None  #: Optional[tk.Button]
-        self.__widgets[
-            EdrsScanDialog.__Keys.SPANEL
-        ] = None  #: Optional[VerticalScrolledFrame]
+        self.__widgets[EdrsScanDialog.__Keys.SPANEL] = (
+            None  #: Optional[VerticalScrolledFrame]
+        )
 
         # init log subsystem
         if not isinstance(log_queue, (Queue, SimpleQueue)):
@@ -355,15 +355,15 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
                     f"{pname}->{cname}: Get new search work for "
                     f"{item.start_system.name} with radius: {item.radius}ly"
                 )
-            tstart: float = time.time()
+            time_start: float = time.time()
             # start processing request
             item.start()
             item.join()
             # getting results
-            tstop: float = time.time()
+            time_stop: float = time.time()
             if self.logger:
                 self.logger.info = (
-                    f"{pname}->{cname}: Work is done in: {int(tstop-tstart)}s"
+                    f"{pname}->{cname}: Work is done in: {int(time_stop-time_start)}s"
                 )
             self.__process_work_output(item.get_result)
             self.__disable_button(False)

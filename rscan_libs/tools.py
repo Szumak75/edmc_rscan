@@ -7,9 +7,10 @@
 """
 
 import copy
-import inspect
 import json
 import random
+
+from inspect import currentframe
 from itertools import permutations
 from operator import itemgetter
 from queue import Queue, SimpleQueue
@@ -66,7 +67,7 @@ class Url(NoDynamicAttributes):
                 f"StarsSystem type expected, '{type(ssystem)}' received",
                 TypeError,
                 self.__class__.__name__,
-                inspect.currentframe(),
+                currentframe(),
             )
 
         if ssystem.address:
@@ -86,7 +87,7 @@ class Url(NoDynamicAttributes):
                 f"StarsSystem type expected, '{type(ssystem)}' received",
                 TypeError,
                 self.__class__.__name__,
-                inspect.currentframe(),
+                currentframe(),
             )
 
         if ssystem.name:
@@ -102,7 +103,7 @@ class Url(NoDynamicAttributes):
                 f"StarsSystem type expected, '{type(ssystem)}' received",
                 TypeError,
                 self.__class__.__name__,
-                inspect.currentframe(),
+                currentframe(),
             )
         if not isinstance(radius, int):
             radius = 50
@@ -125,7 +126,7 @@ class Url(NoDynamicAttributes):
                 f"StarsSystem type expected, '{type(ssystem)}' received",
                 TypeError,
                 self.__class__.__name__,
-                inspect.currentframe(),
+                currentframe(),
             )
         if not isinstance(size, int):
             size = 100
@@ -148,7 +149,7 @@ class Url(NoDynamicAttributes):
                 f"StarsSystem type expected, '{type(ssystem)}' received",
                 TypeError,
                 self.__class__.__name__,
-                inspect.currentframe(),
+                currentframe(),
             )
         url: str = self.system_url(ssystem)
         if not url:
@@ -233,7 +234,7 @@ class AlgTsp(Ialg, BLogClient, NoDynamicAttributes):
                 f"Queue or SimpleQueue type expected, '{type(log_queue)}' received.",
                 TypeError,
                 self.__class__.__name__,
-                inspect.currentframe(),
+                currentframe(),
             )
         # Euclid's algorithm for calculating the length of vectors
         if isinstance(euclid_alg, Euclid):
@@ -243,7 +244,7 @@ class AlgTsp(Ialg, BLogClient, NoDynamicAttributes):
                 f"Euclid type expected, '{type(euclid_alg)}' received",
                 TypeError,
                 self.__class__.__name__,
-                inspect.currentframe(),
+                currentframe(),
             )
         if isinstance(jumprange, int):
             self.__jumprange = jumprange
@@ -252,23 +253,23 @@ class AlgTsp(Ialg, BLogClient, NoDynamicAttributes):
                 f"Int type expected, '{type(jumprange)}' received",
                 TypeError,
                 self.__class__.__name__,
-                inspect.currentframe(),
+                currentframe(),
             )
         if not isinstance(start, StarsSystem):
             raise Raise.error(
                 f"StarsSystem type expected, '{type(start)}' received.",
                 TypeError,
                 self.__class__.__name__,
-                inspect.currentframe(),
+                currentframe(),
             )
         if not isinstance(systems, list):
             raise Raise.error(
                 f"list type expected, '{type(systems)}' received.",
                 TypeError,
                 self.__class__.__name__,
-                inspect.currentframe(),
+                currentframe(),
             )
-        self.debug(inspect.currentframe(), "Initialize dataset")
+        self.debug(currentframe(), "Initialize dataset")
 
         self.__data = []
         self.__tmp = []
@@ -297,7 +298,7 @@ class AlgTsp(Ialg, BLogClient, NoDynamicAttributes):
                         self.__data[idx].star_pos, self.__data[idx2].star_pos
                     )
                 )
-        self.debug(inspect.currentframe(), f"{self.__tmp}")
+        self.debug(currentframe(), f"{self.__tmp}")
 
     def __stage_2_solution(self) -> None:
         """Stage 2: search the solution."""
@@ -417,7 +418,7 @@ class AlgGenetic(Ialg, BLogClient, NoDynamicAttributes):
                 f"Queue or SimpleQueue type expected, '{type(log_queue)}' received.",
                 TypeError,
                 self.__class__.__name__,
-                inspect.currentframe(),
+                currentframe(),
             )
         # Euclid's algorithm for calculating the length of vectors
         if isinstance(euclid_alg, Euclid):
@@ -427,7 +428,7 @@ class AlgGenetic(Ialg, BLogClient, NoDynamicAttributes):
                 f"Euclid type expected, '{type(euclid_alg)}' received",
                 TypeError,
                 self.__class__.__name__,
-                inspect.currentframe(),
+                currentframe(),
             )
         if isinstance(jumprange, int):
             self.__max_distance = jumprange
@@ -436,23 +437,23 @@ class AlgGenetic(Ialg, BLogClient, NoDynamicAttributes):
                 f"Int type expected, '{type(jumprange)}' received",
                 TypeError,
                 self.__class__.__name__,
-                inspect.currentframe(),
+                currentframe(),
             )
         if not isinstance(start, StarsSystem):
             raise Raise.error(
                 f"StarsSystem type expected, '{type(start)}' received.",
                 TypeError,
                 self.__class__.__name__,
-                inspect.currentframe(),
+                currentframe(),
             )
         if not isinstance(systems, list):
             raise Raise.error(
                 f"list type expected, '{type(systems)}' received.",
                 TypeError,
                 self.__class__.__name__,
-                inspect.currentframe(),
+                currentframe(),
             )
-        self.debug(inspect.currentframe(), "Initialize dataset")
+        self.debug(currentframe(), "Initialize dataset")
 
         self.__points = systems
         self.__start_point = start

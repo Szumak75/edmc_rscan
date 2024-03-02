@@ -25,7 +25,7 @@ from rscan_libs.tools import AlgGenetic, AlgTsp, Numbers, Url
 class ThSystemSearch(Thread, BLogClient):
     """Thread system search engine."""
 
-    __slots__ = [
+    __slots__: List[str] = [
         "__parent",
         "__data",
         "__math",
@@ -92,14 +92,14 @@ class ThSystemSearch(Thread, BLogClient):
             return
         # create query object
         url = Url()
-        # quering starts database
+        # querying starts database
         systems: List[Dict[str, Any]] = url.url_query(qurl)
         if self.logger:
             self.logger.debug = f"Systems from JSON: {systems}"
         if not systems:
             return
         # filtering system
-        rsystems: Optional[List[StarsSystem]] = self.__buils_radius_systems_list(
+        rsystems: Optional[List[StarsSystem]] = self.__build_radius_systems_list(
             systems
         )
         # self.debug(
@@ -113,7 +113,7 @@ class ThSystemSearch(Thread, BLogClient):
         self.status(
             f"{len(systems)} systems found, flight route calculations in progress..."
         )
-        systems_out: List[StarsSystem] = self.__flightroute_systems(rsystems)
+        systems_out: List[StarsSystem] = self.__flight_route_systems(rsystems)
         self.debug(inspect.currentframe(), f"Search result: {systems_out}")
         # put it into result list
         dsum: float = 0.0
@@ -226,7 +226,7 @@ class ThSystemSearch(Thread, BLogClient):
 
         return url.radius_url(self.start_system, self.radius)
 
-    def __buils_radius_systems_list(
+    def __build_radius_systems_list(
         self, systems: List[Dict[str, Any]]
     ) -> Optional[List[StarsSystem]]:
         """Build filtered systems list from EDSM API output."""
@@ -265,13 +265,13 @@ class ThSystemSearch(Thread, BLogClient):
     #     out_url: str = url.bodies_url(system)
     #     if not out_url:
     #         return {}
-    #     # quering EDSM
+    #     # querying EDSM
     #     out: List[Dict[str, Any]] = url.url_query(out_url)
     #     if out is None:
     #         return {}
     #     return out
 
-    def __flightroute_systems(self, systems: List[StarsSystem]) -> List[StarsSystem]:
+    def __flight_route_systems(self, systems: List[StarsSystem]) -> List[StarsSystem]:
         """Try to find the optimal order of flight."""
         jump = 50
         out: List[StarsSystem] = []

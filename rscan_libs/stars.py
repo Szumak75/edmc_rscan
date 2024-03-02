@@ -208,7 +208,7 @@ class StarsSystem(NoDynamicAttributes):
             self.__data = {}
         if not isinstance(value, Dict):
             raise Raise.error(
-                f"Type of data containet is dict, '{type(value)}' received, cannot proceed.",
+                f"Type of data container is dict, '{type(value)}' received, cannot proceed.",
                 TypeError,
                 self.__class__.__name__,
                 inspect.currentframe(),

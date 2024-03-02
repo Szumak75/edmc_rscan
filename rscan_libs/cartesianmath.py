@@ -3,7 +3,7 @@
   Author:  Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
   Created: 19.12.2023
 
-  Purpose: carthesian math classes.
+  Purpose: cartesian math classes.
 """
 
 import inspect
