@@ -6,7 +6,7 @@
   Purpose: EDRS dialogs classes.
 """
 
-import inspect
+from inspect import currentframe
 import time
 import tkinter as tk
 from tkinter import font
@@ -102,7 +102,7 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
                 f"Queue or SimpleQueue type expected, '{type(log_queue)}' received.",
                 TypeError,
                 self.__class__.__name__,
-                inspect.currentframe(),
+                currentframe(),
             )
         self.logger = LogClient(log_queue)
 
@@ -111,10 +111,10 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
                 f"RscanData type expected, '{type(data)}' received",
                 TypeError,
                 self.__class__.__name__,
-                inspect.currentframe(),
+                currentframe(),
             )
         self.__data = data
-        self.debug(inspect.currentframe(), f"{self.__data}")
+        self.debug(currentframe(), f"{self.__data}")
 
         # Euclid's algorithm for calculating the length of vectors
         if not isinstance(euclid_alg, Euclid):
@@ -122,11 +122,11 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
                 f"Euclid type expected, '{type(euclid_alg)}' received",
                 TypeError,
                 self.__class__.__name__,
-                inspect.currentframe(),
+                currentframe(),
             )
         self.__tools[EdrsScanDialog.__Keys.MATH] = euclid_alg
 
-        self.debug(inspect.currentframe(), "Initialize dataset")
+        self.debug(currentframe(), "Initialize dataset")
 
         # list of found systems: [[system, frame, label with name],...]
         self.__stars = []
@@ -161,7 +161,7 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
         # create window
         self.__frame_build()
 
-        self.debug(inspect.currentframe(), "Constructor work done.")
+        self.debug(currentframe(), "Constructor work done.")
 
     def __frame_build(self) -> None:
         """Create window."""
@@ -265,7 +265,7 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
 
     def __on_closing(self) -> None:
         """Run on closing event."""
-        self.debug(inspect.currentframe(), "Window is closing now.")
+        self.debug(currentframe(), "Window is closing now.")
         self.__closed = True
         self.__rscan_qth.put(None)
         self.destroy()
@@ -273,7 +273,7 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
     def __to_clipboard(self, clip_text: str) -> None:
         """Copy txt to clipboard."""
         # USE: command=lambda: self.__to_clipboard('txt')
-        self.debug(inspect.currentframe(), f"string: '{clip_text}'")
+        self.debug(currentframe(), f"string: '{clip_text}'")
         if self.__tools[EdrsScanDialog.__Keys.CLIP].is_tool:
             self.__tools[EdrsScanDialog.__Keys.CLIP].copy(clip_text)
         else:
@@ -289,8 +289,8 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
         # get variables
         system = self.__widgets[EdrsScanDialog.__Keys.SYSTEM].get()
         radius = self.__widgets[EdrsScanDialog.__Keys.RADIUS].get()
-        self.debug(inspect.currentframe(), f"system: {system}, type:{type(system)}")
-        self.debug(inspect.currentframe(), f"radius: {radius}, type:{type(radius)}")
+        self.debug(currentframe(), f"system: {system}, type:{type(system)}")
+        self.debug(currentframe(), f"radius: {radius}, type:{type(radius)}")
 
         if not system or not radius:
             msg: str = ""
@@ -433,7 +433,7 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
                 "Warning. The calculated distance exceeded the ship's maximum single jump distance.",
             )
         # permission
-        # self.debug(inspect.currentframe(), message=f'{item}')
+        # self.debug(currentframe(), message=f'{item}')
         if "requirepermit" in item.data and item.data["requirepermit"]:
             lpermit_img = tk.PhotoImage(data=Pics.PERMIT_16)
             lpermit = tk.Label(frame, image=lpermit_img)
@@ -528,7 +528,7 @@ class EdrsDialog(BLogClient, NoDynamicAttributes):
                 f"Queue or SimpleQueue type expected, '{type(log_queue)}' received.",
                 TypeError,
                 self.__class__.__name__,
-                inspect.currentframe(),
+                currentframe(),
             )
         self.logger = LogClient(log_queue)
 
@@ -537,17 +537,17 @@ class EdrsDialog(BLogClient, NoDynamicAttributes):
                 f"RscanData type expected, '{type(data)}' received",
                 TypeError,
                 self.__class__.__name__,
-                inspect.currentframe(),
+                currentframe(),
             )
         self.__data = data
-        self.debug(inspect.currentframe(), f"{self.__data}")
+        self.debug(currentframe(), f"{self.__data}")
 
         if not isinstance(parent, tk.Frame):
             raise Raise.error(
                 f"tk.Frame type expected, '{type(parent)}' received",
                 TypeError,
                 self.__class__.__name__,
-                inspect.currentframe(),
+                currentframe(),
             )
         self.__parent = parent
 
@@ -574,7 +574,7 @@ class EdrsDialog(BLogClient, NoDynamicAttributes):
     def dialog_update(self) -> None:
         """Do update for windows."""
         self.debug(
-            inspect.currentframe(),
+            currentframe(),
             f"Update init, found {len(self.__windows)} windows",
         )
         for window in self.__windows:
@@ -583,7 +583,7 @@ class EdrsDialog(BLogClient, NoDynamicAttributes):
 
     def __bt_callback(self) -> None:
         """Run main button callback."""
-        self.debug(inspect.currentframe(), "click!")
+        self.debug(currentframe(), "click!")
         # purge closed window from list
         for window in self.__windows:
             if window.is_closed:
@@ -595,7 +595,7 @@ class EdrsDialog(BLogClient, NoDynamicAttributes):
 
         self.__windows.append(esd)
         self.debug(
-            inspect.currentframe(),
+            currentframe(),
             f"numbers of windows: {len(self.__windows)}",
         )
 

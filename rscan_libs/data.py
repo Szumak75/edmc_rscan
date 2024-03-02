@@ -7,7 +7,7 @@
 """
 
 
-import inspect
+from inspect import currentframe
 from typing import Union, Optional, Dict, Any
 from jsktoolbox.attribtool import NoDynamicAttributes
 from jsktoolbox.raisetool import Raise
@@ -122,7 +122,7 @@ class RscanData(NoDynamicAttributes):
                 f"Boolean type expected, '{type(value)}' received.",
                 TypeError,
                 self.__class__.__name__,
-                inspect.currentframe(),
+                currentframe(),
             )
 
 

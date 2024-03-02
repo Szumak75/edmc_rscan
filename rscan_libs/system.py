@@ -7,13 +7,13 @@
 """
 
 import ctypes
-import inspect
 import logging
 import os
 import platform
 import subprocess
 import sys
 import tempfile
+from inspect import currentframe
 from typing import Union, Optional, List, Dict, Any
 from distutils.spawn import find_executable
 from logging.handlers import RotatingFileHandler
@@ -69,7 +69,7 @@ class Clip(NoDynamicAttributes):
                             Raise.message(
                                 "Pyperclip requires the gtk or PyQt4 module installed, or the xclip command.",
                                 self.__class__.__name__,
-                                inspect.currentframe(),
+                                currentframe(),
                             )
                         )
         self.__copy = set_cb
@@ -296,7 +296,7 @@ class Log(NoDynamicAttributes):
                 f"Int type level expected, '{type(level)}' received.",
                 TypeError,
                 self.__class__.__name__,
-                inspect.currentframe(),
+                currentframe(),
             )
 
     @property
@@ -394,7 +394,7 @@ class LogProcessor(NoDynamicAttributes):
                 f"Log type expected, {type(message)} received.",
                 TypeError,
                 self.__class__.__name__,
-                inspect.currentframe(),
+                currentframe(),
             )
 
     @property
@@ -436,7 +436,7 @@ class LogClient(NoDynamicAttributes):
                 f"Queue or SimpleQueue type expected, '{type(queue)}' received.",
                 TypeError,
                 self.__class__.__name__,
-                inspect.currentframe(),
+                currentframe(),
             )
 
     @property

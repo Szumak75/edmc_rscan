@@ -6,7 +6,7 @@
   Purpose: cartesian math classes.
 """
 
-import inspect
+from inspect import currentframe
 import math
 import time
 from queue import Queue, SimpleQueue
@@ -59,21 +59,21 @@ class Euclid(BLogClient, NoDynamicAttributes):
                 f"Queue or SimpleQueue type expected, '{type(queue)}' received.",
                 TypeError,
                 self.__class__.__name__,
-                inspect.currentframe(),
+                currentframe(),
             )
 
         if isinstance(data, RscanData):
             self.__data = data
-            self.debug(inspect.currentframe(), f"{self.__data}")
+            self.debug(currentframe(), f"{self.__data}")
         else:
             raise Raise.error(
                 f"RscanData type expected, '{type(data)}' received",
                 TypeError,
                 self.__class__.__name__,
-                inspect.currentframe(),
+                currentframe(),
             )
 
-        self.debug(inspect.currentframe(), "Initialize dataset")
+        self.debug(currentframe(), "Initialize dataset")
 
     def benchmark(self) -> None:
         """Do benchmark test.
@@ -131,7 +131,7 @@ class Euclid(BLogClient, NoDynamicAttributes):
         self.__test.clear()
         for idx in sorted(bench_out.keys()):
             self.__test.append(bench_out[idx])
-            self.debug(inspect.currentframe(), f"{idx}: {bench_out[idx]}")
+            self.debug(currentframe(), f"{idx}: {bench_out[idx]}")
 
         if self.logger:
             self.logger.info = f"{pname}->{cname}: done."
@@ -161,7 +161,7 @@ class Euclid(BLogClient, NoDynamicAttributes):
         try:
             return math.dist(point_1, point_2)
         except Exception as ex:
-            self.debug(inspect.currentframe(), f"{ex}")
+            self.debug(currentframe(), f"{ex}")
             return None
 
     def __numpy_l2(self, point_1: List[float], point_2: List[float]) -> Optional[float]:
@@ -173,7 +173,7 @@ class Euclid(BLogClient, NoDynamicAttributes):
         try:
             return np.linalg.norm(np.array(point_1) - np.array(point_2))  # type: ignore
         except Exception as ex:
-            self.debug(inspect.currentframe(), f"{ex}")
+            self.debug(currentframe(), f"{ex}")
             return None
 
     def __numpy(self, point_1: List[float], point_2: List[float]) -> Optional[float]:
@@ -185,7 +185,7 @@ class Euclid(BLogClient, NoDynamicAttributes):
         try:
             return np.sqrt(np.sum((np.array(point_1) - np.array(point_2)) ** 2))
         except Exception as ex:
-            self.debug(inspect.currentframe(), f"{ex}")
+            self.debug(currentframe(), f"{ex}")
             return None
 
     def __einsum(self, point_1: List[float], point_2: List[float]) -> Optional[float]:
@@ -197,7 +197,7 @@ class Euclid(BLogClient, NoDynamicAttributes):
             tmp = np.array(point_1) - np.array(point_2)
             return np.sqrt(np.einsum("i,i->", tmp, tmp))
         except Exception as ex:
-            self.debug(inspect.currentframe(), f"{ex}")
+            self.debug(currentframe(), f"{ex}")
             return None
 
     def __scipy(self, point_1: List, point_2: List) -> Optional[float]:
@@ -209,7 +209,7 @@ class Euclid(BLogClient, NoDynamicAttributes):
         try:
             return distance.euclidean(point_1, point_2)
         except Exception as ex:
-            self.debug(inspect.currentframe(), f"{ex}")
+            self.debug(currentframe(), f"{ex}")
             return None
 
     def distance(self, point_1: List[float], point_2: List[float]) -> float:

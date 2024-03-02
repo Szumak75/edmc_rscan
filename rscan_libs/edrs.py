@@ -19,7 +19,7 @@ from jsktoolbox.attribtool import NoDynamicAttributes
 from jsktoolbox.raisetool import Raise
 
 
-import inspect
+from inspect import currentframe
 from queue import SimpleQueue
 from threading import Thread
 
@@ -66,7 +66,7 @@ class EDRS(BLogProcessor, BLogClient, NoDynamicAttributes):
                 f"EdrsDialog type expected, '{type(value)} received.'",
                 TypeError,
                 self.__class__.__name__,
-                inspect.currentframe(),
+                currentframe(),
             )
 
     @property
@@ -83,7 +83,7 @@ class EDRS(BLogProcessor, BLogClient, NoDynamicAttributes):
                 f"RscanData type expected, '{type(value)} received.'",
                 TypeError,
                 self.__class__.__name__,
-                inspect.currentframe(),
+                currentframe(),
             )
 
     def th_logger(self) -> None:

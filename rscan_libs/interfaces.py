@@ -18,7 +18,7 @@ class Ialg(ABC):
 
     @abstractmethod
     def debug(self, currentframe, message) -> None:
-        """Debug formater for logger."""
+        """Debug formatter for logger."""
 
     @property
     @abstractmethod
