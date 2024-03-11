@@ -43,11 +43,11 @@ class EDRS(BLogProcessor, BLogClient, NoDynamicAttributes):
         self.logger = LogClient(self.qlog)
 
         # logging thread
-        self.thlog = Thread(
+        self.th_log = Thread(
             target=self.th_logger, name=f"{self.data.pluginname} log worker"
         )
-        self.thlog.daemon = True
-        self.thlog.start()
+        self.th_log.daemon = True
+        self.th_log.start()
 
         self.logger.debug = f"{self.data.pluginname} object creation complete."
 
