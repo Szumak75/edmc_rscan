@@ -10,12 +10,11 @@
 import logging
 import tkinter as tk
 from tkinter import ttk
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, Optional
 
 from jsktoolbox.tktool.widgets import CreateToolTip
 
 from config import config
-from theme import theme
 
 from rscan_libs.dialogs import EdrsDialog
 from rscan_libs.edrs import EDRS

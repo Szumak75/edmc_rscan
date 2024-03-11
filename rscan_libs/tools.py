@@ -6,13 +6,11 @@
   Purpose: tools classes.
 """
 
-import copy
 import json
 import random
 
 from inspect import currentframe
 from itertools import permutations
-from operator import itemgetter
 from queue import Queue, SimpleQueue
 from sys import maxsize
 from types import FrameType

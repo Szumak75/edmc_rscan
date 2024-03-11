@@ -7,7 +7,6 @@
 """
 
 from inspect import currentframe
-import json
 from queue import Queue, SimpleQueue
 from threading import Event, Thread
 from typing import Any, Dict, List, Optional, Union
@@ -20,7 +19,7 @@ from rscan_libs.data import RscanData
 from rscan_libs.base_log import BLogClient
 from rscan_libs.stars import StarsSystem
 from rscan_libs.system import LogClient
-from rscan_libs.tools import AlgGenetic, AlgTsp, Numbers, Url
+from rscan_libs.tools import AlgGenetic, AlgTsp, Url
 
 
 class ThSystemSearch(Thread, BLogClient):

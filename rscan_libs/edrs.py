@@ -7,7 +7,6 @@
   Purpose: EDRS main class module.
 """
 
-from theme import theme
 
 from rscan_libs.base_log import BLogClient, BLogProcessor
 from rscan_libs.data import RscanData
