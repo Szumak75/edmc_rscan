@@ -128,15 +128,15 @@ class Clip(NoDynamicAttributes):
     def __mac_set_clipboard(self, text) -> None:
         """Set MacOS clipboard data."""
         text = str(text)
-        outf = os.popen("pbcopy", "w")
-        outf.write(text)
-        outf.close()
+        out = os.popen("pbcopy", "w")
+        out.write(text)
+        out.close()
 
     def __mac_get_clipboard(self) -> str:
         """Get MacOS clipboard data."""
-        outf = os.popen("pbpaste", "r")
-        content = outf.read()
-        outf.close()
+        out = os.popen("pbpaste", "r")
+        content = out.read()
+        out.close()
         return content
 
     def __gtk_get_clipboard(self):
@@ -163,29 +163,29 @@ class Clip(NoDynamicAttributes):
     def __xclip_set_clipboard(self, text) -> None:
         """Set xclip clipboard data."""
         text = str(text)
-        outf = os.popen("xclip -selection c", "w")
-        outf.write(text)
-        outf.close()
+        out = os.popen("xclip -selection c", "w")
+        out.write(text)
+        out.close()
 
     def __xclip_get_clipboard(self) -> str:
         """Get xclip clipboard data."""
-        outf = os.popen("xclip -selection c -o", "r")
-        content = outf.read()
-        outf.close()
+        out = os.popen("xclip -selection c -o", "r")
+        content = out.read()
+        out.close()
         return content
 
     def __xsel_set_clipboard(self, text) -> None:
         """Set xsel clipboard data."""
         text = str(text)
-        outf = os.popen("xsel -i", "w")
-        outf.write(text)
-        outf.close()
+        out = os.popen("xsel -i", "w")
+        out.write(text)
+        out.close()
 
     def __xsel_get_clipboard(self) -> str:
         """Get xsel clipboard data."""
-        outf = os.popen("xsel -o", "r")
-        content = outf.read()
-        outf.close()
+        out = os.popen("xsel -o", "r")
+        content = out.read()
+        out.close()
         return content
 
 
@@ -347,15 +347,15 @@ class LogProcessor(NoDynamicAttributes):
         self.__engine = logging.getLogger(self.__name)
         self.__engine.setLevel(LogLevels().debug)
 
-        hlog = RotatingFileHandler(
+        log_handler = RotatingFileHandler(
             filename=os.path.join(Env().tmpdir, f"{self.__name}.log"),
             maxBytes=100000,
             backupCount=5,
         )
 
-        hlog.setLevel(self.loglevel)
-        hlog.setFormatter(logging.Formatter("%(asctime)s %(message)s"))
-        self.__engine.addHandler(hlog)
+        log_handler.setLevel(self.loglevel)
+        log_handler.setFormatter(logging.Formatter("%(asctime)s %(message)s"))
+        self.__engine.addHandler(log_handler)
         self.__engine.info("Logger initialization complete")
 
     def close(self) -> None:

@@ -197,18 +197,18 @@ class Numbers(NoDynamicAttributes):
 class AlgTsp(Ialg, BLogClient, NoDynamicAttributes):
     """Travelling salesman problem."""
 
-    __pluginname: str = None  # type: ignore
+    __plugin_name: str = None  # type: ignore
     __math: Euclid = None  # type: ignore
     __data: List[StarsSystem] = None  # type: ignore
     __tmp: List[Any] = None  # type: ignore
-    __jumprange: int = None  # type: ignore
+    __jump_range: int = None  # type: ignore
     __final: List[StarsSystem] = None  # type: ignore
 
     def __init__(
         self,
         start: StarsSystem,
         systems: List[StarsSystem],
-        jumprange: int,
+        jump_range: int,
         log_queue: Optional[Union[Queue, SimpleQueue]],
         euclid_alg: Euclid,
         plugin_name: str,
@@ -218,12 +218,12 @@ class AlgTsp(Ialg, BLogClient, NoDynamicAttributes):
         params:
         start: StarsSystem - object with starting position.
         systems: list(StarsSystem,...) - list with point of interest to visit
-        jumprange: int - jumprange in ly
+        jump_range: int - jump range in ly
         log_queue: queue for LogClient
         euclid_alg: Euclid - object of initialized vectors class
         plugin_name: str - name of plugin for debug log
         """
-        self.__pluginname = plugin_name
+        self.__plugin_name = plugin_name
         # init log subsystem
         if isinstance(log_queue, (Queue, SimpleQueue)):
             self.logger = LogClient(log_queue)
@@ -244,11 +244,11 @@ class AlgTsp(Ialg, BLogClient, NoDynamicAttributes):
                 self.__class__.__name__,
                 currentframe(),
             )
-        if isinstance(jumprange, int):
-            self.__jumprange = jumprange
+        if isinstance(jump_range, int):
+            self.__jump_range = jump_range
         else:
             raise Raise.error(
-                f"Int type expected, '{type(jumprange)}' received",
+                f"Int type expected, '{type(jump_range)}' received",
                 TypeError,
                 self.__class__.__name__,
                 currentframe(),
@@ -306,24 +306,24 @@ class AlgTsp(Ialg, BLogClient, NoDynamicAttributes):
         for i in range(len(self.__data)):
             if i != start:
                 vertex.append(i)
-        # store minimum weight Hamilto Cycle
+        # store minimum weight Hamilton Cycle
         min_path: float = float(maxsize)
         next_permutation = permutations(vertex)
 
         for i in next_permutation:
             # store current Path weight
-            current_pathweight: float = 0.0
+            current_path_weight: float = 0.0
             # compute current path weight
             k: int = start
             for j in i:
-                current_pathweight += self.__tmp[k][j]
+                current_path_weight += self.__tmp[k][j]
                 k = j
-            current_pathweight += self.__tmp[k][start]
+            current_path_weight += self.__tmp[k][start]
 
             # update minimum
-            if min_path > current_pathweight:
-                out = [current_pathweight, i]
-                min_path = current_pathweight
+            if min_path > current_path_weight:
+                out = [current_path_weight, i]
+                min_path = current_path_weight
 
         # best solution
         if self.logger:
@@ -338,7 +338,7 @@ class AlgTsp(Ialg, BLogClient, NoDynamicAttributes):
     def __final_update(self) -> None:
         """Build final dataset."""
         self.__final = []
-        dsum = 0
+        d_sum = 0
         if self.logger:
             self.logger.debug = f"TMP: {self.__tmp}"
         for idx in range(1, len(self.__tmp)):
@@ -347,10 +347,10 @@ class AlgTsp(Ialg, BLogClient, NoDynamicAttributes):
                 self.__data[self.__tmp[idx - 1]].star_pos,
                 self.__data[self.__tmp[idx]].star_pos,
             )
-            dsum += system.data["distance"]
+            d_sum += system.data["distance"]
             self.__final.append(system)
         if self.logger:
-            self.logger.debug = f"FINAL Distance: {dsum:.2f} ly"
+            self.logger.debug = f"FINAL Distance: {d_sum:.2f} ly"
         if self.logger:
             self.logger.debug = f"INPUT: {self.__data}"
         if self.logger:
@@ -358,13 +358,13 @@ class AlgTsp(Ialg, BLogClient, NoDynamicAttributes):
 
     def debug(self, currentframe: Optional[FrameType], message: str = "") -> None:
         """Build debug message."""
-        pname: str = f"{self.__pluginname}"
-        cname: str = f"{self.__class__.__name__}"
-        mname: str = f"{currentframe.f_code.co_name}" if currentframe else ""
+        p_name: str = f"{self.__plugin_name}"
+        c_name: str = f"{self.__class__.__name__}"
+        m_name: str = f"{currentframe.f_code.co_name}" if currentframe else ""
         if message != "":
             message = f": {message}"
         if self.logger:
-            self.logger.debug = f"{pname}->{cname}.{mname}{message}"
+            self.logger.debug = f"{p_name}->{c_name}.{m_name}{message}"
 
     @property
     def get_final(self) -> List[StarsSystem]:
@@ -375,7 +375,7 @@ class AlgTsp(Ialg, BLogClient, NoDynamicAttributes):
 class AlgGenetic(Ialg, BLogClient, NoDynamicAttributes):
     """Genetic algorithm solving the problem of finding the best path."""
 
-    __pluginname: str = None  # type: ignore
+    __plugin_name: str = None  # type: ignore
     __math: Euclid = None  # type: ignore
     __final: List[StarsSystem] = None  # type: ignore
 
@@ -391,7 +391,7 @@ class AlgGenetic(Ialg, BLogClient, NoDynamicAttributes):
         self,
         start: StarsSystem,
         systems: List[StarsSystem],
-        jumprange: int,
+        jump_range: int,
         log_queue: Optional[Union[Queue, SimpleQueue]],
         euclid_alg: Euclid,
         plugin_name: str,
@@ -401,13 +401,13 @@ class AlgGenetic(Ialg, BLogClient, NoDynamicAttributes):
         params:
         start: StarsSystem - object with starting position.
         systems: list(StarsSystem,...) - list with point of interest to visit
-        jumprange: int - jumprange in ly
+        jump_range: int - jump range in ly
         log_queue: queue for LogClient
         euclid_alg: Euclid - object of initialized vectors class
         plugin_name: str - name of plugin for debug log
         """
 
-        self.__pluginname = plugin_name
+        self.__plugin_name = plugin_name
         # init log subsystem
         if isinstance(log_queue, (Queue, SimpleQueue)):
             self.logger = LogClient(log_queue)
@@ -428,11 +428,11 @@ class AlgGenetic(Ialg, BLogClient, NoDynamicAttributes):
                 self.__class__.__name__,
                 currentframe(),
             )
-        if isinstance(jumprange, int):
-            self.__max_distance = jumprange
+        if isinstance(jump_range, int):
+            self.__max_distance = jump_range
         else:
             raise Raise.error(
-                f"Int type expected, '{type(jumprange)}' received",
+                f"Int type expected, '{type(jump_range)}' received",
                 TypeError,
                 self.__class__.__name__,
                 currentframe(),
@@ -557,25 +557,25 @@ class AlgGenetic(Ialg, BLogClient, NoDynamicAttributes):
         self.__final = self.__evolve()
         self.__final.remove(self.__start_point)
         # update distance
-        dsum: float = 0.0
+        d_sum: float = 0.0
         start: StarsSystem = self.__start_point
         for item in self.__final:
             end: StarsSystem = item
             end.data["distance"] = self.__math.distance(start.star_pos, end.star_pos)
-            dsum += end.data["distance"]
+            d_sum += end.data["distance"]
             start = end
         if self.logger:
-            self.logger.debug = f"FINAL Distance: {dsum:.2f} ly"
+            self.logger.debug = f"FINAL Distance: {d_sum:.2f} ly"
 
     def debug(self, currentframe: Optional[FrameType], message: str = "") -> None:
         """Build debug message."""
-        pname: str = f"{self.__pluginname}"
-        cname: str = f"{self.__class__.__name__}"
-        mname: str = f"{currentframe.f_code.co_name}" if currentframe else ""
+        p_name: str = f"{self.__plugin_name}"
+        c_name: str = f"{self.__class__.__name__}"
+        m_name: str = f"{currentframe.f_code.co_name}" if currentframe else ""
         if message != "":
             message = f": {message}"
         if self.logger:
-            self.logger.debug = f"{pname}->{cname}.{mname}{message}"
+            self.logger.debug = f"{p_name}->{c_name}.{m_name}{message}"
 
     @property
     def get_final(self) -> List[StarsSystem]:

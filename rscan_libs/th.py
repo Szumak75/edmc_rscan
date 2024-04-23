@@ -83,57 +83,57 @@ class ThSystemSearch(Thread, BLogClient):
 
     def run(self) -> None:
         """Run the work."""
-        pname: str = self.__data.pluginname
-        cname: str = self.__class__.__name__
-        self.logger.info = f"{pname}->{cname}: Starting new work..."
+        p_name: str = self.__data.plugin_name
+        c_name: str = self.__class__.__name__
+        self.logger.info = f"{p_name}->{c_name}: Starting new work..."
         # build radius query
-        qurl: Optional[str] = self.__build_radius_query()
-        if qurl is None:
+        query_url: Optional[str] = self.__build_radius_query()
+        if query_url is None:
             return
         # create query object
         url = Url()
         # querying starts database
-        systems: List[Dict[str, Any]] = url.url_query(qurl)
+        systems: List[Dict[str, Any]] = url.url_query(query_url)
         if self.logger:
             self.logger.debug = f"Systems from JSON: {systems}"
         if not systems:
             return
         # filtering system
-        rsystems: Optional[List[StarsSystem]] = self.__build_radius_systems_list(
+        r_systems: Optional[List[StarsSystem]] = self.__build_radius_systems_list(
             systems
         )
         # self.debug(
         #     currentframe(),
         #     f"Search result: {systems}"
         # )
-        if not rsystems:
+        if not r_systems:
             self.status("0 systems found.")
             return
-        # tracerouting optimization
+        # traceroute optimization
         self.status(
             f"{len(systems)} systems found, flight route calculations in progress..."
         )
-        systems_out: List[StarsSystem] = self.__flight_route_systems(rsystems)
+        systems_out: List[StarsSystem] = self.__flight_route_systems(r_systems)
         self.debug(currentframe(), f"Search result: {systems_out}")
         # put it into result list
-        dsum: float = 0.0
+        d_sum: float = 0.0
         for item in systems_out:
-            dsum += item.data["distance"]
+            d_sum += item.data["distance"]
             self.__found.append(item)
         # work done
         self.status(
-            f"{len(systems_out)} systems found, calculations done. Final distance: {dsum:.2f} ly"
+            f"{len(systems_out)} systems found, calculations done. Final distance: {d_sum:.2f} ly"
         )
-        self.logger.info = f"{pname}->{cname}: Done."
+        self.logger.info = f"{p_name}->{c_name}: Done."
 
     def debug(self, currentframe: Optional[FrameType], message: str = "") -> None:
         """Build debug message."""
-        pname: str = f"{self.__data.pluginname}"
-        cname: str = f"{self.__class__.__name__}"
-        mname: str = f"{currentframe.f_code.co_name}" if currentframe else ""
+        p_name: str = f"{self.__data.plugin_name}"
+        c_name: str = f"{self.__class__.__name__}"
+        m_name: str = f"{currentframe.f_code.co_name}" if currentframe else ""
         if message != "":
             message = f": {message}"
-        self.logger.debug = f"{pname}->{cname}.{mname}{message}"
+        self.logger.debug = f"{p_name}->{c_name}.{m_name}{message}"
         # currentframe()
 
     def status(self, message: Any) -> None:
@@ -275,8 +275,8 @@ class ThSystemSearch(Thread, BLogClient):
         """Try to find the optimal order of flight."""
         jump = 50
         out: List[StarsSystem] = []
-        if self.__data.jumprange is not None:
-            jump: int = int(self.__data.jumprange) - 4
+        if self.__data.jump_range is not None:
+            jump: int = int(self.__data.jump_range) - 4
         if len(systems) > 10:
             alg = AlgGenetic(
                 self.start_system,
@@ -284,7 +284,7 @@ class ThSystemSearch(Thread, BLogClient):
                 jump,
                 self.logger.queue,
                 self.__math,
-                self.__data.pluginname,
+                self.__data.plugin_name,
             )
             alg.run()
             for item in alg.get_final:
@@ -296,7 +296,7 @@ class ThSystemSearch(Thread, BLogClient):
                 jump,
                 self.logger.queue,
                 self.__math,
-                self.__data.pluginname,
+                self.__data.plugin_name,
             )
             alg.run()
             for item in alg.get_final:

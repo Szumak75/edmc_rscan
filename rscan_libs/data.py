@@ -25,9 +25,9 @@ class RscanData(NoDynamicAttributes):
             "cmdr": None,
             "pluginname": None,
             "version": None,
-            "jumprange": None,
-            "starsystem": StarsSystem(),
-            "jumpsystem": StarsSystem(),
+            "jump_range": None,
+            "star_system": StarsSystem(),
+            "jump_system": StarsSystem(),
             "shutdown": False,
         }
 
@@ -37,54 +37,54 @@ class RscanData(NoDynamicAttributes):
             f"{self.__class__.__name__}(cmdr='{self.__data['cmdr']}', "
             f"pluginname='{self.__data['pluginname']}', "
             f"version='{self.__data['version']}', "
-            f"jumprange={self.__data['jumprange']}, "
-            f"{self.__data['starsystem']})"
+            f"jump_range={self.__data['jump_range']}, "
+            f"{self.__data['star_system']})"
         )
 
     @property
-    def jumpsystem(self) -> StarsSystem:
+    def jump_system(self) -> StarsSystem:
         """Give me StarsSystem object."""
-        return self.__data["jumpsystem"]
+        return self.__data["jump_system"]
 
-    @jumpsystem.setter
-    def jumpsystem(self, value: Optional[StarsSystem]) -> None:
+    @jump_system.setter
+    def jump_system(self, value: Optional[StarsSystem]) -> None:
         if value is None:
-            self.__data["jumpsystem"] = StarsSystem()
+            self.__data["jump_system"] = StarsSystem()
         elif isinstance(value, StarsSystem):
-            self.__data["jumpsystem"] = value
+            self.__data["jump_system"] = value
 
     @property
-    def starsystem(self) -> StarsSystem:
+    def star_system(self) -> StarsSystem:
         """Give me StarsSystem object."""
-        return self.__data["starsystem"]
+        return self.__data["star_system"]
 
-    @starsystem.setter
-    def starsystem(self, value: StarsSystem) -> None:
+    @star_system.setter
+    def star_system(self, value: StarsSystem) -> None:
         if value is None:
-            self.__data["starsystem"] = StarsSystem()
+            self.__data["star_system"] = StarsSystem()
         elif isinstance(value, StarsSystem):
-            self.__data["starsystem"] = value
+            self.__data["star_system"] = value
 
     @property
-    def jumprange(self) -> float:
-        """Give me jumprange."""
-        return self.__data["jumprange"]
+    def jump_range(self) -> float:
+        """Give me jump_range."""
+        return self.__data["jump_range"]
 
-    @jumprange.setter
-    def jumprange(self, value: Union[str, int, float]) -> None:
+    @jump_range.setter
+    def jump_range(self, value: Union[str, int, float]) -> None:
         if value is not None and isinstance(value, (str, int, float)):
             try:
-                self.__data["jumprange"] = float(value)
+                self.__data["jump_range"] = float(value)
             except Exception:
                 pass
 
     @property
-    def pluginname(self) -> str:
+    def plugin_name(self) -> str:
         """Give me pluginname."""
         return self.__data["pluginname"]
 
-    @pluginname.setter
-    def pluginname(self, value: str) -> None:
+    @plugin_name.setter
+    def plugin_name(self, value: str) -> None:
         if value is not None and isinstance(value, str):
             self.__data["pluginname"] = value
 

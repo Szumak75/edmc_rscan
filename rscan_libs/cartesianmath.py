@@ -81,11 +81,11 @@ class Euclid(BLogClient, NoDynamicAttributes):
         Compare the computational efficiency of functions for real data
         and choose the right priority of their use.
         """
-        pname: str = f"{self.__data.pluginname}"
-        cname: str = f"{self.__class__.__name__}"
+        p_name: str = f"{self.__data.plugin_name}"
+        c_name: str = f"{self.__class__.__name__}"
 
         if self.logger:
-            self.logger.info = f"{pname}->{cname}: Warming up math system..."
+            self.logger.info = f"{p_name}->{c_name}: Warming up math system..."
         data1: List[List[float]] = [
             [641.71875, -536.06250, -6886.37500],
             [10.31250, -160.53125, 74.18750],
@@ -121,11 +121,11 @@ class Euclid(BLogClient, NoDynamicAttributes):
 
         # start test
         for item in test:
-            tstart: float = time.time()
+            t_start: float = time.time()
             for idx in range(0, len(data1)):
                 item(data1[idx], data2[idx])
-            tstop: float = time.time()
-            bench_out[tstop - tstart] = item
+            t_stop: float = time.time()
+            bench_out[t_stop - t_start] = item
 
         # optimize list of the methods
         self.__test.clear()
@@ -134,19 +134,19 @@ class Euclid(BLogClient, NoDynamicAttributes):
             self.debug(currentframe(), f"{idx}: {bench_out[idx]}")
 
         if self.logger:
-            self.logger.info = f"{pname}->{cname}: done."
+            self.logger.info = f"{p_name}->{c_name}: done."
 
     def debug(self, currentframe: Optional[FrameType], message: str = "") -> None:
         """Build debug message."""
-        pname: str = f"{self.__data.pluginname}"
-        cname: str = f"{self.__class__.__name__}"
-        mname: str = (
+        p_name: str = f"{self.__data.plugin_name}"
+        c_name: str = f"{self.__class__.__name__}"
+        m_name: str = (
             f"{currentframe.f_code.co_name}" if currentframe is not None else ""
         )
         if message != "":
             message = f": {message}"
         if self.logger:
-            self.logger.debug = f"{pname}->{cname}.{mname}{message}"
+            self.logger.debug = f"{p_name}->{c_name}.{m_name}{message}"
 
     def __core(self, point_1: List[float], point_2: List[float]) -> float:
         """Do calculations without math libraries.

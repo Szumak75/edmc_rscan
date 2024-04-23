@@ -34,22 +34,22 @@ class EDRS(BLogProcessor, BLogClient, NoDynamicAttributes):
         # data
         self.data = RscanData()
 
-        self.data.pluginname = "EDRS"
+        self.data.plugin_name = "EDRS"
         self.data.version = "0.2.17-dev"
 
         # logging subsystem
         self.qlog = SimpleQueue()
-        self.log_processor = LogProcessor(self.data.pluginname)
+        self.log_processor = LogProcessor(self.data.plugin_name)
         self.logger = LogClient(self.qlog)
 
         # logging thread
         self.th_log = Thread(
-            target=self.th_logger, name=f"{self.data.pluginname} log worker"
+            target=self.th_logger, name=f"{self.data.plugin_name} log worker"
         )
         self.th_log.daemon = True
         self.th_log.start()
 
-        self.logger.debug = f"{self.data.pluginname} object creation complete."
+        self.logger.debug = f"{self.data.plugin_name} object creation complete."
 
     @property
     def dialog(self) -> EdrsDialog:

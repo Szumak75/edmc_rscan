@@ -40,13 +40,13 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
 
         BOLD: str = "bold"  # tk key
         CLIP: str = "_clip_"
-        FDATA: str = "_fdata_"
+        F_DATA: str = "_f_data_"
         FONT: str = "font"  # tk key
         MATH: str = "_math_"
         NORMAL: str = "normal"  # tk key
         RADIUS: str = "_radius_"
-        SBUTTON: str = "_sbutton_"
-        SPANEL: str = "_spanel_"
+        S_BUTTON: str = "_s_button_"
+        S_PANEL: str = "_s_panel_"
         STATUS: str = "_status_"
         STRIKE: str = "strike"  # tk key
         SYSTEM: str = "_system_"
@@ -84,14 +84,14 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
 
         self.__tools[EdrsScanDialog.__Keys.CLIP] = Clip()
 
-        # witgets declaration
+        # widgets declaration
         self.__widgets = {}
         self.__widgets[EdrsScanDialog.__Keys.STATUS] = None  #: Optional[tk.StringVar]
-        self.__widgets[EdrsScanDialog.__Keys.FDATA] = None  #: Optional[tk.LabelFrame]
+        self.__widgets[EdrsScanDialog.__Keys.F_DATA] = None  #: Optional[tk.LabelFrame]
         self.__widgets[EdrsScanDialog.__Keys.SYSTEM] = None  #: Optional[tk.Entry]
         self.__widgets[EdrsScanDialog.__Keys.RADIUS] = None  #: Optional[tk.Entry]
-        self.__widgets[EdrsScanDialog.__Keys.SBUTTON] = None  #: Optional[tk.Button]
-        self.__widgets[EdrsScanDialog.__Keys.SPANEL] = (
+        self.__widgets[EdrsScanDialog.__Keys.S_BUTTON] = None  #: Optional[tk.Button]
+        self.__widgets[EdrsScanDialog.__Keys.S_PANEL] = (
             None  #: Optional[VerticalScrolledFrame]
         )
 
@@ -130,13 +130,13 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
         # list of found systems: [[system, frame, label with name],...]
         self.__stars = []
 
-        if self.__data.starsystem.name is not None:
-            self.__start = self.__data.starsystem
+        if self.__data.star_system.name is not None:
+            self.__start = self.__data.star_system
 
         # starting worker th
         self.__rscan_qth = SimpleQueue()
         self.__rscan_th = Thread(
-            target=self.th_worker, name=f"{self.__data.pluginname} worker"
+            target=self.th_worker, name=f"{self.__data.plugin_name} worker"
         )
         self.__rscan_th.daemon = True
         self.__rscan_th.start()
@@ -164,7 +164,7 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
 
     def __frame_build(self) -> None:
         """Create window."""
-        self.title(self.__data.pluginname)
+        self.title(self.__data.plugin_name)
         self.geometry("600x400")
         self.minsize(width=300, height=400)
         # grid configure
@@ -209,49 +209,49 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
         system_name = tk.Entry(command_frame, textvariable=tk.StringVar(value=""))
         system_name.grid(row=0, column=1, sticky=tk.EW)
         system_name.bind("<Return>", self.__generator)
-        if self.__data.starsystem.name is not None:
+        if self.__data.star_system.name is not None:
             system_name.delete(0, tk.END)
-            system_name.insert(0, self.__data.starsystem.name)
+            system_name.insert(0, self.__data.star_system.name)
         self.__widgets[EdrsScanDialog.__Keys.SYSTEM] = system_name
         tk.Label(command_frame, text="Radius:").grid(row=0, column=2, sticky=tk.E)
         radius = tk.Entry(command_frame, textvariable=tk.StringVar(value="50"), width=5)
         radius.bind("<Return>", self.__generator)
         radius.grid(row=0, column=3, sticky=tk.W)
         self.__widgets[EdrsScanDialog.__Keys.RADIUS] = radius
-        bgenerator_img = tk.PhotoImage(data=Pics.SEARCH_16)
-        bgenerator = tk.Button(
-            command_frame, image=bgenerator_img, command=self.__generator
+        b_generator_img = tk.PhotoImage(data=Pics.SEARCH_16)
+        b_generator = tk.Button(
+            command_frame, image=b_generator_img, command=self.__generator
         )
-        bgenerator.image = bgenerator_img  # type: ignore
-        bgenerator.grid(row=0, column=4, ipadx=2, sticky=tk.E)
-        CreateToolTip(bgenerator, "Locate visited systems that have not been explored.")
-        self.__widgets[EdrsScanDialog.__Keys.SBUTTON] = bgenerator
+        b_generator.image = b_generator_img  # type: ignore
+        b_generator.grid(row=0, column=4, ipadx=2, sticky=tk.E)
+        CreateToolTip(b_generator, "Locate visited systems that have not been explored.")
+        self.__widgets[EdrsScanDialog.__Keys.S_BUTTON] = b_generator
 
         # create data panel
         data_frame = tk.LabelFrame(self, text=" Flight route ")
         data_frame.grid(
             row=r_data_idx, column=0, columnspan=2, padx=5, pady=5, sticky=tk.NSEW
         )
-        self.__widgets[EdrsScanDialog.__Keys.FDATA] = data_frame
+        self.__widgets[EdrsScanDialog.__Keys.F_DATA] = data_frame
 
         # create scrolled panel
-        spanel = VerticalScrolledTkFrame(
+        s_panel = VerticalScrolledTkFrame(
             data_frame,
             borderwidth=2,
             relief=tk.FLAT,
             background="light gray",
         )
-        spanel.pack(ipadx=1, ipady=1, fill=tk.BOTH, expand=tk.TRUE)
-        self.__widgets[EdrsScanDialog.__Keys.SPANEL] = spanel
+        s_panel.pack(ipadx=1, ipady=1, fill=tk.BOTH, expand=tk.TRUE)
+        self.__widgets[EdrsScanDialog.__Keys.S_PANEL] = s_panel
 
         # create status panel
         status_frame = tk.Frame(self)
         status_frame.grid(row=r_stat_idx, column=0, sticky=tk.EW)
 
-        status_lframe = tk.LabelFrame(status_frame, text="")
-        status_lframe.pack(side=tk.LEFT, fill=tk.X, expand=tk.TRUE, padx=5, pady=5)
+        status_label_frame = tk.LabelFrame(status_frame, text="")
+        status_label_frame.pack(side=tk.LEFT, fill=tk.X, expand=tk.TRUE, padx=5, pady=5)
         status_string = tk.StringVar()
-        status = tk.Label(status_lframe, textvariable=status_string)
+        status = tk.Label(status_label_frame, textvariable=status_string)
         status.pack(side=tk.LEFT)
         self.__widgets[EdrsScanDialog.__Keys.STATUS] = status_string
 
@@ -330,20 +330,20 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
 
     def __disable_button(self, flag: bool) -> None:
         """Disable generator button on working time."""
-        if self.__widgets[EdrsScanDialog.__Keys.SBUTTON] is None:
+        if self.__widgets[EdrsScanDialog.__Keys.S_BUTTON] is None:
             return
         if isinstance(flag, bool):
             if flag:
-                self.__widgets[EdrsScanDialog.__Keys.SBUTTON].config(state=tk.DISABLED)
+                self.__widgets[EdrsScanDialog.__Keys.S_BUTTON].config(state=tk.DISABLED)
             else:
-                self.__widgets[EdrsScanDialog.__Keys.SBUTTON].config(state=tk.ACTIVE)
+                self.__widgets[EdrsScanDialog.__Keys.S_BUTTON].config(state=tk.ACTIVE)
 
     def th_worker(self) -> None:
         """Run thread for getting data and computing results."""
-        pname: str = self.__data.pluginname
-        cname: str = self.__class__.__name__
+        p_name: str = self.__data.plugin_name
+        c_name: str = self.__class__.__name__
         if self.logger:
-            self.logger.info = f"{pname}->{cname}: Starting worker..."
+            self.logger.info = f"{p_name}->{c_name}: Starting worker..."
         while not self.__data.shutting_down:
             item: ThSystemSearch = self.__rscan_qth.get(True)
             if item is None:
@@ -351,7 +351,7 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
             self.__disable_button(True)
             if self.logger:
                 self.logger.info = (
-                    f"{pname}->{cname}: Get new search work for "
+                    f"{p_name}->{c_name}: Get new search work for "
                     f"{item.start_system.name} with radius: {item.radius}ly"
                 )
             time_start: float = time.time()
@@ -362,12 +362,12 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
             time_stop: float = time.time()
             if self.logger:
                 self.logger.info = (
-                    f"{pname}->{cname}: Work is done in: {int(time_stop-time_start)}s"
+                    f"{p_name}->{c_name}: Work is done in: {int(time_stop-time_start)}s"
                 )
             self.__process_work_output(item.get_result)
             self.__disable_button(False)
         if self.logger:
-            self.logger.info = f"{pname}->{cname}: worker finished."
+            self.logger.info = f"{p_name}->{c_name}: worker finished."
 
     def __process_work_output(self, systems: Optional[List[StarsSystem]]) -> None:
         """Build frame with found systems."""
@@ -391,9 +391,8 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
         list_object.append(item)
 
         # create frame [1]
-        # frame = tk.Frame(self.__widgets['fdata'])
         frame = tk.Frame(
-            self.__widgets[EdrsScanDialog.__Keys.SPANEL].interior,
+            self.__widgets[EdrsScanDialog.__Keys.S_PANEL].interior,
             relief=tk.GROOVE,
             borderwidth=1,
         )
@@ -416,30 +415,29 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
         jump = 50
         if "distance" in item.data:
             distance = f"{item.data['distance']:.2f}"
-        ljump = tk.Label(
+        label_jump = tk.Label(
             frame,
             text=f"[{distance:} ly]",
             font=self.__fonts[EdrsScanDialog.__Keys.NORMAL],
         )
-        ljump.pack(side=tk.LEFT)
-        if self.__data.jumprange:
-            jump: float = self.__data.jumprange - 4
+        label_jump.pack(side=tk.LEFT)
+        if self.__data.jump_range:
+            jump: float = self.__data.jump_range - 4
         if "distance" in item.data and item.data["distance"] > jump:
-            ljump["font"] = self.__fonts[EdrsScanDialog.__Keys.BOLD]
-            ljump["fg"] = "red"
+            label_jump["font"] = self.__fonts[EdrsScanDialog.__Keys.BOLD]
+            label_jump["fg"] = "red"
             CreateToolTip(
-                ljump,
+                label_jump,
                 "Warning. The calculated distance exceeded the ship's maximum single jump distance.",
             )
         # permission
-        # self.debug(currentframe(), message=f'{item}')
         if "requirepermit" in item.data and item.data["requirepermit"]:
-            lpermit_img = tk.PhotoImage(data=Pics.PERMIT_16)
-            lpermit = tk.Label(frame, image=lpermit_img)
-            lpermit.image = lpermit_img  # type: ignore
-            lpermit.pack(side=tk.LEFT)
+            label_permit_img = tk.PhotoImage(data=Pics.PERMIT_16)
+            label_permit = tk.Label(frame, image=label_permit_img)
+            label_permit.image = label_permit_img  # type: ignore
+            label_permit.pack(side=tk.LEFT)
             CreateToolTip(
-                lpermit,
+                label_permit,
                 "Warning. Required permissions to enter this system.",
             )
         # create clipboard button
@@ -465,20 +463,20 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
 
         # update located system
         for item in self.__stars:
-            if item[0].name == self.__data.starsystem.name:
+            if item[0].name == self.__data.star_system.name:
                 item[2][EdrsScanDialog.__Keys.FONT] = self.__fonts[
                     EdrsScanDialog.__Keys.STRIKE
                 ]
 
     def debug(self, currentframe: Optional[FrameType], message: str = "") -> None:
         """Build debug message."""
-        pname: str = f"{self.__data.pluginname}"
-        cname: str = f"{self.__class__.__name__}"
-        mname: str = f"{currentframe.f_code.co_name}" if currentframe else ""
+        p_name: str = f"{self.__data.plugin_name}"
+        c_name: str = f"{self.__class__.__name__}"
+        m_name: str = f"{currentframe.f_code.co_name}" if currentframe else ""
         if message != "":
             message = f": {message}"
         if self.logger:
-            self.logger.debug = f"{pname}->{cname}.{mname}{message}"
+            self.logger.debug = f"{p_name}->{c_name}.{m_name}{message}"
 
     @property
     def is_closed(self) -> bool:
@@ -589,8 +587,8 @@ class EdrsDialog(BLogClient, NoDynamicAttributes):
                 self.__windows.remove(window)
         # create new window
         esd = EdrsScanDialog(self.logger.queue, self.__data, self.__tools["euclid"])
-        if self.__data.starsystem.name is not None:
-            esd.title(f"{self.__data.pluginname}: {self.__data.starsystem.name}")
+        if self.__data.star_system.name is not None:
+            esd.title(f"{self.__data.plugin_name}: {self.__data.star_system.name}")
 
         self.__windows.append(esd)
         self.debug(
@@ -600,13 +598,13 @@ class EdrsDialog(BLogClient, NoDynamicAttributes):
 
     def debug(self, currentframe: Optional[FrameType], message: str = "") -> None:
         """Build debug message."""
-        pname: str = f"{self.__data.pluginname}"
-        cname: str = f"{self.__class__.__name__}"
-        mname: str = f"{currentframe.f_code.co_name}" if currentframe else ""
+        p_name: str = f"{self.__data.plugin_name}"
+        c_name: str = f"{self.__class__.__name__}"
+        m_name: str = f"{currentframe.f_code.co_name}" if currentframe else ""
         if message != "":
             message = f": {message}"
         if self.logger:
-            self.logger.debug = f"{pname}->{cname}.{mname}{message}"
+            self.logger.debug = f"{p_name}->{c_name}.{m_name}{message}"
 
 
 # #[EOF]#######################################################################

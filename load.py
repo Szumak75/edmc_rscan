@@ -30,29 +30,29 @@ def plugin_start3(plugin_dir: str) -> str:
     plugin_dir:     plugin directory
     return:         local name of the plugin
     """
-    edrs_object.logger.debug = f"{edrs_object.data.pluginname}->plugin_start3 start..."
+    edrs_object.logger.debug = f"{edrs_object.data.plugin_name}->plugin_start3 start..."
     # loglevel set from config
     loglevel: Optional[int] = LogLevels().get(config.get_str("loglevel"))
     edrs_object.log_processor.loglevel = (
         loglevel if loglevel is not None else logging.DEBUG
     )
-    edrs_object.logger.debug = f"{edrs_object.data.pluginname}->plugin_start3 done."
-    return f"{edrs_object.data.pluginname}"
+    edrs_object.logger.debug = f"{edrs_object.data.plugin_name}->plugin_start3 done."
+    return f"{edrs_object.data.plugin_name}"
 
 
 def plugin_stop() -> None:
     """Stop plugin if EDMC is closing."""
-    edrs_object.logger.debug = f"{edrs_object.data.pluginname}->plugin_stop: start..."
+    edrs_object.logger.debug = f"{edrs_object.data.plugin_name}->plugin_stop: start..."
     edrs_object.data.shutting_down = True
     edrs_object.logger.debug = (
-        f"{edrs_object.data.pluginname}->plugin_stop: shut down flag is set"
+        f"{edrs_object.data.plugin_name}->plugin_stop: shut down flag is set"
     )
     # something to do
     if edrs_object.dialog is not None:
         edrs_object.dialog.dialog_update()
     # shut down logger at last
     edrs_object.logger.debug = (
-        f"{edrs_object.data.pluginname}->plugin_stop: terminating the logger"
+        f"{edrs_object.data.plugin_name}->plugin_stop: terminating the logger"
     )
     edrs_object.qlog.put(None)
     edrs_object.th_log.join()
@@ -64,21 +64,21 @@ def plugin_app(parent: tk.Frame) -> ttk.Button:
 
     parent:     The root EDMarketConnector window
     """
-    edrs_object.logger.debug = f"{edrs_object.data.pluginname}->plugin_app: start..."
+    edrs_object.logger.debug = f"{edrs_object.data.plugin_name}->plugin_app: start..."
     if edrs_object.dialog is None:
         edrs_object.dialog = EdrsDialog(parent, edrs_object.qlog, edrs_object.data)
     button: ttk.Button = edrs_object.dialog.button()
     CreateToolTip(
         button,
         [
-            f"{edrs_object.data.pluginname} v{edrs_object.data.version}",
+            f"{edrs_object.data.plugin_name} v{edrs_object.data.version}",
             "",
             "Search the edsm database for partially",
             "uncovered systems within a given radius",
             "that require a full scan.",
         ],
     )
-    edrs_object.logger.debug = f"{edrs_object.data.pluginname}->plugin_app: done."
+    edrs_object.logger.debug = f"{edrs_object.data.plugin_name}->plugin_app: done."
     return button
 
 
@@ -88,13 +88,15 @@ def prefs_changed(cmdr: str, is_beta: bool) -> None:
     cmdr:       The current commander
     is_beta:    If the game is currently a beta version
     """
-    edrs_object.logger.debug = f"{edrs_object.data.pluginname}->prefs_changed: start..."
+    edrs_object.logger.debug = (
+        f"{edrs_object.data.plugin_name}->prefs_changed: start..."
+    )
     # set loglevel after config update
     loglevel: Optional[int] = LogLevels().get(config.get_str("loglevel"))
     edrs_object.log_processor.loglevel = (
         loglevel if loglevel is not None else logging.DEBUG
     )
-    edrs_object.logger.debug = f"{edrs_object.data.pluginname}->prefs_changed: done."
+    edrs_object.logger.debug = f"{edrs_object.data.plugin_name}->prefs_changed: done."
 
 
 def journal_entry(
@@ -114,44 +116,46 @@ def journal_entry(
     entry:      The journal event
     state:      More info about the commander, their ship, and their cargo
     """
-    edrs_object.logger.debug = f"{edrs_object.data.pluginname}->journal_entry: start..."
     edrs_object.logger.debug = (
-        f"{edrs_object.data.pluginname}->journal_entry: cmdr:{cmdr}, system:{system}"
+        f"{edrs_object.data.plugin_name}->journal_entry: start..."
+    )
+    edrs_object.logger.debug = (
+        f"{edrs_object.data.plugin_name}->journal_entry: cmdr:{cmdr}, system:{system}"
     )
     edrs_object.data.cmdr = cmdr
     # new
-    edrs_object.data.starsystem.name = system
+    edrs_object.data.star_system.name = system
     if entry["event"] in ("FSDJump", "Loadout", "Docked", "CarrierJump"):
         # new
-        edrs_object.data.starsystem.name = entry.get(
-            "StarsSystem", edrs_object.data.starsystem.name
+        edrs_object.data.star_system.name = entry.get(
+            "StarsSystem", edrs_object.data.star_system.name
         )
-        edrs_object.data.starsystem.address = entry.get(
-            "SystemAddress", edrs_object.data.starsystem.address
+        edrs_object.data.star_system.address = entry.get(
+            "SystemAddress", edrs_object.data.star_system.address
         )
-        edrs_object.data.starsystem.star_pos = entry.get(
-            "StarPos", edrs_object.data.starsystem.star_pos
+        edrs_object.data.star_system.star_pos = entry.get(
+            "StarPos", edrs_object.data.star_system.star_pos
         )
-        edrs_object.data.starsystem.star_class = entry.get(
-            "StarClass", edrs_object.data.starsystem.star_class
+        edrs_object.data.star_system.star_class = entry.get(
+            "StarClass", edrs_object.data.star_system.star_class
         )
-        edrs_object.data.jumprange = entry.get(
-            "MaxJumpRange", edrs_object.data.jumprange
+        edrs_object.data.jump_range = entry.get(
+            "MaxJumpRange", edrs_object.data.jump_range
         )
         edrs_object.logger.debug = f"{edrs_object.data}"
         if edrs_object.dialog is not None:
             edrs_object.dialog.dialog_update()
     elif entry["event"] == "FSDTarget":
-        edrs_object.data.jumpsystem.name = entry.get(
-            "StarsSystem", edrs_object.data.jumpsystem.name
+        edrs_object.data.jump_system.name = entry.get(
+            "StarsSystem", edrs_object.data.jump_system.name
         )
-        edrs_object.data.jumpsystem.address = entry.get(
-            "SystemAddress", edrs_object.data.jumpsystem.address
+        edrs_object.data.jump_system.address = entry.get(
+            "SystemAddress", edrs_object.data.jump_system.address
         )
-        edrs_object.data.jumpsystem.star_class = entry.get(
-            "StarClass", edrs_object.data.jumpsystem.star_class
+        edrs_object.data.jump_system.star_class = entry.get(
+            "StarClass", edrs_object.data.jump_system.star_class
         )
-    edrs_object.logger.debug = f"{edrs_object.data.pluginname}->journal_entry: done."
+    edrs_object.logger.debug = f"{edrs_object.data.plugin_name}->journal_entry: done."
 
 
 # #[EOF]#######################################################################
