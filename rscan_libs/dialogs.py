@@ -32,6 +32,11 @@ from rscan_libs.tools import Numbers
 from rscan_libs.gfx import Pics
 
 
+class __FontFamily(object, metaclass=ReadOnlyClass):
+
+    helvetica: str = "Helvetica"
+
+
 class EdrsScanDialog(tk.Toplevel, BLogClient):
     """Create new  window."""
 
@@ -144,16 +149,16 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
         # fonts configure
         self.__fonts = {
             EdrsScanDialog.__Keys.BOLD: font.Font(
-                family="Helvetica",
+                family=__FontFamily.helvetica,
                 size=10,
                 weight=font.BOLD,
                 overstrike=False,
             ),
             EdrsScanDialog.__Keys.NORMAL: font.Font(
-                family="Helvetica", size=10, overstrike=False
+                family=__FontFamily.helvetica, size=10, overstrike=False
             ),
             EdrsScanDialog.__Keys.STRIKE: font.Font(
-                family="Helvetica", size=10, overstrike=True
+                family=__FontFamily.helvetica, size=10, overstrike=True
             ),
         }
 
@@ -224,7 +229,9 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
         )
         b_generator.image = b_generator_img  # type: ignore
         b_generator.grid(row=0, column=4, ipadx=2, sticky=tk.E)
-        CreateToolTip(b_generator, "Locate visited systems that have not been explored.")
+        CreateToolTip(
+            b_generator, "Locate visited systems that have not been explored."
+        )
         self.__widgets[EdrsScanDialog.__Keys.S_BUTTON] = b_generator
 
         # create data panel

@@ -252,25 +252,6 @@ class ThSystemSearch(Thread, BLogClient):
             self.logger.info = f"Found {count} systems"
         return out
 
-    # def __get_bodies_information(self, system: StarsSystem) -> Optional[Dict]:
-    #     """Try to get information about system bodies."""
-    #     if not isinstance(system, StarsSystem):
-    #         raise Raise.error(
-    #             f"StarsSystem type expected, '{type(system)}' received",
-    #             TypeError,
-    #             self.__class__.__name__,
-    #             currentframe(),
-    #         )
-    #     url = Url()
-    #     out_url: str = url.bodies_url(system)
-    #     if not out_url:
-    #         return {}
-    #     # querying EDSM
-    #     out: List[Dict[str, Any]] = url.url_query(out_url)
-    #     if out is None:
-    #         return {}
-    #     return out
-
     def __flight_route_systems(self, systems: List[StarsSystem]) -> List[StarsSystem]:
         """Try to find the optimal order of flight."""
         jump = 50
