@@ -32,13 +32,12 @@ from rscan_libs.tools import Numbers
 from rscan_libs.gfx import Pics
 
 
-class __FontFamily(object, metaclass=ReadOnlyClass):
-
-    helvetica: str = "Helvetica"
-
-
 class EdrsScanDialog(tk.Toplevel, BLogClient):
     """Create new  window."""
+
+    class __FontFamily(object, metaclass=ReadOnlyClass):
+
+        HELVETICA: str = "Helvetica"
 
     class __Keys(object, metaclass=ReadOnlyClass):
         """Private keys."""
@@ -149,16 +148,16 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
         # fonts configure
         self.__fonts = {
             EdrsScanDialog.__Keys.BOLD: font.Font(
-                family=__FontFamily.helvetica,
+                family=EdrsScanDialog.__FontFamily.HELVETICA,
                 size=10,
                 weight=font.BOLD,
                 overstrike=False,
             ),
             EdrsScanDialog.__Keys.NORMAL: font.Font(
-                family=__FontFamily.helvetica, size=10, overstrike=False
+                family=EdrsScanDialog.__FontFamily.HELVETICA, size=10, overstrike=False
             ),
             EdrsScanDialog.__Keys.STRIKE: font.Font(
-                family=__FontFamily.helvetica, size=10, overstrike=True
+                family=EdrsScanDialog.__FontFamily.HELVETICA, size=10, overstrike=True
             ),
         }
 
