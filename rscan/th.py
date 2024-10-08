@@ -13,27 +13,19 @@ from typing import Any, Dict, List, Optional, Union
 from types import FrameType
 
 from rscan.jsktoolbox.raisetool import Raise
+from rscan.jsktoolbox.basetool.threads import ThBaseObject
 from rscan.jsktoolbox.edmctool.base import BLogClient
 from rscan.jsktoolbox.edmctool.stars import StarsSystem
 from rscan.jsktoolbox.edmctool.logs import LogClient
+from rscan.jsktoolbox.edmctool.edsm import Url
 
 from rscan.cartesianmath import Euclid
 from rscan.data import RscanData
-from rscan.tools import AlgGenetic, AlgTsp, Url
+from rscan.tools import AlgGenetic, AlgTsp
 
 
-class ThSystemSearch(Thread, BLogClient):
+class ThSystemSearch(Thread, ThBaseObject, BLogClient):
     """Thread system search engine."""
-
-    __slots__: List[str] = [
-        "__parent",
-        "__data",
-        "__math",
-        "__stop_event",
-        "__start_system",
-        "__radius",
-        "__found",
-    ]
 
     def __init__(
         self,
@@ -43,14 +35,15 @@ class ThSystemSearch(Thread, BLogClient):
         euclid_alg: Euclid,
     ) -> None:
         """Create object instance of class."""
-        Thread.__init__(self, name=self.__class__.__name__)
-        self.__stop_event = Event()
+        Thread.__init__(self, name=self._c_name)
+        self._stop_event = Event()
+
         # init log subsystem
         if not isinstance(log_queue, (Queue, SimpleQueue)):
             raise Raise.error(
                 f"Queue or SimpleQueue type expected, '{type(log_queue)}' received.",
                 TypeError,
-                self.__class__.__name__,
+                self._c_name,
                 currentframe(),
             )
         self.logger = LogClient(log_queue)
@@ -59,7 +52,7 @@ class ThSystemSearch(Thread, BLogClient):
             raise Raise.error(
                 f"RscanData type expected, '{type(data)}' received",
                 TypeError,
-                self.__class__.__name__,
+                self._c_name,
                 currentframe(),
             )
         self.__data: RscanData = data
@@ -70,7 +63,7 @@ class ThSystemSearch(Thread, BLogClient):
             raise Raise.error(
                 f"Euclid type expected, '{type(euclid_alg)}' received",
                 TypeError,
-                self.__class__.__name__,
+                self._c_name,
                 currentframe(),
             )
         self.__math: Euclid = euclid_alg
@@ -84,7 +77,7 @@ class ThSystemSearch(Thread, BLogClient):
     def run(self) -> None:
         """Run the work."""
         p_name: str = self.__data.plugin_name
-        c_name: str = self.__class__.__name__
+        c_name: str = self._c_name
         self.logger.info = f"{p_name}->{c_name}: Starting new work..."
         # build radius query
         query_url: Optional[str] = self.__build_radius_query()
@@ -93,10 +86,10 @@ class ThSystemSearch(Thread, BLogClient):
         # create query object
         url = Url()
         # querying starts database
-        systems: List[Dict[str, Any]] = url.url_query(query_url)
+        systems = url.url_query(query_url)
         if self.logger:
             self.logger.debug = f"Systems from JSON: {systems}"
-        if not systems:
+        if not systems or not isinstance(systems, List):
             return
         # filtering system
         r_systems: Optional[List[StarsSystem]] = self.__build_radius_systems_list(
@@ -129,7 +122,7 @@ class ThSystemSearch(Thread, BLogClient):
     def debug(self, currentframe: Optional[FrameType], message: str = "") -> None:
         """Build debug message."""
         p_name: str = f"{self.__data.plugin_name}"
-        c_name: str = f"{self.__class__.__name__}"
+        c_name: str = f"{self._c_name}"
         m_name: str = f"{currentframe.f_code.co_name}" if currentframe else ""
         if message != "":
             message = f": {message}"
@@ -143,13 +136,13 @@ class ThSystemSearch(Thread, BLogClient):
     @property
     def stopped(self) -> bool:
         """Get stop event flag."""
-        return self.__stop_event.isSet()
+        return self._stop_event.isSet()
 
     def stop(self) -> None:
         """Set stop event."""
         if not self.stopped:
             self.debug(currentframe(), "Stopping event is set now.")
-            self.__stop_event.set()
+            self._stop_event.set()
 
     @property
     def get_result(self) -> List:
@@ -167,7 +160,7 @@ class ThSystemSearch(Thread, BLogClient):
             raise Raise.error(
                 f"StarsSystem type expected, '{type(value)}' received.",
                 TypeError,
-                self.__class__.__name__,
+                self._c_name,
                 currentframe(),
             )
         self.__start_system = value
@@ -213,7 +206,7 @@ class ThSystemSearch(Thread, BLogClient):
             raise Raise.error(
                 "Needed variables not initialized properly.",
                 TypeError,
-                self.__class__.__name__,
+                self._c_name,
                 currentframe(),
             )
 

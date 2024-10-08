@@ -13,41 +13,11 @@ from typing import Optional, List, Dict, Union, Any
 from ..attribtool import ReadOnlyClass
 from ..raisetool import Raise
 from ..basetool.data import BData
-
-
-class EdmcKeys(object, metaclass=ReadOnlyClass):
-    """EDMC Keys container class."""
-
-    EDMC_EVENT: str = "event"
-    EDMC_FSD_JUMP: str = "FSDJump"
-    EDMC_FSD_TARGET: str = "FSDTarget"
-    EDMC_NAME: str = "Name"
-    EDMC_STAR_CLASS: str = "StarClass"
-    EDMC_STAR_SYSTEM: str = "StarSystem"
-    EDMC_SYSTEM_ADDRESS: str = "SystemAddress"
-    EDMC_SYSTEM_BODY: str = "SystemBody"
-    EDMC_SYSTEM_BODY_COUNT: str = "SystemBodyCount"
-    EDMC_SYSTEM_COORDS: str = "SystemCoords"
-    EDMC_SYSTEM_COORDS_LOCKED: str = "SystemCoordsLocked"
-    EDMC_SYSTEM_DISTANCE: str = "SystemDistance"
-    EDMC_SYSTEM_NAME: str = "SystemName"
+from .edsm_keys import EdsmKeys
 
 
 class _Keys(object, metaclass=ReadOnlyClass):
     """Internal Keys container class."""
-
-    # EDSM keys
-    EDSM_ADDRESS: str = "id64"
-    EDSM_BODIES: str = "bodies"
-    EDSM_BODY_COUNT: str = "bodyCount"
-    EDSM_COORDS: str = "coords"
-    EDSM_COORDS_LOCKED: str = "coordsLocked"
-    EDSM_DISTANCE: str = "distance"
-    EDSM_NAME: str = "name"
-    EDSM_REQUIRE_PERMIT: str = "requirePermit"
-    EDSM_X: str = "x"
-    EDSM_Y: str = "y"
-    EDSM_Z: str = "z"
 
     # StarsSystem
     SS_ADDRESS: str = "__ss_address__"
@@ -130,34 +100,40 @@ class StarsSystem(BData):
         self._set_data(key=_Keys.SS_NAME, value=arg, set_default_type=Optional[str])
 
     @property
-    def pos_x(self) -> Optional[float]:
+    def pos_x(self) -> Optional[Union[float, int]]:
         """Returns pos_x of the star system."""
         return self._get_data(key=_Keys.SS_POS_X, default_value=None)
 
     @pos_x.setter
-    def pos_x(self, arg: Optional[float]) -> None:
+    def pos_x(self, arg: Optional[Union[float, int]]) -> None:
         """Sets pos_x of the star system."""
-        self._set_data(key=_Keys.SS_POS_X, value=arg, set_default_type=Optional[float])
+        self._set_data(
+            key=_Keys.SS_POS_X, value=arg, set_default_type=Optional[Union[float, int]]
+        )
 
     @property
-    def pos_y(self) -> Optional[float]:
+    def pos_y(self) -> Optional[Union[float, int]]:
         """Returns pos_y of the star system."""
         return self._get_data(key=_Keys.SS_POS_Y, default_value=None)
 
     @pos_y.setter
-    def pos_y(self, arg: Optional[float]) -> None:
+    def pos_y(self, arg: Optional[Union[float, int]]) -> None:
         """Sets pos_y of the star system."""
-        self._set_data(key=_Keys.SS_POS_Y, value=arg, set_default_type=Optional[float])
+        self._set_data(
+            key=_Keys.SS_POS_Y, value=arg, set_default_type=Optional[Union[float, int]]
+        )
 
     @property
-    def pos_z(self) -> Optional[float]:
+    def pos_z(self) -> Optional[Union[float, int]]:
         """Returns pos_z of the star system."""
         return self._get_data(key=_Keys.SS_POS_Z, default_value=None)
 
     @pos_z.setter
-    def pos_z(self, arg: Optional[float]) -> None:
+    def pos_z(self, arg: Optional[Union[float, int]]) -> None:
         """Sets pos_z of the star system."""
-        self._set_data(key=_Keys.SS_POS_Z, value=arg, set_default_type=Optional[float])
+        self._set_data(
+            key=_Keys.SS_POS_Z, value=arg, set_default_type=Optional[Union[float, int]]
+        )
 
     @property
     def star_class(self) -> str:
@@ -194,24 +170,22 @@ class StarsSystem(BData):
         if data is None or not isinstance(data, Dict):
             return
 
-        self.name = data.get(_Keys.EDSM_NAME, self.name)
-        self.address = data.get(_Keys.EDSM_ADDRESS, self.address)
-        if _Keys.EDSM_COORDS in data and _Keys.EDSM_X in data[_Keys.EDSM_COORDS]:
-            self.pos_x = data[_Keys.EDSM_COORDS].get(_Keys.EDSM_X, self.pos_x)
-            self.pos_y = data[_Keys.EDSM_COORDS].get(_Keys.EDSM_Y, self.pos_y)
-            self.pos_z = data[_Keys.EDSM_COORDS].get(_Keys.EDSM_Z, self.pos_z)
-        if _Keys.EDSM_BODY_COUNT in data:
-            self.data[_Keys.EDSM_BODY_COUNT.lower()] = data[_Keys.EDSM_BODY_COUNT]
-        if _Keys.EDSM_COORDS_LOCKED in data:
-            self.data[_Keys.EDSM_COORDS_LOCKED.lower()] = data[_Keys.EDSM_COORDS_LOCKED]
-        if _Keys.EDSM_REQUIRE_PERMIT in data:
-            self.data[_Keys.EDSM_REQUIRE_PERMIT.lower()] = data[
-                _Keys.EDSM_REQUIRE_PERMIT
-            ]
-        if _Keys.EDSM_DISTANCE in data:
-            self.data[_Keys.EDSM_DISTANCE] = data[_Keys.EDSM_DISTANCE]
-        if _Keys.EDSM_BODIES in data:
-            self.data[_Keys.EDSM_BODIES] = len(data[_Keys.EDSM_BODIES])
+        self.name = data.get(EdsmKeys.NAME, self.name)
+        self.address = data.get(EdsmKeys.ID64, self.address)
+        if EdsmKeys.COORDS in data and EdsmKeys.X in data[EdsmKeys.COORDS]:
+            self.pos_x = data[EdsmKeys.COORDS].get(EdsmKeys.X, self.pos_x)
+            self.pos_y = data[EdsmKeys.COORDS].get(EdsmKeys.Y, self.pos_y)
+            self.pos_z = data[EdsmKeys.COORDS].get(EdsmKeys.Z, self.pos_z)
+        if EdsmKeys.BODY_COUNT in data:
+            self.data[EdsmKeys.BODY_COUNT] = data[EdsmKeys.BODY_COUNT]
+        if EdsmKeys.COORDS_LOCKED in data:
+            self.data[EdsmKeys.COORDS_LOCKED] = data[EdsmKeys.COORDS_LOCKED]
+        if EdsmKeys.REQUIRE_PERMIT in data:
+            self.data[EdsmKeys.REQUIRE_PERMIT] = data[EdsmKeys.REQUIRE_PERMIT]
+        if EdsmKeys.DISTANCE in data:
+            self.data[EdsmKeys.DISTANCE] = data[EdsmKeys.DISTANCE]
+        if EdsmKeys.BODIES in data:
+            self.data[EdsmKeys.BODIES] = len(data[EdsmKeys.BODIES])
 
 
 # #[EOF]#######################################################################

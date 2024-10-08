@@ -21,6 +21,7 @@ from rscan.jsktoolbox.attribtool import NoDynamicAttributes
 from rscan.jsktoolbox.raisetool import Raise
 from rscan.jsktoolbox.attribtool import ReadOnlyClass
 from rscan.jsktoolbox.tktool.widgets import CreateToolTip, VerticalScrolledTkFrame
+from rscan.jsktoolbox.tktool.base import TkBase
 
 from rscan.cartesianmath import Euclid
 from rscan.data import RscanData
@@ -28,14 +29,14 @@ from rscan.data import RscanData
 from rscan.jsktoolbox.edmctool.base import BLogClient
 from rscan.jsktoolbox.edmctool.logs import LogClient
 from rscan.jsktoolbox.edmctool.stars import StarsSystem
-from rscan.jsktoolbox.tktool.tools import ClipBoard as Clip
+from rscan.jsktoolbox.tktool.tools import ClipBoard
 
 from rscan.th import ThSystemSearch
 from rscan.tools import Numbers
 from rscan.gfx import Pics
 
 
-class EdrsScanDialog(tk.Toplevel, BLogClient):
+class EdrsScanDialog(tk.Toplevel, TkBase, BLogClient):
     """Create new  window."""
 
     class __FontFamily(object, metaclass=ReadOnlyClass):
@@ -89,7 +90,7 @@ class EdrsScanDialog(tk.Toplevel, BLogClient):
             EdrsScanDialog.__Keys.MATH: None,
         }
 
-        self.__tools[EdrsScanDialog.__Keys.CLIP] = Clip()
+        self.__tools[EdrsScanDialog.__Keys.CLIP] = ClipBoard()
 
         # widgets declaration
         self.__widgets = {}
