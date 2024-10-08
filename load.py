@@ -12,13 +12,12 @@ import tkinter as tk
 from tkinter import ttk
 from typing import Any, Dict, Optional
 
-from jsktoolbox.tktool.widgets import CreateToolTip
-
 from config import config
 
-from rscan_libs.dialogs import EdrsDialog
-from rscan_libs.edrs import EDRS
-from rscan_libs.system import LogLevels
+from rscan.jsktoolbox.tktool.widgets import CreateToolTip
+from rscan.jsktoolbox.edmctool.logs import LogLevels
+from rscan.dialogs import EdrsDialog
+from rscan.edrs import EDRS
 
 
 edrs_object = EDRS()
