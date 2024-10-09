@@ -13,7 +13,7 @@ from queue import Queue, SimpleQueue
 from typing import List, Union, Callable, Optional
 from types import FrameType
 
-from rscan.jsktoolbox.attribtool import NoDynamicAttributes
+from rscan.jsktoolbox.attribtool import ReadOnlyClass
 from rscan.jsktoolbox.raisetool import Raise
 from rscan.jsktoolbox.edmctool.base import BLogClient
 from rscan.jsktoolbox.edmctool.logs import LogClient
@@ -31,25 +31,34 @@ except ModuleNotFoundError:
     pass
 
 
-class Euclid(BLogClient, NoDynamicAttributes):
+class _Keys(object, metaclass=ReadOnlyClass):
+    """Internal Keys container class."""
+
+    DATA: str = "__data__"
+    TEST: str = "__test__"
+
+
+class Euclid(BLogClient):
     """Euclid.
 
     A class that calculates the length of a vector in Cartesian space.
     """
 
-    __test: List[Callable] = None  # type: ignore
-    __data: RscanData = None  # type: ignore
-
     def __init__(self, queue: Union[Queue, SimpleQueue], data: RscanData) -> None:
         """Create class object."""
-        self.__test = [
-            self.__numpy_l2,
-            self.__numpy,
-            self.__einsum,
-            self.__scipy,
-            self.__math,
-            self.__core,
-        ]
+
+        self._set_data(
+            key=_Keys.TEST,
+            set_default_type=List,
+            value=[
+                self.__numpy_l2,
+                self.__numpy,
+                self.__einsum,
+                self.__scipy,
+                self.__math,
+                self.__core,
+            ],
+        )
 
         # init log subsystem
         if isinstance(queue, (Queue, SimpleQueue)):
@@ -58,22 +67,36 @@ class Euclid(BLogClient, NoDynamicAttributes):
             raise Raise.error(
                 f"Queue or SimpleQueue type expected, '{type(queue)}' received.",
                 TypeError,
-                self.__class__.__name__,
+                self._c_name,
                 currentframe(),
             )
 
         if isinstance(data, RscanData):
-            self.__data = data
-            self.debug(currentframe(), f"{self.__data}")
+            self._set_data(
+                key=_Keys.DATA,
+                set_default_type=RscanData,
+                value=data,
+            )
+            self.debug(currentframe(), f"{data}")
         else:
             raise Raise.error(
                 f"RscanData type expected, '{type(data)}' received",
                 TypeError,
-                self.__class__.__name__,
+                self._c_name,
                 currentframe(),
             )
 
         self.debug(currentframe(), "Initialize dataset")
+
+    @property
+    def __data(self) -> RscanData:
+        """Return data."""
+        return self._get_data(key=_Keys.DATA)  # type: ignore
+
+    @property
+    def __test(self) -> List:
+        """Return test list."""
+        return self._get_data(key=_Keys.TEST)  # type: ignore
 
     def benchmark(self) -> None:
         """Do benchmark test.
@@ -82,7 +105,7 @@ class Euclid(BLogClient, NoDynamicAttributes):
         and choose the right priority of their use.
         """
         p_name: str = f"{self.__data.plugin_name}"
-        c_name: str = f"{self.__class__.__name__}"
+        c_name: str = f"{self._c_name}"
 
         if self.logger:
             self.logger.info = f"{p_name}->{c_name}: Warming up math system..."
@@ -139,7 +162,7 @@ class Euclid(BLogClient, NoDynamicAttributes):
     def debug(self, currentframe: Optional[FrameType], message: str = "") -> None:
         """Build debug message."""
         p_name: str = f"{self.__data.plugin_name}"
-        c_name: str = f"{self.__class__.__name__}"
+        c_name: str = f"{self._c_name}"
         m_name: str = (
             f"{currentframe.f_code.co_name}" if currentframe is not None else ""
         )

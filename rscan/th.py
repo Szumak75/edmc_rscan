@@ -136,13 +136,16 @@ class ThSystemSearch(Thread, ThBaseObject, BLogClient):
     @property
     def stopped(self) -> bool:
         """Get stop event flag."""
-        return self._stop_event.isSet()
+        if self._stop_event:
+            return self._stop_event.isSet()
+        return False
 
     def stop(self) -> None:
         """Set stop event."""
         if not self.stopped:
             self.debug(currentframe(), "Stopping event is set now.")
-            self._stop_event.set()
+            if self._stop_event:
+                self._stop_event.set()
 
     @property
     def get_result(self) -> List:

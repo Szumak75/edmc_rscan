@@ -79,7 +79,7 @@ class AlgTsp(Ialg, BLogClient, NoDynamicAttributes):
             raise Raise.error(
                 f"Queue or SimpleQueue type expected, '{type(log_queue)}' received.",
                 TypeError,
-                self.__class__.__name__,
+                self._c_name,
                 currentframe(),
             )
         # Euclid's algorithm for calculating the length of vectors
@@ -89,7 +89,7 @@ class AlgTsp(Ialg, BLogClient, NoDynamicAttributes):
             raise Raise.error(
                 f"Euclid type expected, '{type(euclid_alg)}' received",
                 TypeError,
-                self.__class__.__name__,
+                self._c_name,
                 currentframe(),
             )
         if isinstance(jump_range, int):
@@ -98,21 +98,21 @@ class AlgTsp(Ialg, BLogClient, NoDynamicAttributes):
             raise Raise.error(
                 f"Int type expected, '{type(jump_range)}' received",
                 TypeError,
-                self.__class__.__name__,
+                self._c_name,
                 currentframe(),
             )
         if not isinstance(start, StarsSystem):
             raise Raise.error(
                 f"StarsSystem type expected, '{type(start)}' received.",
                 TypeError,
-                self.__class__.__name__,
+                self._c_name,
                 currentframe(),
             )
         if not isinstance(systems, list):
             raise Raise.error(
                 f"list type expected, '{type(systems)}' received.",
                 TypeError,
-                self.__class__.__name__,
+                self._c_name,
                 currentframe(),
             )
         self.debug(currentframe(), "Initialize dataset")
@@ -207,7 +207,7 @@ class AlgTsp(Ialg, BLogClient, NoDynamicAttributes):
     def debug(self, currentframe: Optional[FrameType], message: str = "") -> None:
         """Build debug message."""
         p_name: str = f"{self.__plugin_name}"
-        c_name: str = f"{self.__class__.__name__}"
+        c_name: str = f"{self._c_name}"
         m_name: str = f"{currentframe.f_code.co_name}" if currentframe else ""
         if message != "":
             message = f": {message}"
@@ -263,7 +263,7 @@ class AlgGenetic(Ialg, BLogClient, NoDynamicAttributes):
             raise Raise.error(
                 f"Queue or SimpleQueue type expected, '{type(log_queue)}' received.",
                 TypeError,
-                self.__class__.__name__,
+                self._c_name,
                 currentframe(),
             )
         # Euclid's algorithm for calculating the length of vectors
@@ -273,7 +273,7 @@ class AlgGenetic(Ialg, BLogClient, NoDynamicAttributes):
             raise Raise.error(
                 f"Euclid type expected, '{type(euclid_alg)}' received",
                 TypeError,
-                self.__class__.__name__,
+                self._c_name,
                 currentframe(),
             )
         if isinstance(jump_range, int):
@@ -282,21 +282,21 @@ class AlgGenetic(Ialg, BLogClient, NoDynamicAttributes):
             raise Raise.error(
                 f"Int type expected, '{type(jump_range)}' received",
                 TypeError,
-                self.__class__.__name__,
+                self._c_name,
                 currentframe(),
             )
         if not isinstance(start, StarsSystem):
             raise Raise.error(
                 f"StarsSystem type expected, '{type(start)}' received.",
                 TypeError,
-                self.__class__.__name__,
+                self._c_name,
                 currentframe(),
             )
         if not isinstance(systems, list):
             raise Raise.error(
                 f"list type expected, '{type(systems)}' received.",
                 TypeError,
-                self.__class__.__name__,
+                self._c_name,
                 currentframe(),
             )
         self.debug(currentframe(), "Initialize dataset")
@@ -418,7 +418,7 @@ class AlgGenetic(Ialg, BLogClient, NoDynamicAttributes):
     def debug(self, currentframe: Optional[FrameType], message: str = "") -> None:
         """Build debug message."""
         p_name: str = f"{self.__plugin_name}"
-        c_name: str = f"{self.__class__.__name__}"
+        c_name: str = f"{self._c_name}"
         m_name: str = f"{currentframe.f_code.co_name}" if currentframe else ""
         if message != "":
             message = f": {message}"

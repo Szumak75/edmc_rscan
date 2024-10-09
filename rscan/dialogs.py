@@ -108,7 +108,7 @@ class EdrsScanDialog(tk.Toplevel, TkBase, BLogClient):
             raise Raise.error(
                 f"Queue or SimpleQueue type expected, '{type(log_queue)}' received.",
                 TypeError,
-                self.__class__.__name__,
+                self._c_name,
                 currentframe(),
             )
         self.logger = LogClient(log_queue)
@@ -117,7 +117,7 @@ class EdrsScanDialog(tk.Toplevel, TkBase, BLogClient):
             raise Raise.error(
                 f"RscanData type expected, '{type(data)}' received",
                 TypeError,
-                self.__class__.__name__,
+                self._c_name,
                 currentframe(),
             )
         self.__data = data
@@ -128,7 +128,7 @@ class EdrsScanDialog(tk.Toplevel, TkBase, BLogClient):
             raise Raise.error(
                 f"Euclid type expected, '{type(euclid_alg)}' received",
                 TypeError,
-                self.__class__.__name__,
+                self._c_name,
                 currentframe(),
             )
         self.__tools[EdrsScanDialog.__Keys.MATH] = euclid_alg
@@ -351,7 +351,7 @@ class EdrsScanDialog(tk.Toplevel, TkBase, BLogClient):
     def th_worker(self) -> None:
         """Run thread for getting data and computing results."""
         p_name: str = self.__data.plugin_name
-        c_name: str = self.__class__.__name__
+        c_name: str = self._c_name
         if self.logger:
             self.logger.info = f"{p_name}->{c_name}: Starting worker..."
         while not self.__data.shutting_down:
@@ -481,7 +481,7 @@ class EdrsScanDialog(tk.Toplevel, TkBase, BLogClient):
     def debug(self, currentframe: Optional[FrameType], message: str = "") -> None:
         """Build debug message."""
         p_name: str = f"{self.__data.plugin_name}"
-        c_name: str = f"{self.__class__.__name__}"
+        c_name: str = f"{self._c_name}"
         m_name: str = f"{currentframe.f_code.co_name}" if currentframe else ""
         if message != "":
             message = f": {message}"
@@ -534,7 +534,7 @@ class EdrsDialog(BLogClient, NoDynamicAttributes):
             raise Raise.error(
                 f"Queue or SimpleQueue type expected, '{type(log_queue)}' received.",
                 TypeError,
-                self.__class__.__name__,
+                self._c_name,
                 currentframe(),
             )
         self.logger = LogClient(log_queue)
@@ -543,7 +543,7 @@ class EdrsDialog(BLogClient, NoDynamicAttributes):
             raise Raise.error(
                 f"RscanData type expected, '{type(data)}' received",
                 TypeError,
-                self.__class__.__name__,
+                self._c_name,
                 currentframe(),
             )
         self.__data = data
@@ -553,7 +553,7 @@ class EdrsDialog(BLogClient, NoDynamicAttributes):
             raise Raise.error(
                 f"tk.Frame type expected, '{type(parent)}' received",
                 TypeError,
-                self.__class__.__name__,
+                self._c_name,
                 currentframe(),
             )
         self.__parent = parent
@@ -609,7 +609,7 @@ class EdrsDialog(BLogClient, NoDynamicAttributes):
     def debug(self, currentframe: Optional[FrameType], message: str = "") -> None:
         """Build debug message."""
         p_name: str = f"{self.__data.plugin_name}"
-        c_name: str = f"{self.__class__.__name__}"
+        c_name: str = f"{self._c_name}"
         m_name: str = f"{currentframe.f_code.co_name}" if currentframe else ""
         if message != "":
             message = f": {message}"

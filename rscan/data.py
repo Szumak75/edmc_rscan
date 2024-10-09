@@ -9,121 +9,170 @@
 
 from inspect import currentframe
 from typing import Union, Optional, Dict, Any
-from rscan.jsktoolbox.attribtool import NoDynamicAttributes
+
+from rscan.jsktoolbox.attribtool import ReadOnlyClass
 from rscan.jsktoolbox.raisetool import Raise
 from rscan.jsktoolbox.edmctool.stars import StarsSystem
+from rscan.jsktoolbox.basetool.data import BData
 
 
-class RscanData(NoDynamicAttributes):
+class _Keys(object, metaclass=ReadOnlyClass):
+    """Internal Keys container class."""
+
+    CMDR: str = "__cmdr__"
+    JUMP_RANGE: str = "__jump_range__"
+    JUMP_SYSTEM: str = "__jump_system__"
+    PLUGIN_NAME: str = "__plugin_name__"
+    SHUTDOWN: str = "__shutdown__"
+    STAR_SYSTEM: str = "__star_system__"
+    VERSION: str = "__version__"
+
+
+class RscanData(BData):
     """Data container for username and current system."""
 
-    __data: Dict[str, Any] = None  # type: ignore
+    # __data: Dict[str, Any] = None  # type: ignore
 
     def __init__(self) -> None:
         """Initialize dataset."""
-        self.__data = {
-            "cmdr": None,
-            "pluginname": None,
-            "version": None,
-            "jump_range": None,
-            "star_system": StarsSystem(),
-            "jump_system": StarsSystem(),
-            "shutdown": False,
-        }
+        self._set_data(
+            key=_Keys.CMDR,
+            set_default_type=Optional[str],
+            value=None,
+        )
+        self._set_data(
+            key=_Keys.PLUGIN_NAME,
+            set_default_type=Optional[str],
+            value=None,
+        )
+        self._set_data(
+            key=_Keys.VERSION,
+            set_default_type=Optional[str],
+            value=None,
+        )
+        self._set_data(
+            key=_Keys.JUMP_RANGE,
+            set_default_type=Optional[float],
+            value=None,
+        )
+        self._set_data(
+            key=_Keys.STAR_SYSTEM,
+            set_default_type=StarsSystem,
+            value=StarsSystem(),
+        )
+        self._set_data(
+            key=_Keys.JUMP_SYSTEM, set_default_type=StarsSystem, value=StarsSystem()
+        )
+        self._set_data(
+            key=_Keys.SHUTDOWN,
+            set_default_type=bool,
+            value=False,
+        )
 
     def __repr__(self) -> str:
-        """Give me class dump."""
+        """Return class dump."""
         return (
-            f"{self.__class__.__name__}(cmdr='{self.__data['cmdr']}', "
-            f"pluginname='{self.__data['pluginname']}', "
-            f"version='{self.__data['version']}', "
-            f"jump_range={self.__data['jump_range']}, "
-            f"{self.__data['star_system']})"
+            f"{self._c_name}(cmdr='{self.cmdr}', "
+            f"plugin_name='{self.plugin_name}', "
+            f"version='{self.version}', "
+            f"jump_range={self.jump_range}, "
+            f"{self.star_system})"
         )
 
     @property
     def jump_system(self) -> StarsSystem:
-        """Give me StarsSystem object."""
-        return self.__data["jump_system"]
+        """Return StarsSystem object."""
+        return self._get_data(key=_Keys.JUMP_SYSTEM)  # type: ignore
 
     @jump_system.setter
     def jump_system(self, value: Optional[StarsSystem]) -> None:
         if value is None:
-            self.__data["jump_system"] = StarsSystem()
-        elif isinstance(value, StarsSystem):
-            self.__data["jump_system"] = value
+            self._set_data(key=_Keys.JUMP_SYSTEM, value=StarsSystem())
+        self._set_data(
+            key=_Keys.JUMP_SYSTEM,
+            value=value,
+        )
 
     @property
     def star_system(self) -> StarsSystem:
-        """Give me StarsSystem object."""
-        return self.__data["star_system"]
+        """Return StarsSystem object."""
+        return self._get_data(key=_Keys.STAR_SYSTEM)  # type: ignore
 
     @star_system.setter
-    def star_system(self, value: StarsSystem) -> None:
+    def star_system(self, value: Optional[StarsSystem]) -> None:
         if value is None:
-            self.__data["star_system"] = StarsSystem()
-        elif isinstance(value, StarsSystem):
-            self.__data["star_system"] = value
+            self._set_data(key=_Keys.STAR_SYSTEM, value=StarsSystem())
+        self._set_data(
+            key=_Keys.STAR_SYSTEM,
+            value=value,
+        )
 
     @property
     def jump_range(self) -> float:
-        """Give me jump_range."""
-        return self.__data["jump_range"]
+        """Return jump_range."""
+        return self._get_data(key=_Keys.JUMP_RANGE)  # type: ignore
 
     @jump_range.setter
     def jump_range(self, value: Union[str, int, float]) -> None:
         if value is not None and isinstance(value, (str, int, float)):
             try:
-                self.__data["jump_range"] = float(value)
+                self._set_data(
+                    key=_Keys.JUMP_RANGE,
+                    value=float(value),
+                )
             except Exception:
                 pass
 
     @property
     def plugin_name(self) -> str:
-        """Give me pluginname."""
-        return self.__data["pluginname"]
+        """Return pluginname."""
+        return self._get_data(key=_Keys.PLUGIN_NAME)  # type: ignore
 
     @plugin_name.setter
-    def plugin_name(self, value: str) -> None:
+    def plugin_name(self, value: Optional[str]) -> None:
         if value is not None and isinstance(value, str):
-            self.__data["pluginname"] = value
+            self._set_data(key=_Keys.PLUGIN_NAME, value=value)
 
     @property
     def version(self) -> str:
-        """Give me version."""
-        return self.__data["version"]
+        """Return version."""
+        return self._get_data(
+            key=_Keys.VERSION,
+        )  # type: ignore
 
     @version.setter
-    def version(self, value: str) -> None:
+    def version(self, value: Optional[str]) -> None:
         if value is not None and isinstance(value, str):
-            self.__data["version"] = value
+            self._set_data(
+                key=_Keys.VERSION,
+                value=value,
+            )
 
     @property
     def cmdr(self) -> str:
-        """Give me commander name."""
-        return self.__data["cmdr"]
+        """Return commander name."""
+        return self._get_data(
+            key=_Keys.CMDR,
+        )  # type: ignore
 
     @cmdr.setter
-    def cmdr(self, value) -> None:
+    def cmdr(self, value: Optional[str]) -> None:
         if value is not None and value != self.cmdr:
-            self.__data["cmdr"] = value
+            self._set_data(key=_Keys.CMDR, value=value)
 
     @property
     def shutting_down(self) -> bool:
-        """Give me access to shutting_down flag."""
-        return self.__data["shutdown"]
+        """Return access to shutting_down flag."""
+        return self._get_data(
+            key=_Keys.SHUTDOWN,
+        )  # type: ignore
 
     @shutting_down.setter
     def shutting_down(self, value: bool) -> None:
-        if isinstance(value, bool):
-            self.__data["shutdown"] = value
-        else:
-            raise Raise.error(
-                f"Boolean type expected, '{type(value)}' received.",
-                TypeError,
-                self.__class__.__name__,
-                currentframe(),
-            )
+        self._set_data(
+            key=_Keys.SHUTDOWN,
+            value=value,
+        )
 
 
 # #[EOF]#######################################################################
