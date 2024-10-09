@@ -34,8 +34,8 @@ except ModuleNotFoundError:
 class _Keys(object, metaclass=ReadOnlyClass):
     """Internal Keys container class."""
 
-    DATA: str = "__data__"
-    TEST: str = "__test__"
+    DATA: str = "__e_data__"
+    TEST: str = "__e_test__"
 
 
 class Euclid(BLogClient):

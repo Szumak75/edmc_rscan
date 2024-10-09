@@ -19,6 +19,7 @@ from rscan.jsktoolbox.edmctool.base import BLogClient
 from rscan.jsktoolbox.edmctool.stars import StarsSystem
 from rscan.jsktoolbox.edmctool.logs import LogClient
 from rscan.jsktoolbox.edmctool.edsm import Url
+from rscan.jsktoolbox.edmctool.edsm_keys import EdsmKeys
 
 from rscan.cartesianmath import Euclid
 from rscan.data import RscanData
@@ -135,7 +136,7 @@ class ThSystemSearch(Thread, ThBaseObject, BLogClient):
         # put it into result list
         d_sum: float = 0.0
         for item in systems_out:
-            d_sum += item.data["distance"]
+            d_sum += item.data[EdsmKeys.DISTANCE]
             self.__found.append(item)
         # work done
         self.status(
@@ -155,7 +156,7 @@ class ThSystemSearch(Thread, ThBaseObject, BLogClient):
 
     def status(self, message: Any) -> None:
         """Write message to status bar."""
-        self.__parent.status = f"{message}"
+        self.__parent.status = f"{message}"  # type: ignore
 
     @property
     def stopped(self) -> bool:
@@ -192,9 +193,9 @@ class ThSystemSearch(Thread, ThBaseObject, BLogClient):
         return self._get_data(key=_Keys.RADIUS)  # type: ignore
 
     @radius.setter
-    def radius(self, value: Union[int, float]) -> None:
+    def radius(self, value: Union[int, float, str]) -> None:
         try:
-            self._set_data(key=_Keys.RADIUS, value=value)
+            self._set_data(key=_Keys.RADIUS, value=int(value))
         except Exception as ex:
             self.debug(currentframe(), f"Unexpected exception: {ex}")
         if self.radius is None:
@@ -251,11 +252,11 @@ class ThSystemSearch(Thread, ThBaseObject, BLogClient):
         for item in systems:
             cur_count += 1
             self.__progress(cur_count, systems_count)
-            if "bodyCount" in item and item["bodyCount"] is None:
+            if EdsmKeys.BODY_COUNT in item and item[EdsmKeys.BODY_COUNT] is None:
                 count += 1
                 system = StarsSystem()
                 system.update_from_edsm(item)
-                system.data["bodies"] = None
+                system.data[EdsmKeys.BODIES] = None
                 self.debug(
                     currentframe(),
                     f"EDSM system nr:{count} {system}",
