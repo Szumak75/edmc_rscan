@@ -14,6 +14,7 @@ from types import FrameType
 
 from rscan.jsktoolbox.raisetool import Raise
 from rscan.jsktoolbox.basetool.threads import ThBaseObject
+from rscan.jsktoolbox.attribtool import ReadOnlyClass
 from rscan.jsktoolbox.edmctool.base import BLogClient
 from rscan.jsktoolbox.edmctool.stars import StarsSystem
 from rscan.jsktoolbox.edmctool.logs import LogClient
@@ -22,6 +23,17 @@ from rscan.jsktoolbox.edmctool.edsm import Url
 from rscan.cartesianmath import Euclid
 from rscan.data import RscanData
 from rscan.tools import AlgGenetic, AlgTsp
+
+
+class _Keys(object, metaclass=ReadOnlyClass):
+    """Keys for system search class."""
+
+    R_DATA: str = "__rscan_data__"
+    MATH: str = "__ss_math__"
+    PARENT: str = "__ss_parent__"
+    START_SYSTEM: str = "__ss_start_system__"
+    RADIUS: str = "__ss_radius__"
+    FOUND: str = "__ss_found__"
 
 
 class ThSystemSearch(Thread, ThBaseObject, BLogClient):
@@ -39,40 +51,52 @@ class ThSystemSearch(Thread, ThBaseObject, BLogClient):
         self._stop_event = Event()
 
         # init log subsystem
-        if not isinstance(log_queue, (Queue, SimpleQueue)):
-            raise Raise.error(
-                f"Queue or SimpleQueue type expected, '{type(log_queue)}' received.",
-                TypeError,
-                self._c_name,
-                currentframe(),
-            )
         self.logger = LogClient(log_queue)
 
-        if not isinstance(data, RscanData):
-            raise Raise.error(
-                f"RscanData type expected, '{type(data)}' received",
-                TypeError,
-                self._c_name,
-                currentframe(),
-            )
-        self.__data: RscanData = data
-        self.debug(currentframe(), f"{self.__data}")
+        self._set_data(key=_Keys.R_DATA, value=data, set_default_type=RscanData)
+        self.debug(currentframe(), f"{self._get_data(key=_Keys.R_DATA)}")
 
         # Euclid's algorithm for calculating the length of vectors
-        if not isinstance(euclid_alg, Euclid):
-            raise Raise.error(
-                f"Euclid type expected, '{type(euclid_alg)}' received",
-                TypeError,
-                self._c_name,
-                currentframe(),
-            )
-        self.__math: Euclid = euclid_alg
+        self._set_data(
+            key=_Keys.MATH,
+            value=euclid_alg,
+            set_default_type=Euclid,
+        )
 
         # initialize private variables
-        self.__parent = parent
-        self.__start_system: StarsSystem = None  # type: ignore
-        self.__radius: int = None  # type: ignore
-        self.__found: List[StarsSystem] = []
+        self._set_data(
+            key=_Keys.PARENT,
+            value=parent,
+        )
+        self._set_data(
+            key=_Keys.START_SYSTEM,
+            set_default_type=Optional[StarsSystem],
+            value=None,
+        )
+        self._set_data(
+            key=_Keys.RADIUS,
+            set_default_type=int,
+            value=10,
+        )
+        self._set_data(key=_Keys.FOUND, set_default_type=List, value=[])
+
+    @property
+    def __data(self) -> RscanData:
+        """Return data object."""
+        return self._get_data(key=_Keys.R_DATA)  # type: ignore
+
+    @property
+    def __found(self) -> List[StarsSystem]:
+        return self._get_data(key=_Keys.FOUND)  # type: ignore
+
+    @property
+    def __math(self) -> Euclid:
+        """Return math object."""
+        return self._get_data(key=_Keys.MATH)  # type: ignore
+
+    @property
+    def __parent(self):
+        return self._get_data(key=_Keys.PARENT)
 
     def run(self) -> None:
         """Run the work."""
@@ -148,46 +172,40 @@ class ThSystemSearch(Thread, ThBaseObject, BLogClient):
                 self._stop_event.set()
 
     @property
-    def get_result(self) -> List:
+    def get_result(self) -> List[StarsSystem]:
         """Get list of StarsSystem objects."""
         return self.__found
 
     @property
     def start_system(self) -> StarsSystem:
-        """Give me start system for search radius."""
-        return self.__start_system
+        """Return start system for search radius."""
+        return self._get_data(key=_Keys.START_SYSTEM)  # type: ignore
 
     @start_system.setter
     def start_system(self, value: StarsSystem) -> None:
-        if not isinstance(value, StarsSystem):
-            raise Raise.error(
-                f"StarsSystem type expected, '{type(value)}' received.",
-                TypeError,
-                self._c_name,
-                currentframe(),
-            )
-        self.__start_system = value
+        """Set start system for search radius."""
+        self._set_data(key=_Keys.START_SYSTEM, value=value)
 
     @property
-    def radius(self) -> Optional[int]:
+    def radius(self) -> int:
         """Give me radius value for system search from start_system position."""
-        return self.__radius
+        return self._get_data(key=_Keys.RADIUS)  # type: ignore
 
     @radius.setter
     def radius(self, value: Union[int, float]) -> None:
         try:
-            self.__radius = int(value)
+            self._set_data(key=_Keys.RADIUS, value=value)
         except Exception as ex:
             self.debug(currentframe(), f"Unexpected exception: {ex}")
         if self.radius is None:
-            self.logger.warning = "Invalid radius value, set default: 50 ly."
-            self.__radius = 50
+            self.logger.warning = "Invalid radius value, set default: 10 ly."
+            self._set_data(key=_Keys.RADIUS, value=10)
         elif self.radius > 100:
             self.logger.warning = "Radius too high, set max value: 100 ly."
-            self.__radius = 100
+            self._set_data(key=_Keys.RADIUS, value=100)
         elif self.radius < 5:
             self.logger.warning = "Radius too low, set min value: 5 ly."
-            self.__radius = 5
+            self._set_data(key=_Keys.RADIUS, value=5)
         else:
             self.logger.info = f"Radius is set to: {self.radius} ly."
 

@@ -14,22 +14,26 @@ from threading import Thread
 
 from rscan.jsktoolbox.edmctool.base import BLogClient, BLogProcessor
 from rscan.jsktoolbox.edmctool.logs import LogClient, LogProcessor
-from rscan.jsktoolbox.attribtool import NoDynamicAttributes
+from rscan.jsktoolbox.attribtool import ReadOnlyClass
 from rscan.jsktoolbox.raisetool import Raise
 from rscan.data import RscanData
 from rscan.dialogs import EdrsDialog
 
 
-class EDRS(BLogProcessor, BLogClient, NoDynamicAttributes):
-    """edrs_object main class."""
+class _Keys(object, metaclass=ReadOnlyClass):
+    """Keys for EDRS class."""
 
-    __data: RscanData = None  # type: ignore
-    __dialog: EdrsDialog = None  # type: ignore
+    R_DATA: str = "__r_data__"
+    R_DIALOG: str = "__r_dialog__"
+
+
+class EDRS(BLogProcessor, BLogClient):
+    """edrs_object main class."""
 
     def __init__(self) -> None:
         """Initialize main class."""
         # data
-        self.data = RscanData()
+        self._set_data(key=_Keys.R_DATA, value=RscanData(), set_default_type=RscanData)
 
         self.data.plugin_name = "EDRS"
         self.data.version = "0.2.18-dev"
@@ -50,37 +54,20 @@ class EDRS(BLogProcessor, BLogClient, NoDynamicAttributes):
 
     @property
     def dialog(self) -> EdrsDialog:
-        """Give me data access."""
-        return self.__dialog
+        """Return dialog access."""
+        return self._get_data(key=_Keys.R_DIALOG, default_value=None)  # type: ignore
 
     @dialog.setter
-    def dialog(self, value) -> None:
-        if isinstance(value, EdrsDialog):
-            self.__dialog = value
-        else:
-            raise Raise.error(
-                f"EdrsDialog type expected, '{type(value)} received.'",
-                TypeError,
-                self.__class__.__name__,
-                currentframe(),
-            )
+    def dialog(self, value: EdrsDialog) -> None:
+        """Set dialog access."""
+        self._set_data(key=_Keys.R_DIALOG, value=value, set_default_type=EdrsDialog)
 
     @property
     def data(self) -> RscanData:
         """Give me data access."""
-        return self.__data
-
-    @data.setter
-    def data(self, value) -> None:
-        if isinstance(value, RscanData):
-            self.__data = value
-        else:
-            raise Raise.error(
-                f"RscanData type expected, '{type(value)} received.'",
-                TypeError,
-                self.__class__.__name__,
-                currentframe(),
-            )
+        return self._get_data(
+            key=_Keys.R_DATA,
+        )  # type: ignore
 
     def th_logger(self) -> None:
         """Def th_logger - thread logs processor."""
