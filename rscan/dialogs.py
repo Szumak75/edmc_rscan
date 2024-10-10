@@ -24,8 +24,8 @@ from rscan.jsktoolbox.basetool.data import BData
 from rscan.jsktoolbox.tktool.widgets import CreateToolTip, VerticalScrolledTkFrame
 from rscan.jsktoolbox.tktool.base import TkBase
 
-from rscan.cartesianmath import Euclid
-from rscan.data import RscanData
+from rscan.jsktoolbox.edmctool.math import Euclid
+from rscan.jsktoolbox.edmctool.data import RscanData
 
 from rscan.jsktoolbox.edmctool.base import BLogClient
 from rscan.jsktoolbox.edmctool.logs import LogClient
@@ -127,7 +127,7 @@ class _BEdrsDialog(BData):
         return self._get_data(key=_Keys.WIDGETS_KEY)  # type: ignore
 
     @property
-    def _windows(self) -> List:
+    def _windows(self) -> List["EdrsScanDialog"]:
         return self._get_data(key=_Keys.WINDOWS, default_value=None)  # type: ignore
 
     @_windows.setter
@@ -208,8 +208,8 @@ class EdrsScanDialog(tk.Toplevel, TkBase, BLogClient, _BEdrsDialog):
         # list of found systems: [[system, frame, label with name],...]
         self._stars = []
 
-        if self._r_data.star_system.name is not None:
-            self._start = self._r_data.star_system
+        if self._r_data.stars_system.name is not None:
+            self._start = self._r_data.stars_system
 
         # starting worker th
         self._set_data(
@@ -325,9 +325,9 @@ class EdrsScanDialog(tk.Toplevel, TkBase, BLogClient, _BEdrsDialog):
         system_name = tk.Entry(command_frame, textvariable=tk.StringVar(value=""))
         system_name.grid(row=0, column=1, sticky=tk.EW)
         system_name.bind("<Return>", self.__generator)
-        if self._r_data.star_system.name is not None:
+        if self._r_data.stars_system.name is not None:
             system_name.delete(0, tk.END)
-            system_name.insert(0, self._r_data.star_system.name)
+            system_name.insert(0, self._r_data.stars_system.name)
         self._widgets._set_data(key=_Keys.SYSTEM, value=system_name)
         tk.Label(command_frame, text="Radius:").grid(row=0, column=2, sticky=tk.E)
         radius = tk.Entry(command_frame, textvariable=tk.StringVar(value="10"), width=5)
@@ -584,7 +584,7 @@ class EdrsScanDialog(tk.Toplevel, TkBase, BLogClient, _BEdrsDialog):
 
         # update located system
         for item in self._stars:
-            if item[0].name == self._r_data.star_system.name:
+            if item[0].name == self._r_data.stars_system.name:
                 item[2][_FontKeys.FONT] = self.__fonts._get_data(key=_FontKeys.FONT_STRIKE)  # type: ignore
 
     def debug(self, currentframe: Optional[FrameType], message: str = "") -> None:
@@ -682,8 +682,8 @@ class EdrsDialog(BLogClient, _BEdrsDialog):
                 self._windows.remove(window)
         # create new window
         esd = EdrsScanDialog(self.logger.queue, self._r_data, self._tools._get_data(key=_Keys.EUCLID))  # type: ignore
-        if self._r_data.star_system.name is not None:
-            esd.title(f"{self._r_data.plugin_name}: {self._r_data.star_system.name}")
+        if self._r_data.stars_system.name is not None:
+            esd.title(f"{self._r_data.plugin_name}: {self._r_data.stars_system.name}")
 
         self._windows.append(esd)
         self.debug(

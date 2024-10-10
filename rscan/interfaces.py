@@ -9,7 +9,7 @@
 from abc import ABC, abstractmethod
 
 
-class Ialg(ABC):
+class IAlg(ABC):
     """Interface for algorithm class ."""
 
     @abstractmethod

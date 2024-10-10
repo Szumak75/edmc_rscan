@@ -1,17 +1,17 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 """
-  Author:  Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
-  Created: 19.12.2023
-
+  data.py
+  Author : Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
+  Created: 10.10.2024, 13:00:59
+  
   Purpose: Data container classes.
 """
 
-
 from typing import Union, Optional
 
-from rscan.jsktoolbox.attribtool import ReadOnlyClass
-from rscan.jsktoolbox.edmctool.stars import StarsSystem
-from rscan.jsktoolbox.basetool.data import BData
+from ..attribtool import ReadOnlyClass
+from ..basetool.data import BData
+from .stars import StarsSystem
 
 
 class _Keys(object, metaclass=ReadOnlyClass):
@@ -22,14 +22,12 @@ class _Keys(object, metaclass=ReadOnlyClass):
     JUMP_SYSTEM: str = "__jump_system__"
     PLUGIN_NAME: str = "__plugin_name__"
     SHUTDOWN: str = "__shutdown__"
-    STAR_SYSTEM: str = "__star_system__"
+    STARS_SYSTEM: str = "__stars_system__"
     VERSION: str = "__version__"
 
 
 class RscanData(BData):
     """Data container for username and current system."""
-
-    # __data: Dict[str, Any] = None  # type: ignore
 
     def __init__(self) -> None:
         """Initialize dataset."""
@@ -50,16 +48,16 @@ class RscanData(BData):
         )
         self._set_data(
             key=_Keys.JUMP_RANGE,
-            set_default_type=Optional[float],
-            value=None,
-        )
-        self._set_data(
-            key=_Keys.STAR_SYSTEM,
-            set_default_type=StarsSystem,
-            value=StarsSystem(),
+            set_default_type=float,
+            value=1.0,
         )
         self._set_data(
             key=_Keys.JUMP_SYSTEM, set_default_type=StarsSystem, value=StarsSystem()
+        )
+        self._set_data(
+            key=_Keys.STARS_SYSTEM,
+            set_default_type=StarsSystem,
+            value=StarsSystem(),
         )
         self._set_data(
             key=_Keys.SHUTDOWN,
@@ -74,7 +72,7 @@ class RscanData(BData):
             f"plugin_name='{self.plugin_name}', "
             f"version='{self.version}', "
             f"jump_range={self.jump_range}, "
-            f"{self.star_system})"
+            f"{self.stars_system})"
         )
 
     @property
@@ -92,16 +90,16 @@ class RscanData(BData):
         )
 
     @property
-    def star_system(self) -> StarsSystem:
+    def stars_system(self) -> StarsSystem:
         """Return StarsSystem object."""
-        return self._get_data(key=_Keys.STAR_SYSTEM)  # type: ignore
+        return self._get_data(key=_Keys.STARS_SYSTEM)  # type: ignore
 
-    @star_system.setter
-    def star_system(self, value: Optional[StarsSystem]) -> None:
+    @stars_system.setter
+    def stars_system(self, value: Optional[StarsSystem]) -> None:
         if value is None:
-            self._set_data(key=_Keys.STAR_SYSTEM, value=StarsSystem())
+            self._set_data(key=_Keys.STARS_SYSTEM, value=StarsSystem())
         self._set_data(
-            key=_Keys.STAR_SYSTEM,
+            key=_Keys.STARS_SYSTEM,
             value=value,
         )
 

@@ -1,9 +1,10 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 """
-  Author:  Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
-  Created: 19.12.2023
-
-  Purpose: cartesian math classes.
+  math.py
+  Author : Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
+  Created: 10.10.2024, 13:00:50
+  
+  Purpose: 
 """
 
 from inspect import currentframe
@@ -13,20 +14,20 @@ from queue import Queue, SimpleQueue
 from typing import List, Union, Optional
 from types import FrameType, MethodType
 
-from rscan.jsktoolbox.attribtool import ReadOnlyClass
-from rscan.jsktoolbox.raisetool import Raise
-from rscan.jsktoolbox.edmctool.base import BLogClient
-from rscan.jsktoolbox.edmctool.logs import LogClient
-from rscan.data import RscanData
+from ..attribtool import ReadOnlyClass
+from ..raisetool import Raise
+from .base import BLogClient
+from .logs import LogClient
+from .data import RscanData
 
 
 try:
-    import numpy as np
+    import numpy as np  # type: ignore
 except ModuleNotFoundError:
     pass
 
 try:
-    from scipy.spatial import distance
+    from scipy.spatial import distance  # type: ignore
 except ModuleNotFoundError:
     pass
 
@@ -34,8 +35,8 @@ except ModuleNotFoundError:
 class _Keys(object, metaclass=ReadOnlyClass):
     """Internal Keys container class."""
 
-    DATA: str = "__e_data__"
-    TEST: str = "__e_test__"
+    E_METHODS: str = "__e_methods__"
+    R_DATA: str = "__e_r_data__"
 
 
 class Euclid(BLogClient):
@@ -44,11 +45,11 @@ class Euclid(BLogClient):
     A class that calculates the length of a vector in Cartesian space.
     """
 
-    def __init__(self, queue: Union[Queue, SimpleQueue], data: RscanData) -> None:
+    def __init__(self, queue: Union[Queue, SimpleQueue], r_data: RscanData) -> None:
         """Create class object."""
 
         self._set_data(
-            key=_Keys.TEST,
+            key=_Keys.E_METHODS,
             set_default_type=List,
             value=[
                 self.__numpy_l2,
@@ -71,16 +72,16 @@ class Euclid(BLogClient):
                 currentframe(),
             )
 
-        if isinstance(data, RscanData):
+        if isinstance(r_data, RscanData):
             self._set_data(
-                key=_Keys.DATA,
+                key=_Keys.R_DATA,
                 set_default_type=RscanData,
-                value=data,
+                value=r_data,
             )
-            self.debug(currentframe(), f"{data}")
+            self.debug(currentframe(), f"{r_data}")
         else:
             raise Raise.error(
-                f"RscanData type expected, '{type(data)}' received",
+                f"RscanData type expected, '{type(r_data)}' received",
                 TypeError,
                 self._c_name,
                 currentframe(),
@@ -89,14 +90,14 @@ class Euclid(BLogClient):
         self.debug(currentframe(), "Initialize dataset")
 
     @property
-    def __data(self) -> RscanData:
+    def __r_data(self) -> RscanData:
         """Return data."""
-        return self._get_data(key=_Keys.DATA)  # type: ignore
+        return self._get_data(key=_Keys.R_DATA)  # type: ignore
 
     @property
-    def __test(self) -> List[MethodType]:
+    def __euclid_methods(self) -> List[MethodType]:
         """Return test list."""
-        return self._get_data(key=_Keys.TEST)  # type: ignore
+        return self._get_data(key=_Keys.E_METHODS)  # type: ignore
 
     def benchmark(self) -> None:
         """Do benchmark test.
@@ -104,7 +105,7 @@ class Euclid(BLogClient):
         Compare the computational efficiency of functions for real data
         and choose the right priority of their use.
         """
-        p_name: str = f"{self.__data.plugin_name}"
+        p_name: str = f"{self.__r_data.plugin_name}"
         c_name: str = f"{self._c_name}"
 
         if self.logger:
@@ -138,7 +139,7 @@ class Euclid(BLogClient):
         test = []
         bench_out = {}
 
-        for item in self.__test:
+        for item in self.__euclid_methods:
             if item(data1[0], data2[0]) is not None:
                 test.append(item)
 
@@ -151,9 +152,9 @@ class Euclid(BLogClient):
             bench_out[t_stop - t_start] = item
 
         # optimize list of the methods
-        self.__test.clear()
+        self.__euclid_methods.clear()
         for idx in sorted(bench_out.keys()):
-            self.__test.append(bench_out[idx])
+            self.__euclid_methods.append(bench_out[idx])
             self.debug(currentframe(), f"{idx}: {bench_out[idx]}")
 
         if self.logger:
@@ -161,7 +162,7 @@ class Euclid(BLogClient):
 
     def debug(self, currentframe: Optional[FrameType], message: str = "") -> None:
         """Build debug message."""
-        p_name: str = f"{self.__data.plugin_name}"
+        p_name: str = f"{self.__r_data.plugin_name}"
         c_name: str = f"{self._c_name}"
         m_name: str = (
             f"{currentframe.f_code.co_name}" if currentframe is not None else ""
@@ -171,78 +172,81 @@ class Euclid(BLogClient):
         if self.logger:
             self.logger.debug = f"{p_name}->{c_name}.{m_name}{message}"
 
-    def __core(self, points_1: List[float], points_2: List[float]) -> float:
+    def __core(self, point_1: List[float], point_2: List[float]) -> float:
         """Do calculations without math libraries.
 
         The method iterates over each pair of vector elements,
         performs calculations on it and sums up the intermediate results.
         """
-        return sum((i - j) ** 2 for i, j in zip(points_1, points_2)) ** 0.5
+        return sum((i - j) ** 2 for i, j in zip(point_1, point_2)) ** 0.5
 
-    def __math(self, points_1: List[float], points_2: List[float]) -> Optional[float]:
+    def __math(self, point_1: List[float], point_2: List[float]) -> Optional[float]:
         """Try to use math lib."""
         try:
-            return math.dist(points_1, points_2)
+            return math.dist(point_1, point_2)
         except Exception as ex:
             self.debug(currentframe(), f"{ex}")
         return None
 
-    def __numpy_l2(self, points_1: List[float], points_2: List[float]) -> Optional[float]:
+    def __numpy_l2(self, point_1: List[float], point_2: List[float]) -> Optional[float]:
         """Try to use numpy lib.
 
         The method uses the fact that the Euclidean distance of two vectors
         is nothing but the L^2 norm of their difference.
         """
         try:
-            return np.linalg.norm(np.array(points_1) - np.array(points_2))  # type: ignore
+            return np.linalg.norm(np.array(point_1) - np.array(point_2))  # type: ignore
         except Exception as ex:
             self.debug(currentframe(), f"{ex}")
         return None
 
-    def __numpy(self, points_1: List[float], points_2: List[float]) -> Optional[float]:
+    def __numpy(self, point_1: List[float], point_2: List[float]) -> Optional[float]:
         """Try to use numpy lib.
 
         The method is an optimization of the core method using numpy
         and vectorization.
         """
         try:
-            return np.sqrt(np.sum((np.array(points_1) - np.array(points_2)) ** 2))
+            return np.sqrt(np.sum((np.array(point_1) - np.array(point_2)) ** 2))
         except Exception as ex:
             self.debug(currentframe(), f"{ex}")
         return None
 
-    def __einsum(self, points_1: List[float], points_2: List[float]) -> Optional[float]:
+    def __einsum(self, point_1: List[float], point_2: List[float]) -> Optional[float]:
         """Try to use numpy lib.
 
         Einstein summation convention.
         """
         try:
-            tmp = np.array(points_1) - np.array(points_2)
+            tmp = np.array(point_1) - np.array(point_2)
             return np.sqrt(np.einsum("i,i->", tmp, tmp))
         except Exception as ex:
             self.debug(currentframe(), f"{ex}")
         return None
 
-    def __scipy(self, points_1: List, points_2: List) -> Optional[float]:
+    def __scipy(self, point_1: List[float], point_2: List[float]) -> Optional[float]:
         """Try to use scipy lib.
 
         The scipy library has a built-in function to calculate
         the Euclidean distance.
         """
         try:
-            return distance.euclidean(points_1, points_2)
+            return distance.euclidean(point_1, point_2)
         except Exception as ex:
             self.debug(currentframe(), f"{ex}")
         return None
 
-    def distance(self, points_1: List[float], points_2: List[float]) -> float:
+    def distance(self, point_1: List[float], point_2: List[float]) -> float:
         """Find the first working algorithm and do the calculations."""
         out: float = None  # type: ignore
         i = 0
 
         while out is None:
-            if i < len(self.__test):
-                out = self.__test[i](points_1, points_2)
+            if i < len(self.__euclid_methods):
+                out = self.__euclid_methods[i](point_1, point_2)
+                if out is None:
+                    i += 1
+                    continue
             else:
                 break
             i += 1

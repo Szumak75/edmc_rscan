@@ -7,16 +7,14 @@
   Purpose: EDRS main class module.
 """
 
-from inspect import currentframe
 from queue import SimpleQueue
 from threading import Thread
 
 
+from rscan.jsktoolbox.attribtool import ReadOnlyClass
 from rscan.jsktoolbox.edmctool.base import BLogClient, BLogProcessor
 from rscan.jsktoolbox.edmctool.logs import LogClient, LogProcessor
-from rscan.jsktoolbox.attribtool import ReadOnlyClass
-from rscan.jsktoolbox.raisetool import Raise
-from rscan.data import RscanData
+from rscan.jsktoolbox.edmctool.data import RscanData
 from rscan.dialogs import EdrsDialog
 
 

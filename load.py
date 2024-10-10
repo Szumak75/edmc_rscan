@@ -123,20 +123,20 @@ def journal_entry(
     )
     edrs_object.data.cmdr = cmdr
     # new
-    edrs_object.data.star_system.name = system
+    edrs_object.data.stars_system.name = system
     if entry["event"] in ("FSDJump", "Loadout", "Docked", "CarrierJump"):
         # new
-        edrs_object.data.star_system.name = entry.get(
-            "StarsSystem", edrs_object.data.star_system.name
+        edrs_object.data.stars_system.name = entry.get(
+            "StarsSystem", edrs_object.data.stars_system.name
         )
-        edrs_object.data.star_system.address = entry.get(
-            "SystemAddress", edrs_object.data.star_system.address
+        edrs_object.data.stars_system.address = entry.get(
+            "SystemAddress", edrs_object.data.stars_system.address
         )
-        edrs_object.data.star_system.star_pos = entry.get(
-            "StarPos", edrs_object.data.star_system.star_pos
+        edrs_object.data.stars_system.star_pos = entry.get(
+            "StarPos", edrs_object.data.stars_system.star_pos
         )
-        edrs_object.data.star_system.star_class = entry.get(
-            "StarClass", edrs_object.data.star_system.star_class
+        edrs_object.data.stars_system.star_class = entry.get(
+            "StarClass", edrs_object.data.stars_system.star_class
         )
         edrs_object.data.jump_range = entry.get(
             "MaxJumpRange", edrs_object.data.jump_range

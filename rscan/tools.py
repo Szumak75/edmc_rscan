@@ -6,26 +6,23 @@
   Purpose: tools classes.
 """
 
-import json
 import random
-import requests
 
-from requests.utils import requote_uri
 from inspect import currentframe
 from itertools import permutations
 from queue import Queue, SimpleQueue
 from sys import maxsize
 from types import FrameType
-from typing import Dict, Optional, List, Tuple, Union, Any
+from typing import Optional, List, Tuple, Union, Any
 
 from rscan.jsktoolbox.attribtool import NoDynamicAttributes
 from rscan.jsktoolbox.raisetool import Raise
 from rscan.jsktoolbox.edmctool.base import BLogClient
 from rscan.jsktoolbox.edmctool.stars import StarsSystem
 from rscan.jsktoolbox.edmctool.logs import LogClient
+from rscan.jsktoolbox.edmctool.math import Euclid
 
-from rscan.cartesianmath import Euclid
-from rscan.interfaces import Ialg
+from rscan.interfaces import IAlg
 
 
 class Numbers(NoDynamicAttributes):
@@ -42,7 +39,7 @@ class Numbers(NoDynamicAttributes):
             return False
 
 
-class AlgTsp(Ialg, BLogClient, NoDynamicAttributes):
+class AlgTsp(IAlg, BLogClient, NoDynamicAttributes):
     """Travelling salesman problem."""
 
     __plugin_name: str = None  # type: ignore
@@ -220,7 +217,7 @@ class AlgTsp(Ialg, BLogClient, NoDynamicAttributes):
         return self.__final
 
 
-class AlgGenetic(Ialg, BLogClient, NoDynamicAttributes):
+class AlgGenetic(IAlg, BLogClient, NoDynamicAttributes):
     """Genetic algorithm solving the problem of finding the best path."""
 
     __plugin_name: str = None  # type: ignore
