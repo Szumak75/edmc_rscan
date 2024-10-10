@@ -282,7 +282,6 @@ class AlgAStar(IAlg, BLogClient):
     __plugin_name: str = None  # type: ignore
     __math: Euclid = None  # type: ignore
     __data: List[StarsSystem] = None  # type: ignore
-    __tmp: List[Any] = None  # type: ignore
     __jump_range: int = None  # type: ignore
     __final: List[StarsSystem] = None  # type: ignore
     __start: StarsSystem = None  # type: ignore
@@ -343,65 +342,27 @@ class AlgAStar(IAlg, BLogClient):
             )
         self.debug(currentframe(), "Initialize dataset")
 
-        self.__tmp = []
         self.__start = start
         self.__data = systems
         self.__final = []
 
-    def heuristic(self, a: List[float], b: List[float]) -> float:
-        """Oblicza heurystykę (odległość euklidesową) między dwoma punktami."""
-        return self.__math.distance(a, b)
-        # return math.sqrt(sum((x - y) ** 2 for x, y in zip(a, b)))
-
-    def get_neighbors(self, point: StarsSystem) -> List[StarsSystem]:
+    def __get_neighbors(self, point: StarsSystem) -> List[StarsSystem]:
         """Zwraca sąsiadów, którzy są w zasięgu max_range."""
-        neighbors = []
+        neighbors: List[StarsSystem] = []
         for p in self.__data:
             if (
                 p not in self.__final
-                and self.heuristic(point.star_pos, p.star_pos) <= self.__jump_range
+                and self.__math.distance(point.star_pos, p.star_pos)
+                <= self.__jump_range
             ):
                 neighbors.append(p)
         return neighbors
 
-    def run(self) -> None:
-        """Implementacja algorytmu A*."""
-        open_set: List[StarsSystem] = [self.__start]
-        came_from = {}
-        g_score: Dict[StarsSystem, float] = {self.__start: 0.0}
-        f_score: Dict[StarsSystem, float] = {
-            self.__start: self.heuristic(self.__start.star_pos, self.__data[0].star_pos)
-        }
-
-        while open_set:
-            current: StarsSystem = min(
-                open_set, key=lambda point: f_score.get(point, float("inf"))
-            )
-            if current in self.__data:
-                self.__final = self.reconstruct_path(came_from, current)
-
-            open_set.remove(current)
-            for neighbor in self.get_neighbors(current):
-                tentative_g_score = g_score[current] + self.heuristic(
-                    current.star_pos, neighbor.star_pos
-                )
-
-                if neighbor not in g_score or tentative_g_score < g_score[neighbor]:
-                    came_from[neighbor] = current
-                    g_score[neighbor] = tentative_g_score
-                    f_score[neighbor] = g_score[neighbor] + self.heuristic(
-                        neighbor.star_pos, self.__data[0].star_pos
-                    )
-                    if neighbor not in open_set:
-                        open_set.append(neighbor)
-
-        self.__final = []
-
-    def reconstruct_path(
+    def __reconstruct_path(
         self, came_from: dict, current: StarsSystem
     ) -> List[StarsSystem]:
         """Rekonstruuje ścieżkę od punktu startowego do celu."""
-        path = []
+        path: List[StarsSystem] = []
         while current in came_from:
             path.append(current)
             current = came_from[current]
@@ -418,9 +379,44 @@ class AlgAStar(IAlg, BLogClient):
         if self.logger:
             self.logger.debug = f"{p_name}->{c_name}.{m_name}{message}"
 
+    def run(self) -> None:
+        """Implementacja algorytmu A*."""
+        open_set: List[StarsSystem] = [self.__start]
+        came_from: Dict = {}
+        g_score: Dict[StarsSystem, float] = {self.__start: 0.0}
+        f_score: Dict[StarsSystem, float] = {
+            self.__start: self.__math.distance(
+                self.__start.star_pos, self.__data[0].star_pos
+            )
+        }
+
+        while open_set:
+            current: StarsSystem = min(
+                open_set, key=lambda point: f_score.get(point, float("inf"))
+            )
+            if current in self.__data:
+                self.__final = self.__reconstruct_path(came_from, current)
+
+            open_set.remove(current)
+            for neighbor in self.__get_neighbors(current):
+                tentative_g_score: float = g_score[current] + self.__math.distance(
+                    current.star_pos, neighbor.star_pos
+                )
+
+                if neighbor not in g_score or tentative_g_score < g_score[neighbor]:
+                    came_from[neighbor] = current
+                    g_score[neighbor] = tentative_g_score
+                    f_score[neighbor] = g_score[neighbor] + self.__math.distance(
+                        neighbor.star_pos, self.__data[0].star_pos
+                    )
+                    if neighbor not in open_set:
+                        open_set.append(neighbor)
+
+        self.__final = []
+
     @property
     def get_final(self) -> List[StarsSystem]:
-        """Zwraca listę punktów w końcowej trasie, z wyjątkiem punktu startowego."""
+        """Return final data."""
         return [point for point in self.__final if point != self.__start]
 
 
