@@ -47,6 +47,7 @@ class Url(BData):
             EdsmKeys.SHOW_INFORMATION: 0,
             EdsmKeys.SHOW_PRIMARY_STAR: 0,
             EdsmKeys.INCLUDE_HIDDEN: 0,
+            EdsmKeys.ONLY_KNOWN_COORDINATES: 1,
         }
         self._set_data(
             key=_Keys.SYSTEMS_URL,

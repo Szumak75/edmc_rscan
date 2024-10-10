@@ -21,9 +21,7 @@ from rscan.jsktoolbox.edmctool.logs import LogClient
 from rscan.jsktoolbox.edmctool.edsm import Url
 from rscan.jsktoolbox.edmctool.edsm_keys import EdsmKeys
 from rscan.jsktoolbox.edmctool.data import RscanData
-from rscan.jsktoolbox.edmctool.math import Euclid
-
-from rscan.tools import AlgGenetic, AlgTsp
+from rscan.jsktoolbox.edmctool.math import Euclid, AlgGenetic, AlgTsp
 
 
 class _Keys(object, metaclass=ReadOnlyClass):
