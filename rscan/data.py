@@ -7,11 +7,9 @@
 """
 
 
-from inspect import currentframe
-from typing import Union, Optional, Dict, Any
+from typing import Union, Optional
 
 from rscan.jsktoolbox.attribtool import ReadOnlyClass
-from rscan.jsktoolbox.raisetool import Raise
 from rscan.jsktoolbox.edmctool.stars import StarsSystem
 from rscan.jsktoolbox.basetool.data import BData
 

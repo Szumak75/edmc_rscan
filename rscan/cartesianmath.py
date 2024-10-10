@@ -10,8 +10,8 @@ from inspect import currentframe
 import math
 import time
 from queue import Queue, SimpleQueue
-from typing import List, Union, Callable, Optional
-from types import FrameType
+from typing import List, Union, Optional
+from types import FrameType, MethodType
 
 from rscan.jsktoolbox.attribtool import ReadOnlyClass
 from rscan.jsktoolbox.raisetool import Raise
@@ -94,7 +94,7 @@ class Euclid(BLogClient):
         return self._get_data(key=_Keys.DATA)  # type: ignore
 
     @property
-    def __test(self) -> List:
+    def __test(self) -> List[MethodType]:
         """Return test list."""
         return self._get_data(key=_Keys.TEST)  # type: ignore
 
@@ -171,78 +171,78 @@ class Euclid(BLogClient):
         if self.logger:
             self.logger.debug = f"{p_name}->{c_name}.{m_name}{message}"
 
-    def __core(self, point_1: List[float], point_2: List[float]) -> float:
+    def __core(self, points_1: List[float], points_2: List[float]) -> float:
         """Do calculations without math libraries.
 
         The method iterates over each pair of vector elements,
         performs calculations on it and sums up the intermediate results.
         """
-        return sum((i - j) ** 2 for i, j in zip(point_1, point_2)) ** 0.5
+        return sum((i - j) ** 2 for i, j in zip(points_1, points_2)) ** 0.5
 
-    def __math(self, point_1: List[float], point_2: List[float]) -> Optional[float]:
+    def __math(self, points_1: List[float], points_2: List[float]) -> Optional[float]:
         """Try to use math lib."""
         try:
-            return math.dist(point_1, point_2)
+            return math.dist(points_1, points_2)
         except Exception as ex:
             self.debug(currentframe(), f"{ex}")
-            return None
+        return None
 
-    def __numpy_l2(self, point_1: List[float], point_2: List[float]) -> Optional[float]:
+    def __numpy_l2(self, points_1: List[float], points_2: List[float]) -> Optional[float]:
         """Try to use numpy lib.
 
         The method uses the fact that the Euclidean distance of two vectors
         is nothing but the L^2 norm of their difference.
         """
         try:
-            return np.linalg.norm(np.array(point_1) - np.array(point_2))  # type: ignore
+            return np.linalg.norm(np.array(points_1) - np.array(points_2))  # type: ignore
         except Exception as ex:
             self.debug(currentframe(), f"{ex}")
-            return None
+        return None
 
-    def __numpy(self, point_1: List[float], point_2: List[float]) -> Optional[float]:
+    def __numpy(self, points_1: List[float], points_2: List[float]) -> Optional[float]:
         """Try to use numpy lib.
 
         The method is an optimization of the core method using numpy
         and vectorization.
         """
         try:
-            return np.sqrt(np.sum((np.array(point_1) - np.array(point_2)) ** 2))
+            return np.sqrt(np.sum((np.array(points_1) - np.array(points_2)) ** 2))
         except Exception as ex:
             self.debug(currentframe(), f"{ex}")
-            return None
+        return None
 
-    def __einsum(self, point_1: List[float], point_2: List[float]) -> Optional[float]:
+    def __einsum(self, points_1: List[float], points_2: List[float]) -> Optional[float]:
         """Try to use numpy lib.
 
         Einstein summation convention.
         """
         try:
-            tmp = np.array(point_1) - np.array(point_2)
+            tmp = np.array(points_1) - np.array(points_2)
             return np.sqrt(np.einsum("i,i->", tmp, tmp))
         except Exception as ex:
             self.debug(currentframe(), f"{ex}")
-            return None
+        return None
 
-    def __scipy(self, point_1: List, point_2: List) -> Optional[float]:
+    def __scipy(self, points_1: List, points_2: List) -> Optional[float]:
         """Try to use scipy lib.
 
         The scipy library has a built-in function to calculate
         the Euclidean distance.
         """
         try:
-            return distance.euclidean(point_1, point_2)
+            return distance.euclidean(points_1, points_2)
         except Exception as ex:
             self.debug(currentframe(), f"{ex}")
-            return None
+        return None
 
-    def distance(self, point_1: List[float], point_2: List[float]) -> float:
+    def distance(self, points_1: List[float], points_2: List[float]) -> float:
         """Find the first working algorithm and do the calculations."""
         out: float = None  # type: ignore
         i = 0
 
         while out is None:
             if i < len(self.__test):
-                out = self.__test[i](point_1, point_2)
+                out = self.__test[i](points_1, points_2)
             else:
                 break
             i += 1
