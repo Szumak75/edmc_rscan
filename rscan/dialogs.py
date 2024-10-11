@@ -13,11 +13,10 @@ from tkinter import font
 from queue import Queue, SimpleQueue
 from threading import Thread
 from tkinter import ttk
-from typing import List, Optional, Union, Dict, Any
+from typing import List, Optional, Union
 from types import FrameType
 
 
-from rscan.jsktoolbox.attribtool import NoDynamicAttributes
 from rscan.jsktoolbox.raisetool import Raise
 from rscan.jsktoolbox.attribtool import ReadOnlyClass
 from rscan.jsktoolbox.basetool.data import BData
