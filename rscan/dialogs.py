@@ -31,7 +31,6 @@ from rscan.jsktoolbox.edmctool.logs import LogClient
 from rscan.jsktoolbox.edmctool.stars import StarsSystem
 
 from rscan.jsktoolbox.edmctool.edsm_keys import EdsmKeys
-from rscan.jsktoolbox.edmctool.ed_keys import EDKeys
 from rscan.jsktoolbox.tktool.tools import ClipBoard
 
 from rscan.th import ThSystemSearch
