@@ -129,7 +129,7 @@ def journal_entry(
     if entry[EDKeys.EVENT] in (
         EDKeys.FSD_JUMP,
         EDKeys.LOADOUT,
-        "Docked",
+        EDKeys.DOCKED,
         EDKeys.CARRIER_JUMP,
     ):
         # new

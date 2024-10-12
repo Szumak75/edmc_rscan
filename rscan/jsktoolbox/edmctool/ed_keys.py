@@ -70,6 +70,7 @@ class EDKeys(object, metaclass=ReadOnlyClass):
     DISCOVERY_SCAN: str = "DiscoveryScan"
     DISEMBARK: str = "Disembark"
     DISTANCE_FROM_ARRIVAL_LS: str = "DistanceFromArrivalLS"
+    DOCKED: str = "Docked"
     DOCKING_CANCELLED: str = "DockingCancelled"
     DOCKING_DENIED: str = "DockingDenied"
     DOCKING_GRANTED: str = "DockingGranted"
