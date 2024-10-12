@@ -10,6 +10,7 @@
     "python.analysis.typeCheckingMode": "basic",
     "cSpell.words": [
         "edmctool",
+        "LOADOUT",
         "prefs"
     ]
 }

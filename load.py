@@ -14,8 +14,10 @@ from typing import Any, Dict, Optional
 
 from config import config
 
+from rscan.jsktoolbox.edmctool import ed_keys
 from rscan.jsktoolbox.tktool.widgets import CreateToolTip
 from rscan.jsktoolbox.edmctool.logs import LogLevels
+from rscan.jsktoolbox.edmctool.ed_keys import EDKeys
 from rscan.dialogs import EdrsDialog
 from rscan.edrs import EDRS
 
@@ -124,35 +126,40 @@ def journal_entry(
     edrs_object.data.cmdr = cmdr
     # new
     edrs_object.data.stars_system.name = system
-    if entry["event"] in ("FSDJump", "Loadout", "Docked", "CarrierJump"):
+    if entry[EDKeys.EVENT] in (
+        EDKeys.FSD_JUMP,
+        EDKeys.LOADOUT,
+        "Docked",
+        EDKeys.CARRIER_JUMP,
+    ):
         # new
         edrs_object.data.stars_system.name = entry.get(
-            "StarsSystem", edrs_object.data.stars_system.name
+            EDKeys.STAR_SYSTEM, edrs_object.data.stars_system.name
         )
         edrs_object.data.stars_system.address = entry.get(
-            "SystemAddress", edrs_object.data.stars_system.address
+            EDKeys.SYSTEM_ADDRESS, edrs_object.data.stars_system.address
         )
         edrs_object.data.stars_system.star_pos = entry.get(
-            "StarPos", edrs_object.data.stars_system.star_pos
+            EDKeys.STAR_POS, edrs_object.data.stars_system.star_pos
         )
         edrs_object.data.stars_system.star_class = entry.get(
-            "StarClass", edrs_object.data.stars_system.star_class
+            EDKeys.STAR_CLASS, edrs_object.data.stars_system.star_class
         )
         edrs_object.data.jump_range = entry.get(
-            "MaxJumpRange", edrs_object.data.jump_range
+            EDKeys.MAX_JUMP_RANGE, edrs_object.data.jump_range
         )
         edrs_object.logger.debug = f"{edrs_object.data}"
         if edrs_object.dialog is not None:
             edrs_object.dialog.dialog_update()
-    elif entry["event"] == "FSDTarget":
+    elif entry[EDKeys.EVENT] == EDKeys.FSD_TARGET:
         edrs_object.data.jump_system.name = entry.get(
-            "StarsSystem", edrs_object.data.jump_system.name
+            EDKeys.STAR_SYSTEM, edrs_object.data.jump_system.name
         )
         edrs_object.data.jump_system.address = entry.get(
-            "SystemAddress", edrs_object.data.jump_system.address
+            EDKeys.SYSTEM_ADDRESS, edrs_object.data.jump_system.address
         )
         edrs_object.data.jump_system.star_class = entry.get(
-            "StarClass", edrs_object.data.jump_system.star_class
+            EDKeys.STAR_CLASS, edrs_object.data.jump_system.star_class
         )
     edrs_object.logger.debug = f"{edrs_object.data.plugin_name}->journal_entry: done."
 
