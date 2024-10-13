@@ -584,8 +584,11 @@ class EdrsScanDialog(tk.Toplevel, TkBase, BLogClient, _BEdrsDialog):
 
         # update located system
         for item in self._stars:
+            self.logger.debug = (
+                f"ITEM: {item[0].name}, SS: {self._r_data.stars_system.name}"
+            )
             if item[0].name == self._r_data.stars_system.name:
-                item[2][_FontKeys.FONT] = self.__fonts._get_data(key=_FontKeys.FONT_STRIKE)  # type: ignore
+                item[2][_FontKeys.FONT] = self._fonts._get_data(key=_FontKeys.FONT_STRIKE)  # type: ignore
 
     def debug(self, currentframe: Optional[FrameType], message: str = "") -> None:
         """Build debug message."""
