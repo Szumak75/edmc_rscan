@@ -104,6 +104,10 @@ class ThSystemSearch(Thread, ThBaseObject, BLogClient):
         self.logger.info = f"{p_name}->{c_name}: Starting new work..."
         # build radius query
         query_url: Optional[str] = self.__build_radius_query()
+        # self.debug(
+        #     currentframe(),
+        #     f"query_url: {query_url}",
+        # )
         if query_url is None:
             return
         # create query object
