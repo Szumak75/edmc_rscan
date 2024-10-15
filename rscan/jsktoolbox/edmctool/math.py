@@ -48,13 +48,18 @@ class IAlg(ABC):
         """Run the work."""
 
     @abstractmethod
-    def debug(self, currentframe, message) -> None:
+    def debug(self, currentframe: Optional[FrameType], message: str) -> None:
         """Debug formatter for logger."""
 
     @property
     @abstractmethod
     def get_final(self) -> list:
         """Return final data."""
+
+    @property
+    @abstractmethod
+    def final_distance(self) -> float:
+        """Return final distance."""
 
 
 class _Keys(object, metaclass=ReadOnlyClass):
@@ -284,7 +289,7 @@ class AlgAStar(IAlg, BLogClient):
     __data: List[StarsSystem] = None  # type: ignore
     __jump_range: int = None  # type: ignore
     __final: List[StarsSystem] = None  # type: ignore
-    __start: StarsSystem = None  # type: ignore
+    __start_point: StarsSystem = None  # type: ignore
 
     def __init__(
         self,
@@ -342,7 +347,7 @@ class AlgAStar(IAlg, BLogClient):
             )
         self.debug(currentframe(), "Initialize dataset")
 
-        self.__start = start
+        self.__start_point = start
         self.__data = systems
         self.__final = []
 
@@ -381,12 +386,12 @@ class AlgAStar(IAlg, BLogClient):
 
     def run(self) -> None:
         """Implementacja algorytmu A*."""
-        open_set: List[StarsSystem] = [self.__start]
+        open_set: List[StarsSystem] = [self.__start_point]
         came_from: Dict = {}
-        g_score: Dict[StarsSystem, float] = {self.__start: 0.0}
+        g_score: Dict[StarsSystem, float] = {self.__start_point: 0.0}
         f_score: Dict[StarsSystem, float] = {
-            self.__start: self.__math.distance(
-                self.__start.star_pos, self.__data[0].star_pos
+            self.__start_point: self.__math.distance(
+                self.__start_point.star_pos, self.__data[0].star_pos
             )
         }
 
@@ -415,9 +420,22 @@ class AlgAStar(IAlg, BLogClient):
         self.__final = []
 
     @property
+    def final_distance(self) -> float:
+        if not self.__final:
+            return 0.0
+        dist = self.__math.distance(
+            self.__start_point.star_pos, self.__final[0].star_pos
+        )
+        for item in range(len(self.__final) - 1):
+            dist += self.__math.distance(
+                self.__final[item].star_pos, self.__final[item + 1].star_pos
+            )
+        return dist if dist else 0.0
+
+    @property
     def get_final(self) -> List[StarsSystem]:
         """Return final data."""
-        return [point for point in self.__final if point != self.__start]
+        return [point for point in self.__final if point != self.__start_point]
 
 
 class AlgTsp(IAlg, BLogClient):
@@ -591,6 +609,17 @@ class AlgTsp(IAlg, BLogClient):
             message = f": {message}"
         if self.logger:
             self.logger.debug = f"{p_name}->{c_name}.{m_name}{message}"
+
+    @property
+    def final_distance(self) -> float:
+        if not self.__final:
+            return 0.0
+        dist = self.__math.distance(self.__data[0].star_pos, self.__final[0].star_pos)
+        for item in range(len(self.__final) - 1):
+            dist += self.__math.distance(
+                self.__final[item].star_pos, self.__final[item + 1].star_pos
+            )
+        return dist if dist else 0.0
 
     @property
     def get_final(self) -> List[StarsSystem]:
@@ -804,6 +833,510 @@ class AlgGenetic(IAlg, BLogClient):
             message = f": {message}"
         if self.logger:
             self.logger.debug = f"{p_name}->{c_name}.{m_name}{message}"
+
+    @property
+    def final_distance(self) -> float:
+        if not self.__final:
+            return 0.0
+        dist: float = self.__math.distance(
+            self.__start_point.star_pos, self.__final[0].star_pos
+        )
+        for item in range(len(self.__final) - 1):
+            dist += self.__math.distance(
+                self.__final[item].star_pos, self.__final[item + 1].star_pos
+            )
+        return dist if dist else 0.0
+
+    @property
+    def get_final(self) -> List[StarsSystem]:
+        """Return final data."""
+        return self.__final
+
+
+class AlgGenetic2(IAlg, BLogClient):
+
+    __plugin_name: str = None  # type: ignore
+    __math: Euclid = None  # type: ignore
+    __final: List[StarsSystem] = None  # type: ignore
+
+    __points: List[StarsSystem] = None  # type: ignore
+    __start_point: StarsSystem = None  # type: ignore
+    __max_distance: int = None  # type: ignore
+    __population_size: int = None  # type: ignore
+    __generations: int = None  # type: ignore
+    __mutation_rate: float = None  # type: ignore
+    __population: List[List[StarsSystem]] = None  # type: ignore
+
+    def __init__(
+        self,
+        start: StarsSystem,
+        systems: List[StarsSystem],
+        jump_range: int,
+        log_queue: Optional[Union[Queue, SimpleQueue]],
+        euclid_alg: Euclid,
+        plugin_name: str,
+    ) -> None:
+        """Construct instance object.
+
+        params:
+        start: StarsSystem - object with starting position.
+        systems: list(StarsSystem,...) - list with point of interest to visit
+        jump_range: int - jump range in ly
+        log_queue: queue for LogClient
+        euclid_alg: Euclid - object of initialized vectors class
+        plugin_name: str - name of plugin for debug log
+        """
+        self.__plugin_name = plugin_name
+        # init log subsystem
+        if isinstance(log_queue, (Queue, SimpleQueue)):
+            self.logger = LogClient(log_queue)
+        else:
+            raise Raise.error(
+                f"Queue or SimpleQueue type expected, '{type(log_queue)}' received.",
+                TypeError,
+                self._c_name,
+                currentframe(),
+            )
+        # Euclid's algorithm for calculating the length of vectors
+        if isinstance(euclid_alg, Euclid):
+            self.__math = euclid_alg
+        else:
+            raise Raise.error(
+                f"Euclid type expected, '{type(euclid_alg)}' received",
+                TypeError,
+                self._c_name,
+                currentframe(),
+            )
+        if isinstance(jump_range, int):
+            self.__max_distance = jump_range
+        else:
+            raise Raise.error(
+                f"Int type expected, '{type(jump_range)}' received",
+                TypeError,
+                self._c_name,
+                currentframe(),
+            )
+        if not isinstance(start, StarsSystem):
+            raise Raise.error(
+                f"StarsSystem type expected, '{type(start)}' received.",
+                TypeError,
+                self._c_name,
+                currentframe(),
+            )
+        if not isinstance(systems, list):
+            raise Raise.error(
+                f"list type expected, '{type(systems)}' received.",
+                TypeError,
+                self._c_name,
+                currentframe(),
+            )
+        self.debug(currentframe(), "Initialize dataset")
+
+        self.__start_point = start
+        self.__points = systems
+
+        self.__population: List[List[StarsSystem]] = []
+        self.__final: List[StarsSystem] = []
+
+        self.__population_size = len(systems) * 3  # Rozmiar populacji (100)
+        self.__generations = 200  # Liczba pokoleń (500)
+        self.__mutation_rate = 0.01  # Prawdopodobieństwo mutacji (0.01)
+
+        # 1. Rozmiar populacji (population_size):
+        # Małe wartości (10-50): Szybsze obliczenia, ale może prowadzić do szybkiej
+        # konwergencji do lokalnych optymalnych rozwiązań, zwłaszcza przy bardziej
+        # skomplikowanych problemach.
+        # Średnie wartości (50-200): Wystarczające dla większości problemów.
+        # Dają równowagę pomiędzy różnorodnością rozwiązań a szybkością konwergencji.
+        # Duże wartości (200-1000 i więcej): Większa różnorodność, ale znacznie
+        # wolniejsze obliczenia. Może być korzystne w bardzo trudnych problemach,
+        # gdzie wiele rozwiązań lokalnych wymaga długiego czasu na znalezienie
+        # rozwiązania globalnego.
+
+        # Rekomendacja:
+        # Zaczynaj od wartości w zakresie 50-100. Dla mniejszych problemów możesz
+        # próbować 20-50, a dla większych problemów (np. setki punktów) warto
+        # eksperymentować z wartościami 100-500.
+
+        # 2. Liczba generacji (generations):
+        # Małe wartości (10-100): Może być wystarczające w przypadku prostych problemów,
+        # ale algorytm może nie zdążyć znaleźć optymalnych rozwiązań.
+        # Średnie wartości (100-1000): Często wystarczają do osiągnięcia dobrego kompromisu
+        # między czasem obliczeń a jakością rozwiązania.
+        # Duże wartości (1000-5000 i więcej): Dają algorytmowi więcej czasu na eksplorację
+        # i poprawę rozwiązań, ale mogą znacząco wydłużyć czas działania.
+
+        # Rekomendacja:
+        # Warto zaczynać od wartości w zakresie 200-500. Jeśli widzisz, że algorytm osiąga
+        # zadowalające rozwiązania wcześnie, możesz zmniejszyć liczbę generacji.
+        # W przypadku bardziej złożonych problemów, możesz zwiększyć liczbę generacji do 1000-2000.
+
+        # 3. Współczynnik mutacji (mutation_rate):
+        # Bardzo małe wartości (0.001-0.01): Utrzymują stabilność populacji, co jest dobre,
+        # gdy mamy dobrze zdefiniowane populacje i mało zaburzeń jest potrzebnych. Mogą
+        # jednak prowadzić do zbyt wczesnej konwergencji.
+        # Średnie wartości (0.01-0.05): Najczęściej stosowane. Dają odpowiednią równowagę
+        # między eksploracją nowych rozwiązań a eksploatacją istniejących. Pomaga utrzymać
+        # różnorodność populacji bez zbytniego zakłócania dobrych rozwiązań.
+        # Duże wartości (0.05-0.3): Wprowadzają dużo różnorodności, co może pomóc
+        # w uniknięciu lokalnych minimów, ale może również sprawić, że dobre rozwiązania zostaną przypadkowo zepsute.
+
+        # Rekomendacja:
+        # Zacznij od wartości w przedziale 0.01-0.05. Jeśli zauważysz, że algorytm zbyt
+        # szybko osiąga stabilizację (lokalne optimum), rozważ zwiększenie współczynnika
+        # mutacji. Jeśli natomiast zbyt wiele dobrych rozwiązań jest niszczonych przez
+        # mutacje, zmniejsz ten współczynnik.
+
+    def __initialize_population(self) -> None:
+        """Initialize the population with random routes."""
+        for _ in range(self.__population_size):
+            route: List[StarsSystem] = self.__points[:]
+            random.shuffle(route)
+            self.__population.append(route)
+
+    def __fitness(self, route: List[StarsSystem]) -> float:
+        """Calculate the fitness (inverse of the total route distance)."""
+        total_distance = 0.0
+        current_point: StarsSystem = self.__start_point
+        for system in route:
+            total_distance += self.__math.distance(
+                current_point.star_pos, system.star_pos
+            )
+            current_point = system
+        # Add distance back to the start if needed (optional for closed loop)
+        return 1 / total_distance  # Inverse, because shorter routes are better
+
+    def __selection(self) -> Tuple[List[StarsSystem], List[StarsSystem]]:
+        """Select two parents based on their fitness (roulette wheel selection)."""
+        fitness_values: List[float] = [
+            self.__fitness(route) for route in self.__population
+        ]
+        total_fitness: float = sum(fitness_values)
+        probabilities: List[float] = [f / total_fitness for f in fitness_values]
+
+        # Select two parents based on the fitness-proportional probabilities
+        parent1: List[StarsSystem] = random.choices(
+            self.__population, weights=probabilities, k=1
+        )[0]
+        parent2: List[StarsSystem] = random.choices(
+            self.__population, weights=probabilities, k=1
+        )[0]
+
+        return parent1, parent2
+
+    def __crossover(
+        self, parent1: List[StarsSystem], parent2: List[StarsSystem]
+    ) -> List[StarsSystem]:
+        """Perform Order Crossover (OX) to generate a child route."""
+        start_idx: int = random.randint(0, len(parent1) - 1)
+        end_idx: int = random.randint(start_idx, len(parent1) - 1)
+
+        child: List[StarsSystem] = [None] * len(parent1)  # type: ignore
+        child[start_idx:end_idx] = parent1[start_idx:end_idx]
+
+        current_pos: int = end_idx
+        for system in parent2:
+            if system not in child:
+                if current_pos >= len(parent1):
+                    current_pos = 0
+                child[current_pos] = system
+                current_pos += 1
+
+        return child
+
+    def __mutate(self, route: List[StarsSystem]) -> None:
+        """Perform swap mutation with a given probability."""
+        if random.random() < self.__mutation_rate:
+            idx1: int = random.randint(0, len(route) - 1)
+            idx2: int = random.randint(0, len(route) - 1)
+            route[idx1], route[idx2] = route[idx2], route[idx1]
+
+    def __evolve(self) -> None:
+        """Run the evolutionary algorithm over several generations."""
+        self.__initialize_population()
+
+        for _ in range(self.__generations):
+            new_population = []
+            for _ in range(self.__population_size // 2):  # Generate new population
+                parent1, parent2 = self.__selection()
+                child1: List[StarsSystem] = self.__crossover(parent1, parent2)
+                child2: List[StarsSystem] = self.__crossover(parent2, parent1)
+                self.__mutate(child1)
+                self.__mutate(child2)
+                new_population.extend([child1, child2])
+
+            # Replace old population with new population
+            self.__population = new_population
+
+        # Save the best solution found
+        self.__final = max(self.__population, key=self.__fitness)
+
+    def run(self) -> None:
+        """Return the best route found after evolution."""
+        start_t: float = time.time()
+
+        # precalculate
+        systems: List[StarsSystem] = []
+        for item in self.__points:
+            if self.__math.distance(self.__start_point.star_pos, item.star_pos) > 100:
+                self.debug(currentframe(), f"{item} removed")
+            else:
+                systems.append(item)
+        self.__points = systems
+
+        self.__evolve()
+        # update distance
+        if self.__final:
+            dist: float = self.__math.distance(
+                self.__start_point.star_pos, self.__final[0].star_pos
+            )
+            self.__final[0].data[EdsmKeys.DISTANCE] = dist
+            for item in range(len(self.__final) - 1):
+                dist = self.__math.distance(
+                    self.__final[item].star_pos,
+                    self.__final[item + 1].star_pos,
+                )
+                self.__final[item + 1].data[EdsmKeys.DISTANCE] = dist
+
+        end_t: float = time.time()
+        self.debug(currentframe(), f"Evolution took {end_t - start_t} seconds.")
+
+    def debug(self, currentframe: Optional[FrameType], message: str = "") -> None:
+        """Build debug message."""
+        p_name: str = f"{self.__plugin_name}"
+        c_name: str = f"{self._c_name}"
+        m_name: str = f"{currentframe.f_code.co_name}" if currentframe else ""
+        if message != "":
+            message = f": {message}"
+        if self.logger:
+            self.logger.debug = f"{p_name}->{c_name}.{m_name}{message}"
+
+    @property
+    def final_distance(self) -> float:
+        if not self.__final:
+            return 0.0
+        dist: float = self.__math.distance(
+            self.__start_point.star_pos, self.__final[0].star_pos
+        )
+        for item in range(len(self.__final) - 1):
+            dist += self.__math.distance(
+                self.__final[item].star_pos, self.__final[item + 1].star_pos
+            )
+        return dist if dist else 0.0
+
+    @property
+    def get_final(self) -> List[StarsSystem]:
+        """Return final data."""
+        return self.__final
+
+
+class AlgSimulatedAnnealing(IAlg, BLogClient):
+
+    __plugin_name: str = None  # type: ignore
+    __math: Euclid = None  # type: ignore
+    __final: List[StarsSystem] = None  # type: ignore
+
+    __points: List[StarsSystem] = None  # type: ignore
+    __start_point: StarsSystem = None  # type: ignore
+    __max_distance: int = None  # type: ignore
+    __initial_temp: float = 0.0
+    __cooling_rate: float = 0.0
+    __best_distance: float = float("inf")
+    __current_solution: List[StarsSystem] = None  # type: ignore
+
+    def __init__(
+        self,
+        start: StarsSystem,
+        systems: List[StarsSystem],
+        jump_range: int,
+        log_queue: Optional[Union[Queue, SimpleQueue]],
+        euclid_alg: Euclid,
+        plugin_name: str,
+    ) -> None:
+        """Construct instance object.
+
+        params:
+        start: StarsSystem - object with starting position.
+        systems: list(StarsSystem,...) - list with point of interest to visit
+        jump_range: int - jump range in ly
+        log_queue: queue for LogClient
+        euclid_alg: Euclid - object of initialized vectors class
+        plugin_name: str - name of plugin for debug log
+        """
+
+        self.__plugin_name = plugin_name
+        # init log subsystem
+        if isinstance(log_queue, (Queue, SimpleQueue)):
+            self.logger = LogClient(log_queue)
+        else:
+            raise Raise.error(
+                f"Queue or SimpleQueue type expected, '{type(log_queue)}' received.",
+                TypeError,
+                self._c_name,
+                currentframe(),
+            )
+        # Euclid's algorithm for calculating the length of vectors
+        if isinstance(euclid_alg, Euclid):
+            self.__math = euclid_alg
+        else:
+            raise Raise.error(
+                f"Euclid type expected, '{type(euclid_alg)}' received",
+                TypeError,
+                self._c_name,
+                currentframe(),
+            )
+        if isinstance(jump_range, int):
+            self.__max_distance = jump_range
+        else:
+            raise Raise.error(
+                f"Int type expected, '{type(jump_range)}' received",
+                TypeError,
+                self._c_name,
+                currentframe(),
+            )
+        if not isinstance(start, StarsSystem):
+            raise Raise.error(
+                f"StarsSystem type expected, '{type(start)}' received.",
+                TypeError,
+                self._c_name,
+                currentframe(),
+            )
+        if not isinstance(systems, list):
+            raise Raise.error(
+                f"list type expected, '{type(systems)}' received.",
+                TypeError,
+                self._c_name,
+                currentframe(),
+            )
+        self.debug(currentframe(), "Initialize dataset")
+
+        self.__start_point = start
+        self.__points = systems
+        self.__max_distance = jump_range
+        self.__initial_temp = 1000.0  # 1000
+        self.__cooling_rate = 0.003  # 0.003
+        # initial_temp: Im wyższa temperatura początkowa, tym większe jest
+        # prawdopodobieństwo zaakceptowania gorszych rozwiązań na początku procesu.
+        # cooling_rate: Kontroluje tempo chłodzenia. Im mniejsza wartość,
+        # tym wolniejsze chłodzenie, co pozwala na dokładniejszą eksplorację
+        # przestrzeni rozwiązań, ale wydłuża czas działania algorytmu.
+
+        # Aby zoptymalizować działanie algorytmu SA, możesz dostosować:
+        # Temperaturę początkową (initial_temp): większe wartości pozwalają
+        # na większą eksplorację na początku.
+        # Tempo chłodzenia (cooling_rate): wolniejsze tempo daje większe
+        # szanse na znalezienie optymalnych rozwiązań, ale wydłuża czas działania.
+        # Liczbę iteracji: algorytm może przerywać działanie, gdy temperatura
+        # osiągnie bardzo niską wartość.
+
+    def calculate_total_distance(self, path: List[StarsSystem]) -> float:
+        """Calculate the total distance of the path, starting from the start point."""
+        total_dist = 0
+        current_star: StarsSystem = self.__start_point
+        for next_star in path:
+            dist: float = self.__math.distance(
+                current_star.star_pos, next_star.star_pos
+            )
+            if dist <= self.__max_distance:  # Only count valid jumps
+                total_dist += dist
+            else:
+                return float("inf")  # Penalize paths that exceed jump_range
+            current_star = next_star
+        return total_dist
+
+    def accept_solution(
+        self, current_distance: float, new_distance: float, temperature: float
+    ) -> bool:
+        """Decide whether to accept the new solution based on the current temperature."""
+        if new_distance < current_distance:
+            return True
+        # Accept worse solutions with a probability depending on the temperature
+        return random.random() < math.exp(
+            (current_distance - new_distance) / temperature
+        )
+
+    def run(self) -> None:
+        """Perform the Simulated Annealing optimization."""
+        start_t: float = time.time()
+
+        # precalculate
+        systems: List[StarsSystem] = []
+        for item in self.__points:
+            if self.__math.distance(self.__start_point.star_pos, item.star_pos) > 100:
+                self.debug(currentframe(), f"{item} removed")
+            else:
+                systems.append(item)
+
+        self.__current_solution = systems[:]
+        self.__final = systems[:]
+
+        # initial
+        random.shuffle(self.__current_solution)
+        self.__best_distance = self.calculate_total_distance(self.__current_solution)
+
+        temperature: float = self.__initial_temp
+        while temperature > 1:
+            # Create a new solution by swapping two random points
+            new_solution: List[StarsSystem] = self.__current_solution[:]
+            i, j = random.sample(range(len(new_solution)), 2)
+            new_solution[i], new_solution[j] = new_solution[j], new_solution[i]
+
+            # Calculate the total distance for the new solution
+            current_distance: float = self.calculate_total_distance(
+                self.__current_solution
+            )
+            new_distance: float = self.calculate_total_distance(new_solution)
+
+            # Decide whether to accept the new solution
+            if self.accept_solution(current_distance, new_distance, temperature):
+                self.__current_solution = new_solution
+
+            # Update the best solution found so far
+            if new_distance < self.__best_distance:
+                self.__final = new_solution
+                self.__best_distance = new_distance
+
+            # Decrease the temperature (cooling)
+            temperature *= 1 - self.__cooling_rate
+
+        # update distance
+        if self.__final:
+            dist: float = self.__math.distance(
+                self.__start_point.star_pos, self.__final[0].star_pos
+            )
+            self.__final[0].data[EdsmKeys.DISTANCE] = dist
+            for item in range(len(self.__final) - 1):
+                dist = self.__math.distance(
+                    self.__final[item].star_pos,
+                    self.__final[item + 1].star_pos,
+                )
+                self.__final[item + 1].data[EdsmKeys.DISTANCE] = dist
+
+        end_t: float = time.time()
+        self.debug(currentframe(), f"Evolution took {end_t - start_t} seconds.")
+
+    def debug(self, currentframe: Optional[FrameType], message: str = "") -> None:
+        """Build debug message."""
+        p_name: str = f"{self.__plugin_name}"
+        c_name: str = f"{self._c_name}"
+        m_name: str = f"{currentframe.f_code.co_name}" if currentframe else ""
+        if message != "":
+            message = f": {message}"
+        if self.logger:
+            self.logger.debug = f"{p_name}->{c_name}.{m_name}{message}"
+
+    @property
+    def final_distance(self) -> float:
+        if not self.__final:
+            return 0.0
+        dist: float = self.__math.distance(
+            self.__start_point.star_pos, self.__final[0].star_pos
+        )
+        for item in range(len(self.__final) - 1):
+            dist += self.__math.distance(
+                self.__final[item].star_pos, self.__final[item + 1].star_pos
+            )
+        return dist if dist else 0.0
 
     @property
     def get_final(self) -> List[StarsSystem]:
