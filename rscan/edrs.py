@@ -34,7 +34,7 @@ class EDRS(BLogProcessor, BLogClient):
         self._set_data(key=_Keys.R_DATA, value=RscanData(), set_default_type=RscanData)
 
         self.data.plugin_name = "EDRS"
-        self.data.version = "0.2.18-dev"
+        self.data.version = "0.2.19"
 
         # logging subsystem
         self.qlog = SimpleQueue()
