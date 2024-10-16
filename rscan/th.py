@@ -22,6 +22,7 @@ from rscan.jsktoolbox.edmctool.edsm import Url
 from rscan.jsktoolbox.edmctool.edsm_keys import EdsmKeys
 from rscan.jsktoolbox.edmctool.data import RscanData
 from rscan.jsktoolbox.edmctool.math import (
+    AlgGenetic,
     Euclid,
     AlgGenetic2,
     AlgTsp,
@@ -260,7 +261,17 @@ class ThSystemSearch(Thread, ThBaseObject, BLogClient):
         for item in systems:
             cur_count += 1
             self.__progress(cur_count, systems_count)
-            if EdsmKeys.BODY_COUNT in item and item[EdsmKeys.BODY_COUNT] is None:
+            if (
+                EdsmKeys.BODY_COUNT in item
+                and item[EdsmKeys.BODY_COUNT] is None
+                or EdsmKeys.BODIES in item
+                and item[EdsmKeys.BODIES] is None
+                or EdsmKeys.BODY_COUNT in item
+                and EdsmKeys.BODIES in item
+                and item[EdsmKeys.BODY_COUNT] != item[EdsmKeys.BODIES]
+                or EdsmKeys.COORDS_LOCKED in item
+                and item[EdsmKeys.COORDS_LOCKED] == False
+            ):
                 count += 1
                 system = StarsSystem()
                 system.update_from_edsm(item)
@@ -281,7 +292,7 @@ class ThSystemSearch(Thread, ThBaseObject, BLogClient):
         out: List[StarsSystem] = []
         if self.__data.jump_range is not None:
             jump: int = int(self.__data.jump_range) - 4
-        if len(systems) > 2:
+        if len(systems) > 4:
             alg = AlgSimulatedAnnealing(
                 self.start_system,
                 systems,
@@ -293,18 +304,18 @@ class ThSystemSearch(Thread, ThBaseObject, BLogClient):
             alg.run()
             for item in alg.get_final:
                 out.append(item)
-        # elif len(systems) > 6:
-        #     alg = AlgGenetic2(
-        #         self.start_system,
-        #         systems,
-        #         jump,
-        #         self.logger.queue,
-        #         self.__math,
-        #         self.__data.plugin_name,
-        #     )
-        #     alg.run()
-        #     for item in alg.get_final:
-        #         out.append(item)
+        elif len(systems) > 2:
+            alg = AlgGenetic(
+                self.start_system,
+                systems,
+                jump,
+                self.logger.queue,
+                self.__math,
+                self.__data.plugin_name,
+            )
+            alg.run()
+            for item in alg.get_final:
+                out.append(item)
         # elif len(systems) > 2:
         #     alg = AlgTsp(
         #         self.start_system,
