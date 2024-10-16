@@ -293,7 +293,7 @@ class ThSystemSearch(Thread, ThBaseObject, BLogClient):
         out: List[StarsSystem] = []
         if self.__data.jump_range is not None:
             jump: int = int(self.__data.jump_range) - 4
-        if len(systems) > 4:
+        if len(systems) > 6:
             alg = AlgSimulatedAnnealing(
                 self.start_system,
                 systems,

@@ -21,7 +21,7 @@ from sys import maxsize
 
 from types import FrameType
 
-from jsktoolbox.edmctool.ed_keys import EDKeys
+from .ed_keys import EDKeys
 
 from ..attribtool import ReadOnlyClass
 from ..raisetool import Raise
