@@ -22,6 +22,7 @@ from rscan.jsktoolbox.edmctool.edsm import Url
 from rscan.jsktoolbox.edmctool.edsm_keys import EdsmKeys
 from rscan.jsktoolbox.edmctool.data import RscanData
 from rscan.jsktoolbox.edmctool.math import (
+    AlgGeneric,
     AlgGenetic,
     Euclid,
     AlgGenetic2,
@@ -305,7 +306,7 @@ class ThSystemSearch(Thread, ThBaseObject, BLogClient):
             for item in alg.get_final:
                 out.append(item)
         elif len(systems) > 2:
-            alg = AlgGenetic(
+            alg = AlgGeneric(
                 self.start_system,
                 systems,
                 jump,
