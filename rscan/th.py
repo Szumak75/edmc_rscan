@@ -281,7 +281,7 @@ class ThSystemSearch(Thread, ThBaseObject, BLogClient):
         out: List[StarsSystem] = []
         if self.__data.jump_range is not None:
             jump: int = int(self.__data.jump_range) - 4
-        if len(systems) > 12:
+        if len(systems) > 2:
             alg = AlgSimulatedAnnealing(
                 self.start_system,
                 systems,
@@ -293,30 +293,30 @@ class ThSystemSearch(Thread, ThBaseObject, BLogClient):
             alg.run()
             for item in alg.get_final:
                 out.append(item)
-        elif len(systems) > 6:
-            alg = AlgGenetic2(
-                self.start_system,
-                systems,
-                jump,
-                self.logger.queue,
-                self.__math,
-                self.__data.plugin_name,
-            )
-            alg.run()
-            for item in alg.get_final:
-                out.append(item)
-        elif len(systems) > 2:
-            alg = AlgTsp(
-                self.start_system,
-                systems,
-                jump,
-                self.logger.queue,
-                self.__math,
-                self.__data.plugin_name,
-            )
-            alg.run()
-            for item in alg.get_final:
-                out.append(item)
+        # elif len(systems) > 6:
+        #     alg = AlgGenetic2(
+        #         self.start_system,
+        #         systems,
+        #         jump,
+        #         self.logger.queue,
+        #         self.__math,
+        #         self.__data.plugin_name,
+        #     )
+        #     alg.run()
+        #     for item in alg.get_final:
+        #         out.append(item)
+        # elif len(systems) > 2:
+        #     alg = AlgTsp(
+        #         self.start_system,
+        #         systems,
+        #         jump,
+        #         self.logger.queue,
+        #         self.__math,
+        #         self.__data.plugin_name,
+        #     )
+        #     alg.run()
+        #     for item in alg.get_final:
+        #         out.append(item)
         if out:
             return out
         return systems
