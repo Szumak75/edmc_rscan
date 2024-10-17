@@ -518,12 +518,11 @@ class AlgTsp(IAlg, BLogClient):
             )
         self.debug(currentframe(), "Initialize dataset")
 
-        self.__points = []
         self.__tmp = []
         self.__final = []
+        self.__points = []
         self.__points.append(start)
-        for item in systems:
-            self.__points.append(item)
+        self.__points.extend(systems[:])
 
     def run(self) -> None:
         """Run algorithm."""
@@ -591,7 +590,7 @@ class AlgTsp(IAlg, BLogClient):
         if self.logger:
             self.logger.debug = f"TMP: {self.__tmp}"
         for idx in range(1, len(self.__tmp)):
-            system = self.__points[self.__tmp[idx]]
+            system: StarsSystem = self.__points[self.__tmp[idx]]
             system.data[EdsmKeys.DISTANCE] = self.__math.distance(
                 self.__points[self.__tmp[idx - 1]].star_pos,
                 self.__points[self.__tmp[idx]].star_pos,
@@ -619,7 +618,9 @@ class AlgTsp(IAlg, BLogClient):
     def final_distance(self) -> float:
         if not self.__final:
             return 0.0
-        dist = self.__math.distance(self.__points[0].star_pos, self.__final[0].star_pos)
+        dist: float = self.__math.distance(
+            self.__points[0].star_pos, self.__final[0].star_pos
+        )
         for item in range(1, len(self.__final) - 1):
             dist += self.__math.distance(
                 self.__final[item].star_pos, self.__final[item + 1].star_pos
@@ -723,15 +724,7 @@ class AlgGeneric(IAlg, BLogClient):
 
         start_t: float = time.time()
         current_point: StarsSystem = self.__start_point
-
-        # precalculate
-        systems: List[StarsSystem] = []
-        for item in self.__points:
-            if self.__math.distance(self.__start_point.star_pos, item.star_pos) > 100:
-                self.debug(currentframe(), f"{item} removed")
-            else:
-                systems.append(item)
-
+        systems: List[StarsSystem] = self.__points[:]
         remaining_systems: List[StarsSystem] = systems  # lista punktów do odwiedzenia
 
         while remaining_systems:
@@ -884,7 +877,9 @@ class AlgGenetic(IAlg, BLogClient):
             )
         self.debug(currentframe(), "Initialize dataset")
 
-        self.__points = systems
+        self.__points = [
+            system for system in systems if isinstance(system, StarsSystem)
+        ]
         self.__start_point = start
         self.__population_size = len(systems) * 3
         self.__generations = 200
@@ -893,7 +888,7 @@ class AlgGenetic(IAlg, BLogClient):
 
     def __generate_individual(self) -> List[StarsSystem]:
         individual: List[StarsSystem] = [self.__start_point]
-        remaining_points: List[StarsSystem] = self.__points.copy()
+        remaining_points: List[StarsSystem] = self.__points[:]
         while remaining_points:
             closest_point: StarsSystem = min(
                 remaining_points,
@@ -997,8 +992,7 @@ class AlgGenetic(IAlg, BLogClient):
             )
             d_sum += end.data[EdsmKeys.DISTANCE]
             start = end
-        if self.logger:
-            self.logger.debug = f"FINAL Distance: {d_sum:.2f} ly"
+        self.debug(currentframe(), f"FINAL Distance: {d_sum:.2f} ly")
 
     def debug(self, currentframe: Optional[FrameType], message: str = "") -> None:
         """Build debug message."""
@@ -1109,12 +1103,14 @@ class AlgGenetic2(IAlg, BLogClient):
         self.debug(currentframe(), "Initialize dataset")
 
         self.__start_point = start
-        self.__points = systems
+        self.__points = [
+            system for system in systems if isinstance(system, StarsSystem)
+        ]
 
         self.__population: List[List[StarsSystem]] = []
         self.__final: List[StarsSystem] = []
 
-        self.__population_size = len(systems) * 3  # Rozmiar populacji (100)
+        self.__population_size = len(systems) * 4  # Rozmiar populacji (100)
         self.__generations = 200  # Liczba pokoleń (500)
         self.__mutation_rate = 0.01  # Prawdopodobieństwo mutacji (0.01)
 
@@ -1250,17 +1246,8 @@ class AlgGenetic2(IAlg, BLogClient):
     def run(self) -> None:
         """Return the best route found after evolution."""
         start_t: float = time.time()
-
-        # precalculate
-        systems: List[StarsSystem] = []
-        for item in self.__points:
-            if self.__math.distance(self.__start_point.star_pos, item.star_pos) > 100:
-                self.debug(currentframe(), f"{item} removed")
-            else:
-                systems.append(item)
-        self.__points = systems
-
         self.__evolve()
+
         # update distance
         if self.__final:
             dist: float = self.__math.distance(
@@ -1387,7 +1374,9 @@ class AlgSimulatedAnnealing(IAlg, BLogClient):
         self.debug(currentframe(), "Initialize dataset")
 
         self.__start_point = start
-        self.__points = systems
+        self.__points = [
+            system for system in systems if isinstance(system, StarsSystem)
+        ]
         self.__jump_range = jump_range
         self.__initial_temp = 1000.0  # 1000
         self.__cooling_rate = 0.003  # 0.003
@@ -1434,15 +1423,7 @@ class AlgSimulatedAnnealing(IAlg, BLogClient):
     def run(self) -> None:
         """Perform the Simulated Annealing optimization."""
         start_t: float = time.time()
-
-        # precalculate
-        systems: List[StarsSystem] = []
-        for item in self.__points:
-            if self.__math.distance(self.__start_point.star_pos, item.star_pos) > 100:
-                self.debug(currentframe(), f"{item} removed")
-            else:
-                systems.append(item)
-
+        systems: List[StarsSystem] = self.__points[:]
         self.__current_solution = systems[:]
         self.__final = systems[:]
 
