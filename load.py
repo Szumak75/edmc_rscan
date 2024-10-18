@@ -57,7 +57,6 @@ def plugin_stop() -> None:
     )
     edrs_object.qlog.put(None)
     edrs_object.th_log.join()
-    edrs_object.th_log = None  # type: ignore
 
 
 def plugin_app(parent: tk.Frame) -> ttk.Button:
