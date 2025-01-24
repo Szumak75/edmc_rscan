@@ -32,12 +32,12 @@ from .stars import StarsSystem
 from .edsm_keys import EdsmKeys
 
 try:
-    import numpy as np  # type: ignore
+    import numpy as np
 except ModuleNotFoundError:
     pass
 
 try:
-    from scipy.spatial import distance  # type: ignore
+    from scipy.spatial import distance
 except ModuleNotFoundError:
     pass
 
