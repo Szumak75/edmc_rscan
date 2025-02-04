@@ -4,7 +4,7 @@
   Author : Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
   Created: 5.10.2024, 14:26:16
   
-  Purpose: 
+  Purpose: ClipBoard tool
 """
 
 import ctypes
