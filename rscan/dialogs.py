@@ -1,9 +1,9 @@
 # -*- coding: UTF-8 -*-
 """
-  Author:  Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
-  Created: 19.12.2023
+Author:  Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
+Created: 19.12.2023
 
-  Purpose: EDRS dialogs classes.
+Purpose: EDRS dialogs classes.
 """
 
 from inspect import currentframe
@@ -32,6 +32,7 @@ from rscan.jsktoolbox.edmctool.stars import StarsSystem
 
 from rscan.jsktoolbox.edmctool.edsm_keys import EdsmKeys
 from rscan.jsktoolbox.tktool.tools import ClipBoard
+from rscan.jsktoolbox.tktool.widgets import StatusBarTkFrame
 
 from rscan.th import ThSystemSearch
 from rscan.tools import Numbers
@@ -177,7 +178,7 @@ class EdrsScanDialog(tk.Toplevel, TkBase, BLogClient, _BEdrsDialog):
 
         # widgets declaration
         self._widgets._set_data(
-            key=_Keys.STATUS, value=None, set_default_type=Optional[tk.StringVar]
+            key=_Keys.STATUS, value=None, set_default_type=Optional[StatusBarTkFrame]
         )
         self._widgets._set_data(
             key=_Keys.F_DATA, value=None, set_default_type=Optional[tk.LabelFrame]
@@ -363,19 +364,10 @@ class EdrsScanDialog(tk.Toplevel, TkBase, BLogClient, _BEdrsDialog):
         self._widgets._set_data(key=_Keys.S_PANEL, value=s_panel)
 
         # create status panel
-        status_frame = tk.Frame(self)
-        status_frame.grid(row=r_stat_idx, column=0, sticky=tk.EW)
-
-        status_label_frame = tk.LabelFrame(status_frame, text="")
-        status_label_frame.pack(side=tk.LEFT, fill=tk.X, expand=tk.TRUE, padx=5, pady=5)
-        status_string = tk.StringVar()
-        status = tk.Label(status_label_frame, textvariable=status_string)
-        status.pack(side=tk.LEFT)
-        self._widgets._set_data(key=_Keys.STATUS, value=status_string)
-
-        # size grip
-        sizegrip = ttk.Sizegrip(self)
-        sizegrip.grid(row=r_stat_idx, column=1, padx=1, pady=1, sticky=tk.SE)
+        status_frame = StatusBarTkFrame(self)
+        status_frame.grid(row=r_stat_idx, column=0, columnspan=2, sticky=tk.EW)
+        self._widgets._set_data(key=_Keys.STATUS, value=status_frame)
+        status_frame.clear()
 
         # closing event
         self.protocol("WM_DELETE_WINDOW", self.__on_closing)
@@ -415,11 +407,11 @@ class EdrsScanDialog(tk.Toplevel, TkBase, BLogClient, _BEdrsDialog):
         if not system or not radius:
             msg: str = ""
             if not system:
-                msg = "system"
+                msg = "The system name"
             if not radius and msg:
                 msg = f"{msg} and radius"
             elif not radius:
-                msg = "radius"
+                msg = "The radius"
             msg = f"{msg} must be set for processing request."
             self.status = msg
             return
@@ -603,18 +595,18 @@ class EdrsScanDialog(tk.Toplevel, TkBase, BLogClient, _BEdrsDialog):
         return self._get_data(key=_Keys.CLOSED)  # type: ignore
 
     @property
-    def status(self) -> Optional[tk.StringVar]:
+    def status(self) -> Optional[StatusBarTkFrame]:
         """Return status object."""
         return self._widgets._get_data(key=_Keys.STATUS)
 
     @status.setter
     def status(self, message) -> None:
         """Set status message."""
-        if self._widgets._get_data(key=_Keys.STATUS) is not None:
+        if self.status:
             if message:
-                self._widgets._get_data(key=_Keys.STATUS).set(f"{message}")  # type: ignore
+                self.status.set(f"{message}")
             else:
-                self._widgets._get_data(key=_Keys.STATUS).set("")  # type: ignore
+                self.status.set("")
 
 
 class EdrsDialog(BLogClient, _BEdrsDialog):
